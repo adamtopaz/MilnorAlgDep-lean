@@ -630,15 +630,19 @@ The file `MilnorAlgDep/TheoremA.lean` contains the three frozen statements of
 same statement:
 
 ```
-theoremA                      (MilnorAlgDep/TheoremA.lean)
-└─ theoremA_aux               (Reduction.lean)      L ↦ L^i, ψ ↦ V.toPerfectClosure ∘ ψ
-   └─ theoremA_perfect_aux    (Reduction.lean)      case split on ringChar L
-      ├─ ringChar L = 0:  theoremA_perfect_of_charZero          (Char0/Main.lean)
-      └─ ringChar L ≠ 0:  theoremA_perfect_of_isPRadical        (Reduction.lean)
-                          K ↦ PerfectClosure K q, ψ ↦ extendPsi
-                          └─ theoremA_core_charP                (CharP/Main.lean, sorry)
-theoremA_perfect              = theoremA_perfect_aux
-theoremA_perfect_unique       = theoremA_perfect_unique_aux     (Uniqueness.lean)
+theoremA                                 TheoremA.lean
+└─ theoremA_aux                          Reduction.lean
+   │   L ↦ L^i, ψ ↦ V.toPerfectClosure ∘ ψ
+   └─ theoremA_perfect_aux               Reduction.lean
+      │   case split on ringChar L
+      ├─ = 0: theoremA_perfect_of_charZero     Char0/Main.lean
+      └─ ≠ 0: theoremA_perfect_of_isPRadical   Reduction.lean
+         │   K ↦ PerfectClosure K q, ψ ↦ extendPsi
+         └─ theoremA_core_charP          CharP/Main.lean (sorry)
+
+theoremA_perfect         = theoremA_perfect_aux
+theoremA_perfect_unique  = theoremA_perfect_unique_aux
+                                         Uniqueness.lean
 ```
 
 In the second branch $`q` is the characteristic of $`K`, which is prime by (A4); Mathlib's

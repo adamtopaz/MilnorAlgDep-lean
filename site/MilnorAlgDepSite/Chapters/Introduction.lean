@@ -74,12 +74,6 @@ characteristic $`0`.
 
 {docstring MilnorAlgDep.theoremA_perfect_unique}
 
-The blueprint proves uniqueness for pairs $`(\tau, r)` satisfying the conclusion of Theorem A
-under (A1)–(A4); the Lean statement only needs $`\psi \neq 0`.
-The Frobenius is that of $`L`, given by Mathlib's `frobeniusEquiv`, and $`p` is
-`ringExpChar L`, which is $`1` in characteristic $`0`; so in characteristic $`0` the statement
-says $`\tau' = \tau` and $`r' = r`.
-
 {docstring MilnorAlgDep.theoremA}
 
 Here $`L^i` is any field $`M` which is a perfect closure of $`L` in the sense of Mathlib's

@@ -33,43 +33,44 @@ The right-hand column gives the sections of this text where they are discussed.
 ```
 MilnorAlgDep/
   Foundations/
-    VOf.lean              VOf H = ℚ ⊗ (Lˣ ⧸ H), classes [a]              2.3
-    V.lean                V l L, IsRelAlgClosed, (V1), (V2)              2.3
-    AlgIndep.lean         VAlgIndep: algebraic independence in V         2.3
-    Points.lean           points Q_a and Q_v, subgroups G_Q, (V3)        2.1, 2.3
-    PerfectClosure.lean   l^i and V_{L|l} = V_{L^i|l^i}                  2.3.1
+    VOf.lean              VOf H = ℚ ⊗ (Lˣ ⧸ H), classes [a]   2.3
+    V.lean                V l L, IsRelAlgClosed, (V1), (V2)   2.3
+    AlgIndep.lean         algebraic independence in V         2.3
+    Points.lean           points Q_a, Q_v, G_Q, (V3)          2.1, 2.3
+    PerfectClosure.lean   l^i, V_{L|l} = V_{L^i|l^i}          2.3.1
   Standard/
-    Differentials/        (S1)-(S3), Lemma 4.5 in general form           2.4
-    Eigenvalue.lean       Lemma 2.2                                      2.4.5
+    Differentials/        (S1)-(S3), Lemma 4.5 (general)      2.4
+    Eigenvalue.lean       Lemma 2.2                           2.4.5
   StepB/
-    Basic.lean            abstract Step B: μ, t, Lemmas 6.6, 6.7         6.4
-    Abstract.lean         Lemma 6.8, (P3), Proposition 6.9               6.5
+    Basic.lean            μ, t, Lemmas 6.6, 6.7               6.4
+    Abstract.lean         Lemma 6.8, (P3), Prop. 6.9          6.5
   Char0/
-    DLog.lean             dlog : V → Ω_{L|l} (Lemma 6.4, Γ = 0)          6.3.1
-    PointDeriv.lean       differentials of a point; eigenvalue lemma     6.3.1, 6.6.1
-    Delta.lean            Δ = dlog ∘ ψ, Lemma 6.5, τ                     6.3.1, 6.5
-    StepC.lean            Lemmas 6.10, 6.11, Proposition 6.12 (Γ = 0)    6.6.1
-    Main.lean             Theorem A when char L = 0                      6.7
+    DLog.lean             dlog, Lemma 6.4 (Γ = 0)             6.3.1
+    PointDeriv.lean       differentials of a point            6.3.1
+    Delta.lean            Δ, Lemma 6.5, τ                     6.3.1, 6.5
+    StepC.lean            Lemmas 6.10-6.12 (Γ = 0)            6.6.1
+    Main.lean             Theorem A, char L = 0               6.7
   CharP/
-    Main.lean             Theorem A when char L > 0 (sorry)              Chapters 3-6
-  Reduction.lean          reduction to perfect K and L                   6.1
-  Reduction/ExtendPsi.lean  extension of ψ to K^i                        6.1
-  Uniqueness.lean         Lemma 6.13                                     6.7
-  TheoremA.lean           the statements of Theorem A                    1.1, 6.7.1
+    Main.lean             Theorem A, char L > 0 (sorry)       3-6
+  Reduction.lean          reduction to perfect K and L        6.1
+  Reduction/
+    ExtendPsi.lean        extension of ψ to K^i               6.1
+  Uniqueness.lean         Lemma 6.13                          6.7
+  TheoremA.lean           statements of Theorem A             1.1
   Milnor/
-    Defs.lean             MilnorKQ: definition, grading, φ₁, τ_*, r^deg   7
-    Basic.lean            properties; direct sum decomposition           7
-    PerfectClosure.lean   𝒦_* under purely inseparable extensions        7
-    ValuationExt.lean     existence of valuations                        7.1
-    Tame.lean             Lemma 7.1, relative tame symbol                7.1
-    Symbols.lean          Lemma 7.2                                      7.1
-    DegOne.lean           degree one parts of graded homomorphisms       7.2
-    TheoremB.lean         Theorem B                                      7.2
-    PrimeField.lean       prime fields and their algebraic closures      7.3, 7.4
-    KPrime.lean           (eq:dep), Lemma 7.3                            7.3
-    LiftC.lean            the last step of the proof of Theorem C        7.3
-    TheoremC.lean         Theorem C                                      7.3
-    TheoremD.lean         Theorem D                                      7.4
+    Defs.lean             MilnorKQ, grading, φ₁, τ_*, r^deg   7
+    Basic.lean            properties, direct sum              7
+    PerfectClosure.lean   purely inseparable extensions       7
+    ValuationExt.lean     existence of valuations             7.1
+    Tame.lean             Lemma 7.1, relative tame symbol     7.1
+    Symbols.lean          Lemma 7.2                           7.1
+    DegOne.lean           degree one parts                    7.2
+    TheoremB.lean         Theorem B                           7.2
+    PrimeField.lean       prime fields, k₀ and l₀             7.3
+    KPrime.lean           (eq:dep), Lemma 7.3                 7.3
+    LiftC.lean            last step of Theorem C              7.3
+    TheoremC.lean         Theorem C                           7.3
+    TheoremD.lean         Theorem D                           7.4
 ```
 
 The positive characteristic part (levels, models, the quadrangle lemma, Steps A and C) will add
