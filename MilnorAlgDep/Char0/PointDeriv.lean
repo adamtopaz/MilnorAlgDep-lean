@@ -13,7 +13,7 @@ Lemma 6.11 (`lem:theta`) in characteristic `0`.
 
 Let `l ⊆ L` be fields of characteristic `0` and `a ∈ L` transcendental over `l`. The point
 `E = Q_a` (the relative algebraic closure of `l(a)` in `L`) is separable algebraic over `l(a)`, so
-`Ω[E⁄l]` is free of rank one over `E`, with basis `d a` (Lemma 2.3 (S2)). Hence:
+`Ω[E⁄l]` is free of rank one over `E`, with basis `d a` (Lemma 2.1 (S2)). Hence:
 
 * `exists_mem_point_D_eq_smul`: for `b ∈ Q_a` we have `d b = c • d a` in `Ω[L⁄l]` with `c ∈ Q_a`
   (this is the blueprint's "`db = b_a da` with `b_a` in the field of elements separable over
@@ -74,7 +74,7 @@ theorem D_ne_zero_of_transcendental {a : L} (ha : Transcendental l a) : D l L a 
   have : CharZero l := (algebraMap l L).charZero
   rwa [Ne, kaehler_D_eq_zero_iff_isAlgebraic]
 
-/-- Blueprint Lemma 2.3 (S2) for `E = Q_a`: `d a` is a basis of `Ω[Q_a⁄l]`. -/
+/-- Blueprint Lemma 2.1 (S2) for `E = Q_a`: `d a` is a basis of `Ω[Q_a⁄l]`. -/
 noncomputable def pointBasis {a : L} (ha : Transcendental l a) :
     Module.Basis Unit (point l a) Ω[point l a⁄l] :=
   kaehlerBasis (algebraicIndependent_unique_type_iff.2 (transcendental_pointGen ha))

@@ -8,8 +8,8 @@ public import Mathlib.RingTheory.MvPolynomial.Expand
 /-!
 # Polynomials with vanishing partial derivatives
 
-This file formalizes the part of blueprint Lemma 2.3 (`lem:standard`), (S1), used later
-(in the proof of Lemma 4.6, `lem:lax`): if all partial derivatives of `f ∈ R[Yᵢ : i ∈ σ]` vanish,
+This file formalizes the part of blueprint Lemma 2.1 (`lem:standard`), (S1), used later
+(in the proof of Lemma 4.5, `lem:lax`): if all partial derivatives of `f ∈ R[Yᵢ : i ∈ σ]` vanish,
 then
 
 * `f` is constant if `R` is a domain of characteristic `0` (`MilnorAlgDep.eq_C_of_pderiv_eq_zero`);
@@ -76,7 +76,7 @@ section Domain
 
 variable [CommRing R] [IsDomain R]
 
-/-- **Blueprint Lemma 2.3 (S1)**, characteristic `0`: if all partial derivatives of `f` vanish,
+/-- **Blueprint Lemma 2.1 (S1)**, characteristic `0`: if all partial derivatives of `f` vanish,
 then `f` is constant. -/
 theorem eq_C_of_pderiv_eq_zero [CharZero R] {f : MvPolynomial σ R}
     (h : ∀ i, pderiv i f = 0) : f = C (f.coeff 0) := by
@@ -91,7 +91,7 @@ theorem eq_C_of_pderiv_eq_zero [CharZero R] {f : MvPolynomial σ R}
   have := coeff_mul_cast_eq_zero_of_pderiv_eq_zero (h i) m
   exact (mul_eq_zero.mp this).resolve_right (Nat.cast_ne_zero.mpr hi)
 
-/-- Blueprint Lemma 2.3 (S1), first sentence, characteristic `0`: if `∂f/∂Yᵢ = 0` then `Yᵢ` does
+/-- Blueprint Lemma 2.1 (S1), first sentence, characteristic `0`: if `∂f/∂Yᵢ = 0` then `Yᵢ` does
 not occur in `f`. -/
 theorem notMem_vars_of_pderiv_eq_zero [CharZero R] {f : MvPolynomial σ R} {i : σ}
     (h : pderiv i f = 0) : i ∉ f.vars := by
@@ -103,7 +103,7 @@ theorem notMem_vars_of_pderiv_eq_zero [CharZero R] {f : MvPolynomial σ R} {i : 
   exact Finsupp.mem_support_iff.mp hmi
     (Nat.cast_eq_zero.mp ((mul_eq_zero.mp this).resolve_left hm))
 
-/-- Blueprint Lemma 2.3 (S1), first sentence, characteristic `p`: if `∂f/∂Yᵢ = 0` then `Yᵢ`
+/-- Blueprint Lemma 2.1 (S1), first sentence, characteristic `p`: if `∂f/∂Yᵢ = 0` then `Yᵢ`
 occurs in `f` only with exponents divisible by `p`. -/
 theorem dvd_of_mem_support_of_pderiv_eq_zero (p : ℕ) [CharP R p] {f : MvPolynomial σ R}
     {i : σ} (h : pderiv i f = 0) {m : σ →₀ ℕ} (hm : m ∈ f.support) : p ∣ m i := by
@@ -111,7 +111,7 @@ theorem dvd_of_mem_support_of_pderiv_eq_zero (p : ℕ) [CharP R p] {f : MvPolyno
   rw [mem_support_iff] at hm
   exact (CharP.cast_eq_zero_iff R p _).mp ((mul_eq_zero.mp this).resolve_left hm)
 
-/-- **Blueprint Lemma 2.3 (S1)**, characteristic `p`: a polynomial all of whose partial
+/-- **Blueprint Lemma 2.1 (S1)**, characteristic `p`: a polynomial all of whose partial
 derivatives vanish is a polynomial in the `p`-th powers of the variables. -/
 theorem exists_expand_eq_of_pderiv_eq_zero (p : ℕ) [CharP R p] (hp : p ≠ 0)
     {f : MvPolynomial σ R} (h : ∀ i, pderiv i f = 0) : ∃ g, expand p g = f := by
@@ -134,7 +134,7 @@ theorem exists_expand_eq_of_pderiv_eq_zero (p : ℕ) [CharP R p] (hp : p ≠ 0)
     by_contra hne
     exact hi (dvd_of_mem_support_of_pderiv_eq_zero p (h i) (mem_support_iff.mpr (Ne.symm hne)))
 
-/-- **Blueprint Lemma 2.3 (S1)**: over a perfect domain of exponential characteristic `p`, a
+/-- **Blueprint Lemma 2.1 (S1)**: over a perfect domain of exponential characteristic `p`, a
 polynomial all of whose partial derivatives vanish is a `p`-th power. (For `p = 1` this is
 empty; use `eq_C_of_pderiv_eq_zero` in characteristic `0`.) -/
 theorem exists_eq_pow_of_pderiv_eq_zero (p : ℕ) [ExpChar R p] [PerfectRing R p]

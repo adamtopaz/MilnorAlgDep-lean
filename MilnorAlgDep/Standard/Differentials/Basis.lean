@@ -9,7 +9,7 @@ public import Mathlib.RingTheory.TensorProduct.IsBaseChangeFree
 /-!
 # Kähler differentials of separably generated field extensions
 
-This file formalizes the first half of blueprint Lemma 2.3 (`lem:standard`), part (S2):
+This file formalizes the first half of blueprint Lemma 2.1 (`lem:standard`), part (S2):
 if a field `E ⊇ l` is separable algebraic over `l(a)` for an algebraically independent family
 `a : ι → E`, then `(d aᵢ)ᵢ` is a basis of the `E`-vector space `Ω[E⁄l]`.
 
@@ -131,7 +131,7 @@ lemma isBaseChange (hb : AlgebraicIndependent l a)
 end KaehlerBasis
 
 open KaehlerBasis in
-/-- **Blueprint Lemma 2.3 (S2), basis.** If `a` is algebraically independent over `l` and `E`
+/-- **Blueprint Lemma 2.1 (S2), basis.** If `a` is algebraically independent over `l` and `E`
 is separable algebraic over `l(a)`, then `(d aᵢ)ᵢ` is a basis of the `E`-vector space
 `Ω[E⁄l]`. See `kaehlerBasis_apply`. -/
 noncomputable def kaehlerBasis (hb : AlgebraicIndependent l a)
@@ -153,7 +153,7 @@ theorem coe_kaehlerBasis (hb : AlgebraicIndependent l a)
     ⇑(kaehlerBasis hb hsep) = fun i ↦ D l E (a i) :=
   funext (kaehlerBasis_apply hb hsep)
 
-/-- **Blueprint Lemma 2.3 (S2), basis**, linear independence: if `a` is algebraically
+/-- **Blueprint Lemma 2.1 (S2), basis**, linear independence: if `a` is algebraically
 independent over `l` and `E` is separable algebraic over `l(a)`, then the `d aᵢ` are linearly
 independent over `E`. -/
 theorem linearIndependent_kaehler_D (hb : AlgebraicIndependent l a)
@@ -162,7 +162,7 @@ theorem linearIndependent_kaehler_D (hb : AlgebraicIndependent l a)
   rw [← coe_kaehlerBasis hb hsep]
   exact (kaehlerBasis hb hsep).linearIndependent
 
-/-- **Blueprint Lemma 2.3 (S2), basis**, spanning: if `a` is algebraically independent over `l`
+/-- **Blueprint Lemma 2.1 (S2), basis**, spanning: if `a` is algebraically independent over `l`
 and `E` is separable algebraic over `l(a)`, then the `d aᵢ` span `Ω[E⁄l]`. -/
 theorem span_kaehler_D_eq_top (hb : AlgebraicIndependent l a)
     (hsep : Algebra.IsSeparable (adjoin l (Set.range a)) E) :

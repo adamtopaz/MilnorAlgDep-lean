@@ -6,7 +6,7 @@ public import MilnorAlgDep.Standard.Differentials.KernelD
 /-!
 # `p`-power roots and non-vanishing differentials
 
-This file formalizes the second part of blueprint Lemma 2.3 (`lem:standard`), (S3): if `E` is
+This file formalizes the second part of blueprint Lemma 2.1 (`lem:standard`), (S3): if `E` is
 separable algebraic over `l(a)` for an algebraically independent family `a`, `l` is perfect of
 characteristic `p > 0` and relatively algebraically closed in `E`, then for `y ∈ E` not in `l`
 there are unique `j` and `z` with `z ^ p ^ j = y` and `d z ≠ 0`; `j` is the largest integer with
@@ -21,7 +21,7 @@ By the first part (`MilnorAlgDep.kaehler_D_eq_zero_iff_exists_pow_eq`) it suffic
 The blueprint uses a discrete valuation; we argue with differentials instead. The perfect core
 `P = ⋂ⱼ E ^ (p ^ j)` (`MilnorAlgDep.perfectCore`) is a perfect field on which `d` vanishes, so
 `Ω[E⁄l] → Ω[E⁄P]` is injective (its kernel is spanned by `d P`). Hence the `d aᵢ` remain linearly
-independent in `Ω[E⁄P]` and `a` is algebraically independent over `P`, by Lemma 4.6 over the
+independent in `Ω[E⁄P]` and `a` is algebraically independent over `P`, by Lemma 4.5 over the
 perfect field `P` (`MilnorAlgDep.algebraicIndependent_of_linearIndependent_kaehler_D`). An
 element `y ∈ P` transcendental over `l` would make `(y, a)` algebraically independent over `l`,
 which is absurd as `y` is algebraic over `l(a)`.
@@ -86,13 +86,13 @@ theorem perfectRing_perfectCore : PerfectRing (perfectCore l E p) p := by
     rw [frobenius_def, SubmonoidClass.coe_pow]
     exact hz
 
-/-- The key step of **blueprint Lemma 2.3 (S3)**: if `E` is separable algebraic over `l(a)`, with
+/-- The key step of **blueprint Lemma 2.1 (S3)**: if `E` is separable algebraic over `l(a)`, with
 `a` algebraically independent and `l` perfect of characteristic `p`, then an element of `E` which
 is a `p ^ j`-th power in `E` for every `j` is algebraic over `l`.
 
 Proof: the perfect core `P = ⋂ⱼ E ^ (p ^ j)` is a perfect field and `d P = 0`, so
 `Ω[E⁄l] → Ω[E⁄P]` is injective; hence the `d aᵢ` stay linearly independent in `Ω[E⁄P]`, so `a` is
-algebraically independent over `P` (Lemma 4.6 over the perfect field `P`). If `y ∈ P` were
+algebraically independent over `P` (Lemma 4.5 over the perfect field `P`). If `y ∈ P` were
 transcendental over `l`, then `(y, a)` would be algebraically independent over `l`, contradicting
 that `y` is algebraic over `l(a)`. (This replaces the discrete valuation argument of the
 blueprint.) -/
@@ -131,7 +131,7 @@ theorem isAlgebraic_of_forall_exists_pow_pow_eq (hb : AlgebraicIndependent l a)
   exact h4 h5
 
 
-/-- **Blueprint Lemma 2.3 (S3)**: if moreover `l` is relatively algebraically closed in `E`, an
+/-- **Blueprint Lemma 2.1 (S3)**: if moreover `l` is relatively algebraically closed in `E`, an
 element `y ∉ l` is not a `p ^ j`-th power in `E` for all `j`. -/
 theorem not_forall_exists_pow_pow_eq (hb : AlgebraicIndependent l a)
     (hsep : Algebra.IsSeparable (adjoin l (Set.range a)) E)
@@ -139,7 +139,7 @@ theorem not_forall_exists_pow_pow_eq (hb : AlgebraicIndependent l a)
     (hy : y ∉ (algebraMap l E).range) : ¬ ∀ j, ∃ z, z ^ p ^ j = y :=
   fun h ↦ hy (hl y (isAlgebraic_of_forall_exists_pow_pow_eq p hb hsep h))
 
-/-- **Blueprint Lemma 2.3 (S3)**: if `E` is separable algebraic over `l(a)` with `a`
+/-- **Blueprint Lemma 2.1 (S3)**: if `E` is separable algebraic over `l(a)` with `a`
 algebraically independent, `l` is perfect of characteristic `p` and relatively algebraically
 closed in `E`, then every `y ∈ E` not in `l` is of the form `y = z ^ p ^ j` with `d z ≠ 0`.
 (`j` is the largest integer with `y ∈ E ^ (p ^ j)`, and `j`, `z` are unique; see
@@ -186,7 +186,7 @@ theorem pow_pow_eq_iff_le_of_kaehler_D_ne_zero {y z : E} {j : ℕ} (hz : z ^ p ^
     exact ⟨z ^ p ^ (j - k), by rw [← pow_mul, ← pow_add, Nat.sub_add_cancel hkj, hz]⟩
 
 omit [PerfectField l] in
-/-- Uniqueness in **blueprint Lemma 2.3 (S3)**: the exponent `j` and the root `z` with
+/-- Uniqueness in **blueprint Lemma 2.1 (S3)**: the exponent `j` and the root `z` with
 `z ^ p ^ j = y` and `d z ≠ 0` are unique. -/
 theorem eq_of_pow_pow_eq_of_kaehler_D_ne_zero {y z z' : E} {j j' : ℕ} (hz : z ^ p ^ j = y)
     (hDz : D l E z ≠ 0) (hz' : z' ^ p ^ j' = y) (hDz' : D l E z' ≠ 0) : j = j' ∧ z = z' := by
@@ -195,7 +195,7 @@ theorem eq_of_pow_pow_eq_of_kaehler_D_ne_zero {y z z' : E} {j j' : ℕ} (hz : z 
   obtain rfl : j = j' := le_antisymm h2 h1
   exact ⟨rfl, pow_pow_injective p j (hz.trans hz'.symm)⟩
 
-/-- **Blueprint Lemma 2.3 (S3)**, existence and uniqueness of `(j, z)` with `z ^ p ^ j = y` and
+/-- **Blueprint Lemma 2.1 (S3)**, existence and uniqueness of `(j, z)` with `z ^ p ^ j = y` and
 `d z ≠ 0`. -/
 theorem existsUnique_pow_pow_eq_kaehler_D_ne_zero (hb : AlgebraicIndependent l a)
     (hsep : Algebra.IsSeparable (adjoin l (Set.range a)) E)

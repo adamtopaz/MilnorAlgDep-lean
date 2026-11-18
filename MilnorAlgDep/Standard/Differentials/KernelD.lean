@@ -8,7 +8,7 @@ public import Mathlib.FieldTheory.PurelyInseparable.PerfectClosure
 /-!
 # The kernel of `d : E → Ω[E⁄l]` in characteristic `p`
 
-This file formalizes the first part of blueprint Lemma 2.3 (`lem:standard`), (S3): if `E` is
+This file formalizes the first part of blueprint Lemma 2.1 (`lem:standard`), (S3): if `E` is
 separable algebraic over `l(a)` for an algebraically independent family `a`, and `l` is perfect
 of characteristic `p > 0`, then the kernel of `d : E → Ω[E⁄l]` is `E ^ p`
 (`MilnorAlgDep.kaehler_D_eq_zero_iff_exists_pow_eq`).
@@ -247,7 +247,7 @@ theorem exists_finset_mem_adjoin_powField (hb : AlgebraicIndependent l a)
   · exact Or.inl hz'
   · exact Or.inr ⟨i, by simpa using hz, rfl⟩
 
-/-- **Blueprint Lemma 2.3 (S3)**, kernel of `d`: if `E` is separable algebraic over `l(a)` with
+/-- **Blueprint Lemma 2.1 (S3)**, kernel of `d`: if `E` is separable algebraic over `l(a)` with
 `a` algebraically independent and `l` perfect of characteristic `p`, then `d y = 0` in `Ω[E⁄l]`
 only if `y` is a `p`-th power in `E`. -/
 theorem exists_pow_eq_of_kaehler_D_eq_zero (hb : AlgebraicIndependent l a)
@@ -258,7 +258,7 @@ theorem exists_pow_eq_of_kaehler_D_eq_zero (hb : AlgebraicIndependent l a)
   obtain ⟨z, hz⟩ := mem_powField_of_mem_adjoin_finset p hb hsep S y hS fun i _ ↦ hy i
   exact ⟨z, by rw [← hz, pow_one]⟩
 
-/-- **Blueprint Lemma 2.3 (S3)**: the kernel of `d : E → Ω[E⁄l]` is `E ^ p`. -/
+/-- **Blueprint Lemma 2.1 (S3)**: the kernel of `d : E → Ω[E⁄l]` is `E ^ p`. -/
 theorem kaehler_D_eq_zero_iff_exists_pow_eq (hb : AlgebraicIndependent l a)
     (hsep : Algebra.IsSeparable (adjoin l (Set.range a)) E) {y : E} :
     D l E y = 0 ↔ ∃ z, z ^ p = y := by

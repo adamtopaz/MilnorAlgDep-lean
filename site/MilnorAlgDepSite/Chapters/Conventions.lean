@@ -207,8 +207,6 @@ Let $`l` be a perfect field of characteristic exponent $`p`.
   In particular, if $`dy = 0` then $`p > 1` and $`y \in \Frob(E)`.
 :::
 
-The Lean docstrings in `MilnorAlgDep/Standard/Differentials/` cite this lemma as "Lemma 2.3";
-it is Lemma 2.1 of the blueprint.
 In Lean, $`\Omega_{E|l}` is Mathlib's `Ω[E⁄l]`, the differential is `KaehlerDifferential.D l E`,
 the set $`A` is a family `a : ι → E` with `AlgebraicIndependent l a`, and "$`E` is separable
 algebraic over $`l(A)`" is the hypothesis
@@ -317,8 +315,6 @@ Otherwise a non-zero partial derivative has smaller degree
 ({name}`totalDegree_pderiv_lt`), hence does not vanish at $`y`, and
 $`\sum_i f_{Y_i}(y)\, dy_i = 0` is a non-trivial linear relation.
 
-The Lean docstring cites this as "Lemma 4.6 (Lax property)"; the lax property is Lemma 4.5 of
-the blueprint.
 In characteristic $`0` the converse holds, because an algebraically independent family extends to
 a transcendence basis over which $`E` is separable algebraic, and (S2) applies:
 

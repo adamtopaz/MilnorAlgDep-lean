@@ -7,8 +7,8 @@ public import Mathlib.RingTheory.Flat.Basic
 /-!
 # Functoriality of `Ω` for field extensions
 
-Standard facts used in the blueprint around Lemma 6.3 (`lem:tau`, line 656) and in the proof of
-Proposition 6.9 (line 708): for fields `l ⊆ E ⊆ E'`,
+Standard facts used in the blueprint around Lemma 6.10 (`lem:tauinQ`, line 656) and in the proof of
+Proposition 6.12 (line 708): for fields `l ⊆ E ⊆ E'`,
 
 * if `E'` is separable algebraic over `E`, then `E' ⊗[E] Ω[E⁄l] ≃ Ω[E'⁄l]`
   (`MilnorAlgDep.kaehlerTensorEquivOfIsSeparable`) and `Ω[E⁄l] → Ω[E'⁄l]` is injective

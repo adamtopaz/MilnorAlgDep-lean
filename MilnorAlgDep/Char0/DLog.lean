@@ -174,7 +174,7 @@ theorem dlog_injective [IsRelAlgClosed l L] : Function.Injective (dlog l L) :=
 
 /-- Characteristic `0`: a family `v` in `V l L` is algebraically independent over `l` if and
 only if the family `dlog ∘ v` is linearly independent over `L` (blueprint Section 1.3 and the
-remark on formalization; this combines (V3) with Lemma 2.3 (S2) and Lemma 4.6). -/
+remark on formalization; this combines (V3) with Lemma 2.1 (S2) and Lemma 4.5). -/
 theorem vAlgIndep_iff_linearIndependent_dlog {ι : Type*} {v : ι → V l L} :
     VAlgIndep l v ↔ LinearIndependent L fun i ↦ dlog l L (v i) := by
   have : CharZero l := (algebraMap l L).charZero

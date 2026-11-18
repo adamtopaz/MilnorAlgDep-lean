@@ -9,18 +9,18 @@ public import Mathlib.RingTheory.AlgebraicIndependent.Transcendental
 /-!
 # Algebraic independence and Kähler differentials
 
-This file formalizes the general form of blueprint Lemma 4.6 (`lem:lax`, "Lax property"): over a
+This file formalizes the general form of blueprint Lemma 4.5 (`lem:lax`, "Lax property"): over a
 perfect field `l`, elements of `E` whose differentials are linearly independent in `Ω[E⁄l]` are
 algebraically independent (`MilnorAlgDep.algebraicIndependent_of_linearIndependent_kaehler_D`).
 
 The proof is the blueprint's: take a non-zero relation `f` of minimal total degree. If all
 partial derivatives of `f` vanish, then `f` is constant (characteristic `0`) or a `p`-th power
-`g ^ p` (Lemma 2.3 (S1), characteristic `p`), and `g` is a relation of smaller degree. Otherwise a
+`g ^ p` (Lemma 2.1 (S1), characteristic `p`), and `g` is a relation of smaller degree. Otherwise a
 non-zero partial derivative of `f` has smaller degree, so does not vanish at `y`, and the chain
 rule gives a non-trivial linear relation between the `d yᵢ`.
 
 In characteristic `0` the converse holds, by extending `y` to a transcendence basis and applying
-Lemma 2.3 (S2) (`MilnorAlgDep.algebraicIndependent_iff_linearIndependent_kaehler_D`); in
+Lemma 2.1 (S2) (`MilnorAlgDep.algebraicIndependent_iff_linearIndependent_kaehler_D`); in
 particular `d y = 0 ↔ y` is algebraic over `l` (`MilnorAlgDep.kaehler_D_eq_zero_iff_isAlgebraic`).
 -/
 
@@ -32,7 +32,7 @@ open KaehlerDifferential MvPolynomial IntermediateField
 
 variable {l E : Type*} [Field l] [Field E] [Algebra l E]
 
-/-- **Blueprint Lemma 4.6 (Lax property)**, general form: over a perfect field `l`, if the
+/-- **Blueprint Lemma 4.5 (Lax property)**, general form: over a perfect field `l`, if the
 differentials `d yᵢ` are linearly independent in the `E`-vector space `Ω[E⁄l]`, then the `yᵢ` are
 algebraically independent over `l`. Equivalently, algebraically dependent elements have linearly
 dependent differentials. -/
@@ -98,7 +98,7 @@ theorem linearIndependent_kaehler_D_of_algebraicIndependent [CharZero l] {ι : T
   let f : ι → t := fun i ↦ ⟨y i, hst (Set.mem_range_self i)⟩
   exact hli.comp f fun i j hij ↦ hy.injective (congrArg Subtype.val hij)
 
-/-- **Characteristic `0` criterion** (blueprint Lemma 2.3 (S2) and Lemma 4.6 in characteristic
+/-- **Characteristic `0` criterion** (blueprint Lemma 2.1 (S2) and Lemma 4.5 in characteristic
 `0`): if `l` has characteristic `0`, a family `y` is algebraically independent over `l` if and
 only if the differentials `d yᵢ` are linearly independent in `Ω[E⁄l]`. -/
 theorem algebraicIndependent_iff_linearIndependent_kaehler_D [CharZero l] {ι : Type*}
@@ -107,7 +107,7 @@ theorem algebraicIndependent_iff_linearIndependent_kaehler_D [CharZero l] {ι : 
     algebraicIndependent_of_linearIndependent_kaehler_D⟩
 
 /-- In characteristic `0`, `d y = 0` in `Ω[E⁄l]` if and only if `y` is algebraic over `l`
-(blueprint Lemma 2.3 (S3) for `p = 1`). -/
+(blueprint Lemma 2.1 (S3) for `p = 1`). -/
 theorem kaehler_D_eq_zero_iff_isAlgebraic [CharZero l] {y : E} :
     D l E y = 0 ↔ IsAlgebraic l y := by
   have h := algebraicIndependent_iff_linearIndependent_kaehler_D (l := l) (y := fun _ : Unit ↦ y)

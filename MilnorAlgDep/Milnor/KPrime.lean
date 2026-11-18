@@ -230,7 +230,7 @@ theorem delta_eq_zero_of_pow_eq_one {z : Kˣ} {n : ℕ} (hn : 0 < n) (hz : z ^ n
   rw [delta_apply, map_eq_zero_of_pow_eq_one _ hn hz, map_zero]
 
 omit hφ hφ₁ in
-/-- `ker Δ = ker ψ`, since `dlog` is injective (Lemma 6.3(c)). -/
+/-- `ker Δ = ker ψ`, since `dlog` is injective (Lemma 6.4(c)). -/
 theorem delta_eq_zero_iff (x : Kˣ) : delta l₀ φ (.ofMul x) = 0 ↔ psi l₀ φ (.ofMul x) = 0 := by
   have := isRelAlgClosed_of_hl₀ hl₀
   exact dlog_eq_zero_iff

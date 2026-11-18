@@ -10,7 +10,7 @@ public import Mathlib.RingTheory.Kaehler.Basic
 /-!
 # The chain rule for Kähler differentials
 
-This file formalizes the second half of blueprint Lemma 2.3 (`lem:standard`), part (S2):
+This file formalizes the second half of blueprint Lemma 2.1 (`lem:standard`), part (S2):
 
 * the chain rule `d (g(x)) = ∑ᵢ (∂g/∂Xᵢ)(x) dxᵢ` for a polynomial `g` over `l`, so that
   `∑ᵢ g_{Xᵢ}(x) dxᵢ = 0` for every polynomial relation `g(x) = 0`
@@ -38,7 +38,7 @@ section ChainRule
 variable {R A M : Type*} [CommRing R] [CommRing A] [Algebra R A] [AddCommGroup M] [Module A M]
   [Module R M] {σ : Type*}
 
-/-- **Chain rule** (blueprint Lemma 2.3 (S2)): for a derivation `d` and a polynomial `g` in
+/-- **Chain rule** (blueprint Lemma 2.1 (S2)): for a derivation `d` and a polynomial `g` in
 finitely many variables, `d (g(x)) = ∑ᵢ (∂g/∂Xᵢ)(x) • d xᵢ`. -/
 theorem derivation_aeval_eq_sum [Fintype σ] (d : Derivation R A M) (x : σ → A)
     (g : MvPolynomial σ R) :
@@ -87,7 +87,7 @@ theorem derivation_aeval_eq_sum_vars (d : Derivation R A M) (x : σ → A)
     d (aeval x g) = ∑ i ∈ g.vars, aeval x (pderiv i g) • d (x i) :=
   derivation_aeval_eq_sum_of_vars_subset d x g _ subset_rfl
 
-/-- Blueprint Lemma 2.3 (S2): a polynomial relation `g(x) = 0` gives the linear relation
+/-- Blueprint Lemma 2.1 (S2): a polynomial relation `g(x) = 0` gives the linear relation
 `∑ᵢ g_{Xᵢ}(x) d xᵢ = 0`. -/
 theorem sum_pderiv_smul_derivation_eq_zero (d : Derivation R A M) (x : σ → A)
     {g : MvPolynomial σ R} (hg : aeval x g = 0) :
@@ -116,7 +116,7 @@ end Frobenius
 
 variable {l E : Type*} [Field l] [Field E] [Algebra l E]
 
-/-- **Frobenius** (blueprint Lemma 2.3 (S2)): if `E` has characteristic `p` then
+/-- **Frobenius** (blueprint Lemma 2.1 (S2)): if `E` has characteristic `p` then
 `d (y ^ p) = 0` in `Ω[E⁄l]`. -/
 theorem kaehler_D_pow_char (p : ℕ) [CharP E p] (y : E) : D l E (y ^ p) = 0 :=
   derivation_pow_char p _ y
@@ -126,12 +126,12 @@ theorem kaehler_D_pow_char_pow (p : ℕ) [CharP E p] (y : E) {j : ℕ} (hj : j �
     D l E (y ^ p ^ j) = 0 :=
   derivation_pow_char_pow p _ y hj
 
-/-- **Chain rule** (blueprint Lemma 2.3 (S2)) in `Ω[E⁄l]`, finitely many variables. -/
+/-- **Chain rule** (blueprint Lemma 2.1 (S2)) in `Ω[E⁄l]`, finitely many variables. -/
 theorem kaehler_D_aeval {σ : Type*} [Fintype σ] (g : MvPolynomial σ l) (x : σ → E) :
     D l E (aeval x g) = ∑ i, aeval x (pderiv i g) • D l E (x i) :=
   derivation_aeval_eq_sum _ x g
 
-/-- **Chain rule** (blueprint Lemma 2.3 (S2)) in `Ω[E⁄l]`, summing over the variables of `g`. -/
+/-- **Chain rule** (blueprint Lemma 2.1 (S2)) in `Ω[E⁄l]`, summing over the variables of `g`. -/
 theorem kaehler_D_aeval_vars {σ : Type*} (g : MvPolynomial σ l) (x : σ → E) :
     D l E (aeval x g) = ∑ i ∈ g.vars, aeval x (pderiv i g) • D l E (x i) :=
   derivation_aeval_eq_sum_vars _ x g
@@ -210,7 +210,7 @@ theorem kaehler_D_mem_span_of_mem_adjoin (S : Set E) {y : E} (hy : y ∈ adjoin 
     adjoin_le_iff.mpr fun z hz ↦ Submodule.subset_span ⟨z, hz, rfl⟩
   exact this hy
 
-/-- **Blueprint Lemma 2.3 (S2)**, second half: if `y` is separable algebraic over `l(S)`, then
+/-- **Blueprint Lemma 2.1 (S2)**, second half: if `y` is separable algebraic over `l(S)`, then
 `d y` lies in the `E`-span of `d S`. -/
 theorem kaehler_D_mem_span_of_isSeparable_adjoin (S : Set E) {y : E}
     (hy : IsSeparable (adjoin l S) y) :
@@ -219,7 +219,7 @@ theorem kaehler_D_mem_span_of_isSeparable_adjoin (S : Set E) {y : E}
   rintro _ ⟨z, hz, rfl⟩
   exact kaehler_D_mem_span_of_mem_adjoin S hz
 
-/-- **Blueprint Lemma 2.3 (S2)**, second half, for a family: if `y` is separable algebraic over
+/-- **Blueprint Lemma 2.1 (S2)**, second half, for a family: if `y` is separable algebraic over
 `l(x)`, then `d y ∈ span_E {d xᵢ}`. -/
 theorem kaehler_D_mem_span_range_of_isSeparable {σ : Type*} (x : σ → E) {y : E}
     (hy : IsSeparable (adjoin l (Set.range x)) y) :
