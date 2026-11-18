@@ -57,6 +57,36 @@ If a build starts compiling Mathlib files, stop it immediately and report.
 6. **Report faithfully.** Your final message is read by the supervisor only. State what
    compiles, what does not, and what is still `sorry`. Give the PR URL.
 
+## File header (Lean module system)
+
+Mathlib v4.36 is built with the Lean module system and warns about every non-module file that
+imports it. All files in this project are modules and start like this:
+
+```lean
+module
+
+public import Mathlib.RingTheory.Kaehler.Basic
+public import MilnorAlgDep.Foundations.VGroup
+
+/-!
+# Title
+...
+-/
+
+@[expose] public section
+
+namespace MilnorAlgDep
+```
+
+`public import` + `@[expose] public section` makes everything visible downstream exactly as in
+a non-module file; do not use `private` imports or non-exposed sections unless you know why.
+A module can only import modules, so there are no exceptions. Warnings are not acceptable in
+merged files (unused variables, deprecations, linter warnings, `sorry` excepted where the brief
+allows it).
+
+In this Mathlib `Polynomial` is an `abbrev` for `AddMonoidAlgebra R ℕ`: `Polynomial.ext` is
+deprecated, `coeff` is not opened by `open Polynomial`, the sum lemma is `finsetSum_coeff`.
+
 ## Style
 
 - Namespace `MilnorAlgDep`. Mathlib naming conventions and style (100-column lines,

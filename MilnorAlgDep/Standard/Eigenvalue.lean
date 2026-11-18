@@ -1,9 +1,11 @@
-import Mathlib.Algebra.Field.ZMod
-import Mathlib.FieldTheory.IntermediateField.Adjoin.Basic
-import Mathlib.FieldTheory.Separable
-import Mathlib.RingTheory.Derivation.Basic
-import Mathlib.Tactic.FieldSimp
-import Mathlib.Tactic.LinearCombination
+module
+
+public import Mathlib.Algebra.Field.ZMod
+public import Mathlib.FieldTheory.IntermediateField.Adjoin.Basic
+public import Mathlib.FieldTheory.Separable
+public import Mathlib.RingTheory.Derivation.Basic
+public import Mathlib.Tactic.FieldSimp
+public import Mathlib.Tactic.LinearCombination
 
 /-!
 # The eigenvalue lemma
@@ -38,6 +40,8 @@ since `f' ≠ 0` by separability) gives `n κ ∈ ℤ` and `(n - j) κ ∈ ℤ`,
 * `MilnorAlgDep.exists_zmod_eq_eigenvalue`, `MilnorAlgDep.exists_intCast_eq_eigenvalue`:
   in characteristic `p`, `κ` is the image of an element of `ZMod p`, equivalently of an integer.
 -/
+
+@[expose] public section
 
 namespace MilnorAlgDep
 

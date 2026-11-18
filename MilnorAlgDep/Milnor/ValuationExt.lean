@@ -1,5 +1,7 @@
-import Mathlib.RingTheory.Valuation.LocalSubring
-import Mathlib.RingTheory.Algebraic.Integral
+module
+
+public import Mathlib.RingTheory.Valuation.LocalSubring
+public import Mathlib.RingTheory.Algebraic.Integral
 
 /-!
 # Existence of valuations
@@ -51,6 +53,8 @@ For the tame symbol (Lemma 7.1, `lem:tame`) Mathlib provides, for `A : Valuation
   (`A.surjective_unitGroupToResidueFieldUnits`) with kernel the principal units
   `A.principalUnitGroup` (`A.ker_unitGroupToResidueFieldUnits`), i.e. the `x` with `v(x - 1) > 0`.
 -/
+
+@[expose] public section
 
 namespace MilnorAlgDep
 
