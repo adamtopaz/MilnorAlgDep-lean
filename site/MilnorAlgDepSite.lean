@@ -43,12 +43,16 @@ characteristic $`0`) is determined up to purely inseparable extensions by $`\QQ 
 ({cref "thm:D"}[]).
 
 The text follows the blueprint `blueprint/milnor-k-fields.tex`, chapter by chapter and with the
-same numbering.
+same numbering, and gives the proofs as they were formalized.
 Each numbered statement is followed by the Lean declaration that formalizes it, rendered from
 the Lean sources; {ref "sec:formalization"}[the last chapter] explains how the formalization is
-organized.
-The blueprint is an unrefereed draft, and the formalization is in progress: statements marked
-"placeholder" have no Lean counterpart yet.
+organized and where it deviates from the blueprint.
+
+The blueprint is an unrefereed draft.
+Its characteristic $`0` part and its Section 7 are machine-checked: Theorem A is formalized in
+characteristic $`0`, and Theorems B, C and D are formalized as consequences of Theorem A.
+The positive characteristic core of Theorem A is being formalized
+({ref "ss:status"}[Section 1.5]); the corresponding parts of the text are marked "placeholder".
 
 {include 1 MilnorAlgDepSite.Chapters.Introduction}
 
