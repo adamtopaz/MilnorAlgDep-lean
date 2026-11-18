@@ -5,7 +5,14 @@ public import MilnorAlgDep.Char0.Delta
 public import MilnorAlgDep.Char0.Main
 public import MilnorAlgDep.Char0.PointDeriv
 public import MilnorAlgDep.Char0.StepC
+public import MilnorAlgDep.CharP.Frobenius
+public import MilnorAlgDep.CharP.Levels
 public import MilnorAlgDep.CharP.Main
+public import MilnorAlgDep.CharP.Model
+public import MilnorAlgDep.CharP.Models
+public import MilnorAlgDep.CharP.Normalized
+public import MilnorAlgDep.CharP.Quadrangle
+public import MilnorAlgDep.CharP.Trichotomy
 public import MilnorAlgDep.Foundations.AlgIndep
 public import MilnorAlgDep.Foundations.PerfectClosure
 public import MilnorAlgDep.Foundations.Points
@@ -36,6 +43,7 @@ public import MilnorAlgDep.Standard.Differentials.PDeriv
 public import MilnorAlgDep.Standard.Differentials.PerfectCore
 public import MilnorAlgDep.Standard.Differentials.Restrict
 public import MilnorAlgDep.Standard.Eigenvalue
+public import MilnorAlgDep.Standard.SepCrit
 public import MilnorAlgDep.StepB.Abstract
 public import MilnorAlgDep.StepB.Basic
 public import MilnorAlgDep.TheoremA
