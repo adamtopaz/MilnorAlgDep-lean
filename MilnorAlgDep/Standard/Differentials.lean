@@ -1,9 +1,13 @@
 module
 
+public import MilnorAlgDep.Standard.Differentials.BaseChange
 public import MilnorAlgDep.Standard.Differentials.Basis
 public import MilnorAlgDep.Standard.Differentials.ChainRule
 public import MilnorAlgDep.Standard.Differentials.Independence
+public import MilnorAlgDep.Standard.Differentials.KernelD
 public import MilnorAlgDep.Standard.Differentials.PDeriv
+public import MilnorAlgDep.Standard.Differentials.PerfectCore
+public import MilnorAlgDep.Standard.Differentials.Restrict
 
 /-!
 # Kähler differentials of field extensions
@@ -19,4 +23,12 @@ general form of Lemma 4.6 (`lem:lax`):
 * `Differentials/Independence.lean`: Lemma 4.6 in general form (linearly independent
   differentials imply algebraic independence over a perfect field) and the characteristic `0`
   criterion `AlgebraicIndependent l y ↔ LinearIndependent E (d ∘ y)`.
+* `Differentials/KernelD.lean`: (S3), the kernel of `d` is `E ^ p` (`l` perfect of
+  characteristic `p`).
+* `Differentials/PerfectCore.lean`: (S3), `y ∉ l` is `z ^ p ^ j` with `d z ≠ 0`, for unique
+  `j`, `z` (`l` moreover relatively algebraically closed in `E`).
+* `Differentials/BaseChange.lean`: `E' ⊗ Ω[E⁄l] → Ω[E'⁄l]` is an isomorphism for `E'/E` separable
+  algebraic, and injective when the `d aᵢ` stay independent.
+* `Differentials/Restrict.lean`: applying all this to intermediate fields of a big field `L`
+  (e.g. the elements of `L` separable algebraic over `l(a)`).
 -/
