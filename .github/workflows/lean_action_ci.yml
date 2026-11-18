@@ -11,11 +11,102 @@ permissions:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # Never cancel a run on main: it may be deploying the site.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # The Lean library (`lake build` at the root).
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: leanprover/lean-action@v1
+
+  # The Verso companion text in `site/` (see site/README.md). Built for every push and pull
+  # request; deployed to GitHub Pages from main by the `deploy` job.
+  site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # Before any `lake` command: the site shares `.lake/packages` with the root package.
+      - name: Check the site's dependency pins
+        run: python3 site/check-deps.py
+
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      # Verso and its dependencies (sources and build); changes only with site/lake-manifest.json.
+      - name: Restore the Verso build
+        id: verso-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            .lake/packages/verso
+            .lake/packages/subverso
+            .lake/packages/MD4Lean
+            .lake/packages/illuminate
+          key: verso-${{ runner.os }}-${{ hashFiles('site/lean-toolchain', 'site/lake-manifest.json') }}
+
+      # The MilnorAlgDep modules the text imports, and the text itself (Lake rebuilds what changed).
+      - name: Restore the project build
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            .lake/build
+            site/.lake/build
+          key: site-build-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'site/lake-manifest.json') }}-${{ github.sha }}
+          restore-keys: site-build-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'site/lake-manifest.json') }}-
+
+      # The only Mathlib download: the site package reuses the root's `.lake/packages`.
+      - name: Fetch the Mathlib cache
+        run: lake exe cache get
+
+      - name: Build and render the site
+        run: site/build.sh
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: site/_out/html-multi
+
+      - name: Save the Verso build
+        if: always() && steps.verso-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: |
+            .lake/packages/verso
+            .lake/packages/subverso
+            .lake/packages/MD4Lean
+            .lake/packages/illuminate
+          key: verso-${{ runner.os }}-${{ hashFiles('site/lean-toolchain', 'site/lake-manifest.json') }}
+
+      - name: Save the project build
+        if: always()
+        uses: actions/cache/save@v6
+        with:
+          path: |
+            .lake/build
+            site/.lake/build
+          key: site-build-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'site/lake-manifest.json') }}-${{ github.sha }}
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: site
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
