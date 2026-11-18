@@ -1,8 +1,8 @@
 module
 
 public import MilnorAlgDep.Foundations.AlgIndep
+public import MilnorAlgDep.Milnor.Basic
 public import MilnorAlgDep.Standard.Differentials.Independence
-public import Mathlib.LinearAlgebra.TensorProduct.Lift
 
 /-!
 # The logarithmic derivative in characteristic zero
@@ -17,7 +17,6 @@ images, and algebraically dependent elements have proportional images.
 
 ## Main definitions
 
-* `MilnorAlgDep.VOf.lift`: the universal property of `VOf H`.
 * `MilnorAlgDep.dlog l L : V l L →ₗ[ℚ] Ω[L⁄l]`.
 
 ## Main statements
@@ -36,28 +35,6 @@ All of this duplicates the logarithmic derivative being built in `MilnorAlgDep/C
 namespace MilnorAlgDep
 
 open VOf KaehlerDifferential
-
-namespace VOf
-
--- TODO(move): to `MilnorAlgDep/Foundations/VOf.lean`.
-
-variable {L : Type*} [Field L] {H : Subgroup Lˣ} {W : Type*} [AddCommGroup W] [Module ℚ W]
-
-/-- The universal property of `VOf H`: an additive homomorphism `f : Lˣ → W` into a `ℚ`-vector
-space which vanishes on `H` induces a `ℚ`-linear map `VOf H → W`, `[a] ↦ f a`. -/
-noncomputable def lift (f : Additive Lˣ →+ W) (hf : ∀ a ∈ H, f (.ofMul a) = 0) :
-    VOf H →ₗ[ℚ] W :=
-  LinearMap.liftBaseChange ℚ
-    (MonoidHom.toAdditiveLeft (QuotientGroup.lift H (AddMonoidHom.toMultiplicativeRight f)
-      fun a ha ↦ (MonoidHom.mem_ker).2 (by simp [hf a ha]))).toIntLinearMap
-
-@[simp]
-theorem lift_cls (f : Additive Lˣ →+ W) (hf : ∀ a ∈ H, f (.ofMul a) = 0) (a : Lˣ) :
-    lift f hf (cls H (.ofMul a)) = f (.ofMul a) := by
-  change (1 : ℚ) • (f (.ofMul a) : W) = _
-  rw [one_smul]
-
-end VOf
 
 section DLog
 
