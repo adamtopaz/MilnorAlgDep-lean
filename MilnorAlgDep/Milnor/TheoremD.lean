@@ -75,10 +75,10 @@ theorem bijective_of_smul_cls_map_eq {M : Type*} [Field M] [PerfectField M]
   rw [hj, RingHom.comp_id]
   exact (frobeniusEquiv M (ringExpChar M) ^ j).bijective
 
-/-- Blueprint 7.4: Theorem C for a graded homomorphism `φ : 𝒦_*(K) → 𝒦_*(L)` of perfect fields
+/-- Blueprint 7.4: Theorem C for a graded homomorphism `φ : 𝒦_*(K) → 𝒦_*(L)`, `L` perfect,
 whose degree one part is bijective: (A3) holds as soon as `L` contains `d` elements algebraically
 independent over the prime field (with `d` as in (A3)), because `φ₁` is surjective. -/
-theorem exists_eq_of_degOne_bijective [PerfectField K] [PerfectField L]
+theorem exists_eq_of_degOne_bijective [PerfectField L]
     (φ : MilnorKQ (⊥ : Subgroup Kˣ) →ₐ[ℚ] MilnorKQ (⊥ : Subgroup Lˣ)) (hφ : IsGraded φ)
     (hφ₁ : Function.Bijective (degOne φ)) (hK : ∃ x : K, Transcendental (⊥ : Subfield K) x)
     (hL : ∃ y : Fin (if ringChar L = 0 then 2 else 3) → L,

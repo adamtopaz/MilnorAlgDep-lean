@@ -28,6 +28,8 @@ Let `K, L` be perfect fields, and let `k_0, l_0` be the algebraic closures of th
   `VOf.proj _ : VOf ⊥ → V l₀ L` is the projection `L^× ⊗ ℚ → (L^×/l_0^×) ⊗ ℚ`; (A3) and (A4) are
   encoded as in `theoremA_perfect`.
 * `τ_* = MilnorKQ.map τ bot_le` and `r^deg = MilnorKQ.degScale _ r`.
+* The blueprint assumes `K` and `L` perfect; only `L` is assumed perfect here (`theoremA_perfect`
+  allows any `K`).
 * Uniqueness is `theoremC_unique`.
 -/
 
@@ -39,12 +41,13 @@ open VOf MilnorKQ
 
 variable {K L : Type*} [Field K] [Field L]
 
-/-- **Blueprint Theorem C** (absolute version). Let `K, L` be perfect fields, `k₀ ⊆ K` and
-`l₀ ⊆ L` the relative algebraic closures of the prime fields, and assume `K ≠ k₀`. Let
+/-- **Blueprint Theorem C** (absolute version). Let `K` be a field, `L` a perfect field (the
+blueprint also assumes `K` perfect; this is not needed), `k₀ ⊆ K` and `l₀ ⊆ L` the relative
+algebraic closures of the prime fields, and assume `K ≠ k₀`. Let
 `φ : 𝒦_*(K) → 𝒦_*(L)` be a homomorphism of graded `ℚ`-algebras such that `φ_1` is injective, the
 composition `K^× → 𝒦_1(L) → V_{L|l₀}` satisfies (A3), and (A4) holds. Then there are a field
 embedding `τ : K → L` and `r ∈ ℚ`, `r ≠ 0`, with `τ⁻¹(l₀) = k₀` and `φ = r^deg ∘ τ_*`. -/
-theorem theoremC [PerfectField K] [PerfectField L]
+theorem theoremC [PerfectField L]
     (k₀ : Subfield K) (hk₀ : ∀ x : K, x ∈ k₀ ↔ IsAlgebraic (⊥ : Subfield K) x)
     (l₀ : Subfield L) (hl₀ : ∀ x : L, x ∈ l₀ ↔ IsAlgebraic (⊥ : Subfield L) x)
     (hK : ∃ x : K, Transcendental (⊥ : Subfield K) x)

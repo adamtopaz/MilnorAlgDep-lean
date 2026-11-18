@@ -16,7 +16,8 @@ tag := "sec:K"
 
 Theorems B, C and D follow from {cref "thm:A"}[] together with one family of homomorphisms out
 of $`\Kr_2`, the tame symbols.
-In this chapter $`K` and $`L` are perfect fields.
+In this chapter $`K` and $`L` are perfect fields (the formal statements of Theorems B and C only
+assume $`L` perfect).
 We write $`L^\times_\QQ = L^\times \otimes \QQ = \Kr_1(L)` and denote the product in $`\Kr_*` by
 $`\{\cdot, \cdot\}`.
 Since $`\Kr_*(L)` is the quotient of the tensor algebra of $`L^\times_\QQ` by the ideal generated

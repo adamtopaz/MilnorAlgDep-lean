@@ -24,6 +24,8 @@ embedding `τ : K → L` with `τ⁻¹(l) = k` and `r ∈ ℚ^×` such that `φ 
 * (A3) and (A4) are encoded as in `theoremA_perfect` (`d = if ringChar L = 0 then 2 else 3`).
 * `τ_* = MilnorKQ.map τ _`, which needs `τ(kˣ) ⊆ lˣ`; this is obtained from `τ⁻¹(l) = k`
   (`hτ`) by `constUnits_le_comap`. `r^deg = MilnorKQ.degScale _ r`.
+* The blueprint assumes `K` and `L` perfect; only `L` is assumed perfect here (`theoremA_perfect`
+  allows any `K`).
 * Uniqueness is `theoremB_unique`.
 -/
 
@@ -35,12 +37,13 @@ open VOf MilnorKQ
 
 variable {K L : Type*} [Field K] [Field L]
 
-/-- **Blueprint Theorem B** (relative version). Let `K, L` be perfect fields, `k ⊆ K`, `l ⊆ L`
-relatively algebraically closed subfields, and `φ : 𝒦_*(K|k) → 𝒦_*(L|l)` a homomorphism of graded
+/-- **Blueprint Theorem B** (relative version). Let `K` be a field, `L` a perfect field (the
+blueprint also assumes `K` perfect; this is not needed), `k ⊆ K`, `l ⊆ L` relatively
+algebraically closed subfields, and `φ : 𝒦_*(K|k) → 𝒦_*(L|l)` a homomorphism of graded
 `ℚ`-algebras such that `φ_1` is injective, `ψ = φ_1 ∘ [·]` satisfies (A3), and (A4) holds. Then
 there are a field embedding `τ : K → L` with `τ⁻¹(l) = k` and `r ∈ ℚ`, `r ≠ 0`, with
 `φ = r^deg ∘ τ_*`. -/
-theorem theoremB [PerfectField K] [PerfectField L] (k : Subfield K) (l : Subfield L)
+theorem theoremB [PerfectField L] (k : Subfield K) (l : Subfield L)
     (hk : ∀ x : K, IsAlgebraic k x → x ∈ k) (hl : ∀ x : L, IsAlgebraic l x → x ∈ l)
     (φ : MilnorKQ (constUnits k K) →ₐ[ℚ] MilnorKQ (constUnits l L)) (hφ : IsGraded φ)
     (hφ₁ : Function.Injective (degOne φ))

@@ -57,9 +57,10 @@ $`r' = p^{-j} r` for some integer $`j`, where $`p` is the characteristic exponen
 characteristic $`0` the pair is unique.
 :::
 
-In Lean, Theorem A is stated three times: for a perfect field $`L` (then $`L^i = L` and
-$`l^i = l`), for an arbitrary field $`L`, and, separately, the uniqueness clause.
-In all three, $`K` is an arbitrary field.
+In Lean, Theorem A is stated for a perfect field $`L` (then $`L^i = L` and $`l^i = l`) and for an
+arbitrary field $`L`, and the uniqueness clause is stated separately, again for a perfect and for
+an arbitrary field $`L`.
+In all of them, $`K` is an arbitrary field.
 
 {docstring MilnorAlgDep.theoremA_perfect}
 
@@ -81,6 +82,8 @@ Here $`L^i` is any field $`M` which is a perfect closure of $`L` in the sense of
 of $`M` some $`p^n`-th power of which lies in $`l`.
 The comparison map {name}`V.toPerfectClosure` is the identification
 $`V_{L|l} = V_{L^i|l^i}` ({ref "ss:perfectClosure"}[Section 2.3.1]).
+
+{docstring MilnorAlgDep.theoremA_unique}
 
 Conversely, every pair $`(\tau, r)` as in the theorem defines a homomorphism
 $`\psi = r[\tau]` satisfying (A1) and (A2).

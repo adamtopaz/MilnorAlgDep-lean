@@ -110,6 +110,8 @@ _Hypotheses that are not needed._
   assume $`r' \neq 0`.
 * In characteristic $`0` the proof of {cref "thm:A"}[] needs no reduction to a perfect field
   $`K` ({name}`theoremA_perfect_of_charZero` holds for any field $`K`).
+* {cref "thm:B"}[] and {cref "thm:C"}[] only need $`L` to be perfect: as
+  {name}`theoremA_perfect` allows any field $`K`, so do {name}`theoremB` and {name}`theoremC`.
 * Step B needs no hypothesis beyond (H0)–(H3) ({ref "ss:stepB"}[Section 6.4]).
 
 _Tools that are avoided._

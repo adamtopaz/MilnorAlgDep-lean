@@ -501,10 +501,13 @@ _Statements._
 * Some hypotheses of the frozen statements are not used by the proofs: `[ExpChar L p]` in
   {name}`theoremA` (it documents $`p`).
   Hypotheses that the proofs showed to be unnecessary were removed in the final pass: $`r' \neq 0`
-  in {name}`theoremB_unique` and {name}`theoremC_unique`, the relative algebraic closedness of
+  in {name}`theoremB_unique` and {name}`theoremC_unique`, the perfectness of $`K` in
+  {name}`theoremB` and {name}`theoremC`, the relative algebraic closedness of
   $`l` in {name}`symbol_ne_zero_of_algebraicIndependent`, and the gradedness of
   $`\varphi^{-1}` in {name}`theoremD` (it follows from that of $`\varphi`:
   {name}`MilnorKQ.IsGraded.symm`).
+* The uniqueness clause of {cref "thm:A"}[] for arbitrary $`L` is {name}`theoremA_unique`,
+  deduced from {name}`theoremA_perfect_unique`.
 
 # Status
 %%%
