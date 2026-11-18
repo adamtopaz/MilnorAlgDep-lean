@@ -190,6 +190,28 @@ theorem vAlgIndep_pair_iff [IsRelAlgClosed l L] {v w : V l L} (hv : v ≠ 0) (hw
   rw [VAlgIndep.iff_of_nsmul_eq_cls hN hrep, hfun, pointV, pointV, Ne,
     point_eq_point_iff_not_algebraicIndependent ha hb, not_not]
 
+/-- Two distinct points meet in `l`, for points of elements of `V l L`: if `v, w` are
+algebraically independent, then `Q_v ∩ Q_w = l`. -/
+theorem pointV_inf_pointV_eq_bot [IsRelAlgClosed l L] {v w : V l L} (h : VAlgIndep l ![v, w]) :
+    pointV l v ⊓ pointV l w = ⊥ := by
+  have hv : v ≠ 0 := h.ne_zero 0
+  have hw : w ≠ 0 := h.ne_zero 1
+  exact point_inf_point_eq_bot
+    (IsRelAlgClosed.transcendental (V.not_mem_range_of_nsmul_eq_cls hv (VOf.repNat_pos v)
+      (VOf.repNat_nsmul v)))
+    (IsRelAlgClosed.transcendental (V.not_mem_range_of_nsmul_eq_cls hw (VOf.repNat_pos w)
+      (VOf.repNat_nsmul w)))
+    ((vAlgIndep_pair_iff hv hw).1 h)
+
+/-- An element of `Q_v ∩ Q_w`, for algebraically independent `v, w`, lies in `l`. -/
+theorem mem_range_of_mem_pointV_of_vAlgIndep [IsRelAlgClosed l L] {v w : V l L}
+    (h : VAlgIndep l ![v, w]) {z : L} (hv : z ∈ pointV l v) (hw : z ∈ pointV l w) :
+    z ∈ (algebraMap l L).range := by
+  have hz : z ∈ pointV l v ⊓ pointV l w := ⟨hv, hw⟩
+  rw [pointV_inf_pointV_eq_bot h, IntermediateField.mem_bot] at hz
+  obtain ⟨c, hc⟩ := hz
+  exact ⟨c, hc⟩
+
 end pointV
 
 section pointGroup
@@ -255,5 +277,69 @@ theorem mem_pointGroup_pointV (v : V l L) : v ∈ pointGroup (pointV l v) :=
   mem_pointGroup_iff.2 ⟨repNat v, repUnit v, repNat_pos v, self_mem_point _, repNat_nsmul v⟩
 
 end pointGroup
+
+section Closure
+
+/-! ### Points and the algebraic matroid -/
+
+variable [IsRelAlgClosed l L]
+
+/-- If `w ∈ G_{Q_v}`, then representatives of `w` lie in the closure of representatives of
+`v`. -/
+theorem mem_closure_of_mem_pointGroup {v w : V l L} (hv : v ≠ 0) {N K : ℕ} {a b : Lˣ}
+    (hN : 0 < N) (ha : N • v = cls (constUnits l L) (.ofMul a)) (hK : 0 < K)
+    (hb : K • w = cls (constUnits l L) (.ofMul b)) (hw : w ∈ pointGroup (pointV l v)) :
+    (b : L) ∈ (AlgebraicIndependent.matroid l L).closure {(a : L)} := by
+  rcases (mem_pointGroup_pointV_iff hv).1 hw with rfl | hpt
+  · rw [smul_zero, eq_comm, V.cls_eq_zero_iff'] at hb
+    exact mem_closure_of_mem_range hb
+  · rw [← coe_point, ← pointV_eq_point hN ha, ← hpt, pointV_eq_point hK hb]
+    exact self_mem_point _
+
+/-- If `v, w` are non-zero and in different points, then `v + w` is non-zero and lies in neither
+of the two points (blueprint line 413). -/
+theorem pointV_add_ne {v w : V l L} (hv : v ≠ 0) (hw : w ≠ 0) (hvw : pointV l v ≠ pointV l w) :
+    v + w ≠ 0 ∧ pointV l (v + w) ≠ pointV l v ∧ pointV l (v + w) ≠ pointV l w := by
+  have hw' : w ∉ pointGroup (pointV l v) := fun h ↦ by
+    rcases (mem_pointGroup_pointV_iff hv).1 h with h | h
+    · exact hw h
+    · exact hvw h.symm
+  have hv' : v ∉ pointGroup (pointV l w) := fun h ↦ by
+    rcases (mem_pointGroup_pointV_iff hw).1 h with h | h
+    · exact hv h
+    · exact hvw h
+  refine ⟨fun h0 ↦ hw' ?_, fun he ↦ hw' ?_, fun he ↦ hv' ?_⟩
+  · rw [eq_neg_of_add_eq_zero_right h0]
+    exact neg_mem (mem_pointGroup_pointV v)
+  · have hs : v + w ≠ 0 := fun h0 ↦ hw' (by
+      rw [eq_neg_of_add_eq_zero_right h0]
+      exact neg_mem (mem_pointGroup_pointV v))
+    have := sub_mem ((mem_pointGroup_pointV_iff hv).2 (Or.inr he)) (mem_pointGroup_pointV v)
+    rwa [add_sub_cancel_left] at this
+  · have hs : v + w ≠ 0 := fun h0 ↦ hw' (by
+      rw [eq_neg_of_add_eq_zero_right h0]
+      exact neg_mem (mem_pointGroup_pointV v))
+    have := sub_mem ((mem_pointGroup_pointV_iff hw).2 (Or.inr he)) (mem_pointGroup_pointV w)
+    rwa [add_sub_cancel_right] at this
+
+/-- If `v, w` are algebraically independent and `v'` lies in `G_{Q_v}`, then `v, w + v'` are
+algebraically independent (used in the proof of Proposition 6.1). -/
+theorem VAlgIndep.add_of_mem_pointGroup {v w v' : V l L} (h : VAlgIndep l ![v, w])
+    (hv' : v' ∈ pointGroup (pointV l v)) : VAlgIndep l ![v, w + v'] := by
+  have hv : v ≠ 0 := h.ne_zero 0
+  have hw : w ≠ 0 := h.ne_zero 1
+  have hpt := (vAlgIndep_pair_iff hv hw).1 h
+  have hw' : w ∉ pointGroup (pointV l v) := fun hm ↦ by
+    rcases (mem_pointGroup_pointV_iff hv).1 hm with h0 | h0
+    · exact hw h0
+    · exact hpt h0.symm
+  have hsum : w + v' ∉ pointGroup (pointV l v) := fun hm ↦ hw' (by
+    have := sub_mem hm hv'
+    rwa [add_sub_cancel_right] at this)
+  have hs0 : w + v' ≠ 0 := fun h0 ↦ hsum (by rw [h0]; exact zero_mem _)
+  rw [vAlgIndep_pair_iff hv hs0]
+  exact fun he ↦ hsum ((mem_pointGroup_pointV_iff hv).2 (Or.inr he.symm))
+
+end Closure
 
 end MilnorAlgDep

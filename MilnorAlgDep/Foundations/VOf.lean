@@ -1,6 +1,7 @@
 module
 
 public import Mathlib.GroupTheory.QuotientGroup.Defs
+public import Mathlib.LinearAlgebra.TensorProduct.Lift
 public import Mathlib.LinearAlgebra.TensorProduct.Tower
 public import Mathlib.RingTheory.Localization.BaseChange
 public import Mathlib.RingTheory.Localization.FractionRing
@@ -28,6 +29,8 @@ from the expected type). Special cases:
 * `MilnorAlgDep.VOf.map f h : VOf H →ₗ[ℚ] VOf H'`: functoriality in a group homomorphism
   `f : Kˣ →* Lˣ` with `H ≤ H'.comap f`; special cases `VOf.proj` (for `H ≤ H'` in the same field)
   and `VOf.mapRingHom` (induced by a ring homomorphism).
+* `MilnorAlgDep.VOf.lift f hf : VOf H →ₗ[ℚ] W`: the `ℚ`-linear map induced by an additive map
+  `f : Lˣ → W` into a `ℚ`-vector space vanishing on `H`.
 
 ## Main statements
 
@@ -255,6 +258,65 @@ theorem map_comp {M : Type*} [Field M] {H'' : Subgroup Mˣ} (f : Kˣ →* Lˣ) (
   rw [LinearMap.comp_apply, map_cls, map_cls, map_cls, MonoidHom.comp_apply]
 
 end map
+
+section lift
+
+/-! ### Lifts, projections and functoriality -/
+
+variable {M : Type*} [Field M] {H : Subgroup Lˣ} {W : Type*} [AddCommGroup W] [Module ℚ W]
+
+/-- The `ℚ`-linear map `VOf H → W` into a `ℚ`-vector space induced by an additive map
+`f : Additive Lˣ →+ W` vanishing on `H`; it sends `[a]` to `f a` (`lift_cls`). -/
+noncomputable def lift (f : Additive Lˣ →+ W) (hf : ∀ a ∈ H, f (.ofMul a) = 0) :
+    VOf H →ₗ[ℚ] W :=
+  LinearMap.liftBaseChange ℚ
+    (MonoidHom.toAdditiveLeft
+      (QuotientGroup.lift H (MonoidHom.toAdditiveLeft.symm f) fun a ha ↦ by
+        rw [MonoidHom.mem_ker]
+        exact congrArg Multiplicative.ofAdd (hf a ha))).toIntLinearMap
+
+@[simp]
+theorem lift_cls (f : Additive Lˣ →+ W) (hf : ∀ a ∈ H, f (.ofMul a) = 0) (a : Lˣ) :
+    lift f hf (cls H (.ofMul a)) = f (.ofMul a) := by
+  rw [cls_apply, lift]
+  exact one_smul ℚ (f (.ofMul a))
+
+/-- `lift` composed with a projection. -/
+theorem lift_comp_proj {H' : Subgroup Lˣ} (h : H ≤ H') (f : Additive Lˣ →+ W)
+    (hf : ∀ a ∈ H', f (.ofMul a) = 0) :
+    lift f hf ∘ₗ proj h = lift f fun a ha ↦ hf a (h ha) :=
+  linearMap_ext fun a ↦ by rw [LinearMap.comp_apply, proj_cls, lift_cls, lift_cls]
+
+theorem proj_comp_proj {H H' H'' : Subgroup Lˣ} (h : H ≤ H') (h' : H' ≤ H'') :
+    proj h' ∘ₗ proj h = proj (h.trans h') :=
+  linearMap_ext fun a ↦ by rw [LinearMap.comp_apply, proj_cls, proj_cls, proj_cls]
+
+@[simp]
+theorem proj_self {H : Subgroup Lˣ} : proj (le_refl H) = LinearMap.id :=
+  linearMap_ext fun a ↦ by rw [proj_cls, LinearMap.id_apply]
+
+theorem _root_.Subgroup.comap_units_map_ringHom_id (H : Subgroup Lˣ) :
+    H.comap (Units.map (RingHom.id L : L →* L)) = H :=
+  Subgroup.ext fun _ ↦ Iff.rfl
+
+theorem mapRingHom_id {H H' : Subgroup Lˣ}
+    (h : H ≤ H'.comap (Units.map (RingHom.id L : L →* L))) :
+    mapRingHom (RingHom.id L) h = proj (h.trans (Subgroup.comap_units_map_ringHom_id H').le) := by
+  refine linearMap_ext fun a ↦ ?_
+  rw [mapRingHom_cls, proj_cls]
+  rfl
+
+theorem mapRingHom_comp {H₀ : Subgroup Kˣ} {H : Subgroup Lˣ} {H' : Subgroup Mˣ} (τ : K →+* L)
+    (σ : L →+* M) (h : H₀ ≤ H.comap (Units.map (τ : K →* L)))
+    (h' : H ≤ H'.comap (Units.map (σ : L →* M))) :
+    mapRingHom σ h' ∘ₗ mapRingHom τ h =
+      mapRingHom (σ.comp τ)
+        (fun _ hx ↦ Subgroup.mem_comap.2 (Subgroup.mem_comap.1 (h' (h hx)))) := by
+  refine linearMap_ext fun a ↦ ?_
+  rw [LinearMap.comp_apply, mapRingHom_cls, mapRingHom_cls, mapRingHom_cls]
+  rfl
+
+end lift
 
 end VOf
 

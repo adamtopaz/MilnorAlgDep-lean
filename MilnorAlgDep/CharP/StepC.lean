@@ -272,18 +272,7 @@ theorem mem_range_of_mem_pointV_x {z : L} (h₀ : z ∈ pointV l (H.ψK (H.x 0))
     convert this using 1
     ext i
     fin_cases i <;> rfl
-  have hv := H.ψK_ne_zero (H.x_notMem 0)
-  have hw := H.ψK_ne_zero (H.x_notMem 1)
-  have hne := (vAlgIndep_pair_iff hv hw).1 hind
-  have key := point_inf_point_eq_bot
-    (IsRelAlgClosed.transcendental (V.not_mem_range_of_nsmul_eq_cls hv (repNat_pos _)
-      (repNat_nsmul _)))
-    (IsRelAlgClosed.transcendental (V.not_mem_range_of_nsmul_eq_cls hw (repNat_pos _)
-      (repNat_nsmul _))) hne
-  have hz : z ∈ pointV l (H.ψK (H.x 0)) ⊓ pointV l (H.ψK (H.x 1)) := ⟨h₀, h₁⟩
-  rw [pointV, pointV, key, IntermediateField.mem_bot] at hz
-  obtain ⟨c, hc⟩ := hz
-  exact ⟨c, hc⟩
+  exact mem_range_of_mem_pointV_of_vAlgIndep hind h₀ h₁
 
 /-- **Blueprint Lemma 6.10** (`lem:tauinQ`), second part: `τ(k) ⊆ l` (for `c ∈ kˣ` and primitive
 `x`, `τ(c) = t(c x)/t(x) ∈ Q_x`; take two transverse `x`). -/

@@ -1,7 +1,6 @@
 module
 
 public import MilnorAlgDep.Milnor.Defs
-public import Mathlib.LinearAlgebra.TensorProduct.Lift
 public import Mathlib.RingTheory.GradedAlgebra.Basic
 
 /-!
@@ -29,8 +28,6 @@ in the proofs of Theorems B, C and D.
   `r^deg` is multiplication by `r ^ n` in degree `n`.
 * `MilnorKQ.proj`: the projection `MilnorKQ H → MilnorKQ H'` for subgroups `H ≤ H'` of `Lˣ`
   (for instance `𝒦_*(L) → 𝒦_*(L|l)`).
-* `VOf.lift`: the `ℚ`-linear map `VOf H → W` induced by an additive map `Lˣ → W` vanishing on
-  `H`.
 * `MilnorKQ.gradedAlgebra`: the instance `GradedAlgebra (grade H)`, i.e. `MilnorKQ H` is the
   direct sum of the `grade H n` (`MilnorKQ.grade_isInternal`); consequently the inverse of a
   graded algebra isomorphism is graded (`MilnorKQ.IsGraded.symm`).
@@ -43,68 +40,6 @@ namespace MilnorAlgDep
 open VOf
 
 variable {K L M : Type*} [Field K] [Field L] [Field M]
-
-namespace VOf
-
--- TODO(move): this section belongs in `MilnorAlgDep/Foundations/VOf.lean`.
-section lift
-
-variable {H : Subgroup Lˣ} {W : Type*} [AddCommGroup W] [Module ℚ W]
-
-/-- The `ℚ`-linear map `VOf H → W` into a `ℚ`-vector space induced by an additive map
-`f : Additive Lˣ →+ W` vanishing on `H`; it sends `[a]` to `f a` (`lift_cls`). -/
-noncomputable def lift (f : Additive Lˣ →+ W) (hf : ∀ a ∈ H, f (.ofMul a) = 0) :
-    VOf H →ₗ[ℚ] W :=
-  LinearMap.liftBaseChange ℚ
-    (MonoidHom.toAdditiveLeft
-      (QuotientGroup.lift H (MonoidHom.toAdditiveLeft.symm f) fun a ha ↦ by
-        rw [MonoidHom.mem_ker]
-        exact congrArg Multiplicative.ofAdd (hf a ha))).toIntLinearMap
-
-@[simp]
-theorem lift_cls (f : Additive Lˣ →+ W) (hf : ∀ a ∈ H, f (.ofMul a) = 0) (a : Lˣ) :
-    lift f hf (cls H (.ofMul a)) = f (.ofMul a) := by
-  rw [cls_apply, lift]
-  exact one_smul ℚ (f (.ofMul a))
-
-/-- `lift` composed with a projection. -/
-theorem lift_comp_proj {H' : Subgroup Lˣ} (h : H ≤ H') (f : Additive Lˣ →+ W)
-    (hf : ∀ a ∈ H', f (.ofMul a) = 0) :
-    lift f hf ∘ₗ proj h = lift f fun a ha ↦ hf a (h ha) :=
-  linearMap_ext fun a ↦ by rw [LinearMap.comp_apply, proj_cls, lift_cls, lift_cls]
-
-end lift
-
-theorem proj_comp_proj {H H' H'' : Subgroup Lˣ} (h : H ≤ H') (h' : H' ≤ H'') :
-    proj h' ∘ₗ proj h = proj (h.trans h') :=
-  linearMap_ext fun a ↦ by rw [LinearMap.comp_apply, proj_cls, proj_cls, proj_cls]
-
-@[simp]
-theorem proj_self {H : Subgroup Lˣ} : proj (le_refl H) = LinearMap.id :=
-  linearMap_ext fun a ↦ by rw [proj_cls, LinearMap.id_apply]
-
-theorem _root_.Subgroup.comap_units_map_ringHom_id (H : Subgroup Lˣ) :
-    H.comap (Units.map (RingHom.id L : L →* L)) = H :=
-  Subgroup.ext fun _ ↦ Iff.rfl
-
-theorem mapRingHom_id {H H' : Subgroup Lˣ}
-    (h : H ≤ H'.comap (Units.map (RingHom.id L : L →* L))) :
-    mapRingHom (RingHom.id L) h = proj (h.trans (Subgroup.comap_units_map_ringHom_id H').le) := by
-  refine linearMap_ext fun a ↦ ?_
-  rw [mapRingHom_cls, proj_cls]
-  rfl
-
-theorem mapRingHom_comp {H₀ : Subgroup Kˣ} {H : Subgroup Lˣ} {H' : Subgroup Mˣ} (τ : K →+* L)
-    (σ : L →+* M) (h : H₀ ≤ H.comap (Units.map (τ : K →* L)))
-    (h' : H ≤ H'.comap (Units.map (σ : L →* M))) :
-    mapRingHom σ h' ∘ₗ mapRingHom τ h =
-      mapRingHom (σ.comp τ)
-        (fun _ hx ↦ Subgroup.mem_comap.2 (Subgroup.mem_comap.1 (h' (h hx)))) := by
-  refine linearMap_ext fun a ↦ ?_
-  rw [LinearMap.comp_apply, mapRingHom_cls, mapRingHom_cls, mapRingHom_cls]
-  rfl
-
-end VOf
 
 namespace MilnorKQ
 

@@ -237,6 +237,15 @@ theorem SepEquiv.span_modelD_eq {ι : Type*} {B : ι → L} {s t : L} (h : SepEq
   · rw [Submodule.span_singleton_le_iff_mem, hts]
     exact Submodule.smul_mem _ _ (Submodule.mem_span_singleton_self _)
 
+/-- `b ^ A ≈ b` for `A` prime to the characteristic. -/
+theorem sepEquiv_zpow {A : ℤ} (hA : (A : L) ≠ 0) (b : L) : SepEquiv l (b ^ A) b := by
+  obtain ⟨n, rfl | rfl⟩ := Int.eq_nat_or_neg A
+  · rw [zpow_natCast]
+    exact sepEquiv_pow (by exact_mod_cast hA) b
+  · rw [zpow_neg, zpow_natCast]
+    have hn : (n : L) ≠ 0 := fun h ↦ hA (by push_cast; rw [h, neg_zero])
+    exact (sepEquiv_inv (b ^ n)).trans (sepEquiv_pow hn b)
+
 end SepEquiv
 
 section Levels

@@ -198,6 +198,19 @@ theorem rep_unique [IsRelAlgClosed l L] {v : V l L} {N N' : ℕ} {a a' : Lˣ}
   rw [hc, Units.val_div_eq_div_val, Units.val_pow_eq_pow_val, Units.val_pow_eq_pow_val,
     div_mul_cancel₀ _ (pow_ne_zero _ a'.ne_zero)]
 
+/-- (V1) in the form used in Blueprint Lemma 6.13: if `A • [u] = B • [v]` in `V l L` and `l` is
+relatively algebraically closed in `L`, then `u ^ A = c * v ^ B` for some `c ∈ l`. -/
+theorem exists_zpow_eq_mul_pow_of_smul_cls_eq [IsRelAlgClosed l L] {u v : Lˣ} {A : ℤ} {B : ℕ}
+    (h : (A : ℚ) • cls (constUnits l L) (.ofMul u) = (B : ℚ) • cls (constUnits l L) (.ofMul v)) :
+    ∃ c : l, (u : L) ^ A = algebraMap l L c * (v : L) ^ B := by
+  have key : cls (constUnits l L) (.ofMul (u ^ A / v ^ B)) = 0 := by
+    rw [cls_div, cls_zpow, cls_pow, ← Int.cast_smul_eq_zsmul ℚ, ← Nat.cast_smul_eq_nsmul ℚ, h,
+      sub_self]
+  obtain ⟨c, hc⟩ := (V.cls_eq_zero_iff' _).1 key
+  refine ⟨c, ?_⟩
+  rw [hc, Units.val_div_eq_div_val, Units.val_zpow_eq_zpow_val, Units.val_pow_eq_pow_val,
+    div_mul_cancel₀ _ (pow_ne_zero _ v.ne_zero)]
+
 end V
 
 end MilnorAlgDep

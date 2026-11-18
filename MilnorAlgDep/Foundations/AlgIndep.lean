@@ -95,6 +95,111 @@ theorem algebraicIndependent_pair_comm {a b : L} :
     fin_cases i <;> rfl
   rw [this, algebraicIndependent_equiv]
 
+variable (l) in
+/-- Algebraicity over `l(s)` is membership in the closure of `s` in the algebraic matroid. -/
+theorem isAlgebraic_adjoin_iff_mem_closure {s : Set L} {x : L} :
+    IsAlgebraic (adjoin l s) x ↔ x ∈ (AlgebraicIndependent.matroid l L).closure s := by
+  rw [mem_matroid_closure_iff, IntermediateField.isAlgebraic_adjoin_iff]
+
+/-- Constants are in every closure. -/
+theorem mem_closure_of_mem_range {s : Set L} {x : L} (hx : x ∈ (algebraMap l L).range) :
+    x ∈ (AlgebraicIndependent.matroid l L).closure s := by
+  obtain ⟨c, rfl⟩ := hx
+  exact (isAlgebraic_adjoin_iff_mem_closure l).1 (isAlgebraic_algebraMap (algebraMap l _ c))
+
+/-- `a^i b^j` lies in the closure of `{a, b}`. -/
+theorem zpow_mul_zpow_mem_closure (a b : Lˣ) (i j : ℤ) :
+    ((a : L) ^ i * (b : L) ^ j) ∈
+      (AlgebraicIndependent.matroid l L).closure {(a : L), (b : L)} := by
+  rw [← isAlgebraic_adjoin_iff_mem_closure l]
+  have ha : (a : L) ∈ l⟮(a : L), (b : L)⟯ := subset_adjoin _ _ (Set.mem_insert _ _)
+  have hb : (b : L) ∈ l⟮(a : L), (b : L)⟯ := subset_adjoin _ _ (Set.mem_insert_of_mem _ rfl)
+  exact isAlgebraic_algebraMap
+    (⟨_, mul_mem (zpow_mem ha i) (zpow_mem hb j)⟩ : l⟮(a : L), (b : L)⟯)
+
+/-- If an algebraically independent family `x` of `n` elements lies in the closure of the range
+of a family `y` of `n` elements, then `y` is algebraically independent. -/
+theorem algebraicIndependent_of_forall_mem_closure {n : ℕ} {x y : Fin n → L}
+    (hx : AlgebraicIndependent l x)
+    (h : ∀ i, x i ∈ (AlgebraicIndependent.matroid l L).closure (Set.range y)) :
+    AlgebraicIndependent l y := by
+  set M := AlgebraicIndependent.matroid l L
+  have hxI : M.Indep (Set.range x) := hx.to_subtype_range
+  have hsub : Set.range x ⊆ M.closure (Set.range y) := by
+    rintro _ ⟨i, rfl⟩
+    exact h i
+  have h1 : (Set.range x).encard = n := by
+    rw [hx.injective.encard_range, ENat.card_eq_coe_fintype_card, Fintype.card_fin]
+  have h2 : (Set.range x).encard ≤ M.eRk (Set.range y) := by
+    rw [← M.eRk_closure_eq]
+    exact hxI.encard_le_eRk_of_subset hsub
+  have h3 : M.eRk (Set.range y) ≤ (Set.range y).encard := M.eRk_le_encard _
+  have h4 : (Set.range y).encard ≤ n := by
+    rw [← Set.image_univ]
+    refine (Set.encard_image_le y _).trans ?_
+    rw [Set.encard_univ, ENat.card_eq_coe_fintype_card, Fintype.card_fin]
+  have hyI : M.Indep (Set.range y) :=
+    (M.indep_iff_eRk_eq_encard_of_finite (Set.finite_range y)).2 (le_antisymm h3 (by
+      rw [h1] at h2
+      exact h4.trans h2))
+  have hyinj : Function.Injective y := by
+    rw [← Set.injOn_univ]
+    refine Set.finite_univ.injOn_of_encard_image_eq ?_
+    rw [Set.image_univ, Set.encard_univ, ENat.card_eq_coe_fintype_card, Fintype.card_fin]
+    rw [h1] at h2
+    exact le_antisymm h4 (h2.trans h3)
+  exact (algebraicIndependent_subtype_range hyinj).1 hyI
+
+/-- An algebraically independent family of `n` elements does not lie in the closure of a set
+with fewer than `n` elements. -/
+theorem card_le_encard_of_forall_mem_closure {n : ℕ} {x : Fin n → L}
+    (hx : AlgebraicIndependent l x) {s : Set L}
+    (h : ∀ i, x i ∈ (AlgebraicIndependent.matroid l L).closure s) : (n : ℕ∞) ≤ s.encard := by
+  set M := AlgebraicIndependent.matroid l L
+  have hxI : M.Indep (Set.range x) := hx.to_subtype_range
+  have hsub : Set.range x ⊆ M.closure s := by
+    rintro _ ⟨i, rfl⟩
+    exact h i
+  have h1 : (Set.range x).encard = n := by
+    rw [hx.injective.encard_range, ENat.card_eq_coe_fintype_card, Fintype.card_fin]
+  rw [← h1]
+  refine (hxI.encard_le_eRk_of_subset hsub).trans ?_
+  rw [M.eRk_closure_eq]
+  exact M.eRk_le_encard s
+
+theorem range_pair {α : Type*} (a b : α) : Set.range ![a, b] = {a, b} := by
+  rw [Matrix.range_cons, Matrix.range_cons, Matrix.range_empty, Set.union_empty,
+    Set.singleton_union]
+
+/-- If `a, b` are algebraically independent and `c` is not in the closure of `{a, b}`, then
+`a, b, c` are algebraically independent. -/
+theorem algebraicIndependent_triple_of_notMem_closure {a b c : L}
+    (hab : AlgebraicIndependent l ![a, b])
+    (hc : c ∉ (AlgebraicIndependent.matroid l L).closure {a, b}) :
+    AlgebraicIndependent l ![a, b, c] := by
+  set M := AlgebraicIndependent.matroid l L
+  have hI : M.Indep {a, b} := by
+    have := hab.to_subtype_range
+    rwa [range_pair] at this
+  have hcab : c ∉ ({a, b} : Set L) := fun h ↦ hc (M.subset_closure _ (Set.subset_univ _) h)
+  have hI' : M.Indep (insert c {a, b}) :=
+    (hI.insert_indep_iff_of_notMem hcab).2 ⟨Set.mem_univ c, hc⟩
+  have hca : c ≠ a := fun h ↦ hcab (h ▸ Set.mem_insert c _)
+  have hcb : c ≠ b := fun h ↦ hcab (h ▸ Set.mem_insert_of_mem _ rfl)
+  have hab' : a ≠ b := fun h ↦ by
+    have := hab.injective (a₁ := 0) (a₂ := 1) (by simpa using h)
+    exact absurd this (by decide)
+  have hinj : Function.Injective ![a, b, c] := by
+    intro i j hij
+    fin_cases i <;> fin_cases j <;> simp_all [eq_comm]
+  have hrange : Set.range ![a, b, c] = insert c {a, b} := by
+    rw [Matrix.range_cons, Matrix.range_cons, Matrix.range_cons, Matrix.range_empty,
+      Set.union_empty, Set.singleton_union, Set.singleton_union, Set.pair_comm b c,
+      Set.insert_comm]
+  refine (algebraicIndependent_subtype_range hinj).1 ?_
+  rw [hrange]
+  exact hI'
+
 end Matroid
 
 namespace V
@@ -198,5 +303,90 @@ theorem comp {ι' : Type*} {v : ι → V l L} (hv : VAlgIndep l v) (f : ι' → 
   exact ⟨N ∘ f, a ∘ f, fun i ↦ hN (f i), fun i ↦ ha (f i), hind.comp f hf⟩
 
 end VAlgIndep
+
+/-! ### Algebraic independence and closure in `V` -/
+
+section Closure
+
+/-- Representatives of an integer combination `m • v + n • w` lie in the closure (in the algebraic
+matroid) of representatives of `v` and `w`. -/
+theorem mem_closure_of_eq_zsmul_add_zsmul {u v w : V l L} {N₁ N₂ K : ℕ} {a b c : Lˣ}
+    (hN₁ : 0 < N₁) (ha : N₁ • v = cls (constUnits l L) (.ofMul a)) (hN₂ : 0 < N₂)
+    (hb : N₂ • w = cls (constUnits l L) (.ofMul b)) (hc : K • u = cls (constUnits l L) (.ofMul c))
+    (m n : ℤ) (huvw : u = m • v + n • w) :
+    (c : L) ∈ (AlgebraicIndependent.matroid l L).closure {(a : L), (b : L)} := by
+  set M := AlgebraicIndependent.matroid l L
+  set e : Lˣ := a ^ (m * N₂) * b ^ (n * N₁)
+  have key : ((N₁ * N₂ : ℕ) : ℤ) • cls (constUnits l L) (.ofMul c) =
+      (K : ℤ) • cls (constUnits l L) (.ofMul e) := by
+    rw [← hc, cls_mul, cls_zpow, cls_zpow, ← ha, ← hb, huvw]
+    simp only [← Nat.cast_smul_eq_nsmul ℚ, ← Int.cast_smul_eq_zsmul ℚ, smul_add, smul_smul]
+    push_cast
+    congr 1 <;> congr 1 <;> ring
+  have hce := V.isAlgebraic_adjoin_of_zsmul_cls_eq (Nat.mul_pos hN₁ hN₂) key
+  rw [isAlgebraic_adjoin_simple_iff_mem_closure] at hce
+  refine M.closure_subset_closure_of_subset_closure ?_ hce
+  rw [Set.singleton_subset_iff]
+  have := zpow_mul_zpow_mem_closure (l := l) a b (m * N₂) (n * N₁)
+  simpa only [e, Units.val_mul, Units.val_zpow_eq_zpow_val] using this
+
+theorem vAlgIndep_iff_algebraicIndependent_repUnit {v : ι → V l L} :
+    VAlgIndep l v ↔ AlgebraicIndependent l fun i ↦ (repUnit (v i) : L) :=
+  VAlgIndep.iff_of_nsmul_eq_cls (fun i ↦ repNat_pos (v i)) (fun i ↦ repNat_nsmul (v i))
+
+/-- A unimodular change of variables preserves algebraic independence of three elements of `V`:
+if `u, v, w` are algebraically independent, so are `u + v + w, v + w, w` (used in the proof of
+Proposition 6.1, with `ψ(s s' z), ψ(-s' z), ψ(z)`). -/
+theorem VAlgIndep.add_add₃ {u v w : V l L} (h : VAlgIndep l ![u, v, w]) :
+    VAlgIndep l ![u + v + w, v + w, w] := by
+  rw [vAlgIndep_iff_algebraicIndependent_repUnit] at h ⊢
+  refine algebraicIndependent_of_forall_mem_closure h fun i ↦ ?_
+  set M := AlgebraicIndependent.matroid l L
+  have hr : ∀ j, (repUnit (![u + v + w, v + w, w] j) : L) ∈
+      M.closure (Set.range fun j ↦ (repUnit (![u + v + w, v + w, w] j) : L)) :=
+    fun j ↦ M.subset_closure _ (Set.subset_univ _) ⟨j, rfl⟩
+  have hsub : ∀ j k : Fin 3, ({(repUnit (![u + v + w, v + w, w] j) : L),
+      (repUnit (![u + v + w, v + w, w] k) : L)} : Set L) ⊆
+      M.closure (Set.range fun j ↦ (repUnit (![u + v + w, v + w, w] j) : L)) := by
+    intro j k
+    rw [Set.insert_subset_iff, Set.singleton_subset_iff]
+    exact ⟨hr j, hr k⟩
+  fin_cases i
+  · refine M.closure_subset_closure_of_subset_closure (hsub 0 1) ?_
+    exact mem_closure_of_eq_zsmul_add_zsmul (repNat_pos _) (repNat_nsmul _) (repNat_pos _)
+      (repNat_nsmul _) (repNat_nsmul u) 1 (-1) (by simp; abel)
+  · refine M.closure_subset_closure_of_subset_closure (hsub 1 2) ?_
+    exact mem_closure_of_eq_zsmul_add_zsmul (repNat_pos _) (repNat_nsmul _) (repNat_pos _)
+      (repNat_nsmul _) (repNat_nsmul v) 1 (-1) (by simp)
+  · exact hr 2
+
+theorem VAlgIndep.pair_swap {v w : V l L} (h : VAlgIndep l ![v, w]) : VAlgIndep l ![w, v] := by
+  have := h.comp ![1, 0] (by decide)
+  convert this using 1
+  ext i
+  fin_cases i <;> rfl
+
+theorem VAlgIndep.triple_01 {u v w : V l L} (h : VAlgIndep l ![u, v, w]) :
+    VAlgIndep l ![u, v] := by
+  have := h.comp ![0, 1] (by decide)
+  convert this using 1
+  ext i
+  fin_cases i <;> rfl
+
+theorem VAlgIndep.triple_02 {u v w : V l L} (h : VAlgIndep l ![u, v, w]) :
+    VAlgIndep l ![u, w] := by
+  have := h.comp ![0, 2] (by decide)
+  convert this using 1
+  ext i
+  fin_cases i <;> rfl
+
+theorem VAlgIndep.triple_12 {u v w : V l L} (h : VAlgIndep l ![u, v, w]) :
+    VAlgIndep l ![v, w] := by
+  have := h.comp ![1, 2] (by decide)
+  convert this using 1
+  ext i
+  fin_cases i <;> rfl
+
+end Closure
 
 end MilnorAlgDep

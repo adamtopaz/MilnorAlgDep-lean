@@ -115,4 +115,34 @@ theorem frobZ_algebraMap_mem_range (j : ℤ) (c : l) :
 
 end perfect
 
+section cls
+
+/-! ### Frobenius on classes -/
+
+open VOf
+
+variable {L : Type*} [Field L]
+
+/-- The Frobenius twist on classes: `[Frob^j y] = p ^ j • [y]`. -/
+theorem cls_frobZ (p : ℕ) [Fact p.Prime] [CharP L p] [PerfectField L] (H : Subgroup Lˣ) (j : ℤ)
+    (y : Lˣ) : cls H (.ofMul (Units.map ((frobZ L p j : L ≃+* L) : L →* L) y)) =
+      ((p : ℚ) ^ j) • cls H (.ofMul y) := by
+  have hnat : ∀ (n : ℕ) (z : Lˣ), Units.map ((frobZ L p n : L ≃+* L) : L →* L) z = z ^ p ^ n := by
+    intro n z
+    ext
+    rw [Units.coe_map, Units.val_pow_eq_pow_val]
+    exact frobZ_natCast_apply p n (z : L)
+  have hp : (p : ℚ) ≠ 0 := Nat.cast_ne_zero.2 (Fact.out : p.Prime).ne_zero
+  obtain ⟨n, rfl | rfl⟩ := Int.eq_nat_or_neg j
+  · rw [hnat, cls_pow, zpow_natCast, ← Nat.cast_smul_eq_nsmul ℚ, Nat.cast_pow]
+  · set z := Units.map ((frobZ L p (-n) : L ≃+* L) : L →* L) y
+    have hz : Units.map ((frobZ L p n : L ≃+* L) : L →* L) z = y := by
+      ext
+      simp only [z, Units.coe_map, MonoidHom.coe_ofClass, frobZ_apply_frobZ_neg]
+    conv_rhs => rw [← hz, hnat, cls_pow]
+    rw [← Nat.cast_smul_eq_nsmul ℚ, smul_smul, zpow_neg, zpow_natCast, Nat.cast_pow,
+      inv_mul_cancel₀ (pow_ne_zero _ hp), one_smul]
+
+end cls
+
 end MilnorAlgDep

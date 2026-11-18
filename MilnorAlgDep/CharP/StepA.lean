@@ -46,34 +46,6 @@ variable {l L : Type*} [Field l] [Field L] [Algebra l L]
 
 section Aux
 
--- TODO(move): `Foundations/AlgIndep.lean`.
-theorem VAlgIndep.pair_swap {v w : V l L} (h : VAlgIndep l ![v, w]) : VAlgIndep l ![w, v] := by
-  have := h.comp ![1, 0] (by decide)
-  convert this using 1
-  ext i
-  fin_cases i <;> rfl
-
-theorem VAlgIndep.triple_01 {u v w : V l L} (h : VAlgIndep l ![u, v, w]) :
-    VAlgIndep l ![u, v] := by
-  have := h.comp ![0, 1] (by decide)
-  convert this using 1
-  ext i
-  fin_cases i <;> rfl
-
-theorem VAlgIndep.triple_02 {u v w : V l L} (h : VAlgIndep l ![u, v, w]) :
-    VAlgIndep l ![u, w] := by
-  have := h.comp ![0, 2] (by decide)
-  convert this using 1
-  ext i
-  fin_cases i <;> rfl
-
-theorem VAlgIndep.triple_12 {u v w : V l L} (h : VAlgIndep l ![u, v, w]) :
-    VAlgIndep l ![v, w] := by
-  have := h.comp ![1, 2] (by decide)
-  convert this using 1
-  ext i
-  fin_cases i <;> rfl
-
 -- TODO(move): `CharP/Normalized.lean`.
 /-- Swapping the first two points of a collinear triple negates the first entry of the level
 triple relative to the given elements: if `(a, Frob^j b, *)` is normalized, then so is
@@ -188,14 +160,6 @@ theorem algebraicIndependent_frobZ_pair (p : ℕ) [Fact p.Prime] [CharP L p] [Pe
 section RepAux
 
 variable (p : ℕ) [Fact p.Prime] [CharP L p] [PerfectField L]
-
--- TODO(move): `CharP/LevelV.lean`.
-omit [Fact p.Prime] [CharP L p] [PerfectField L] in
-theorem IsVRep.pow {v : V l L} {N : ℕ} {a : Lˣ} (h : IsVRep p v N a) {M K : ℕ} (hM : 0 < M)
-    (hMc : M.Coprime p) (hK : K = M * N) : IsVRep p v K (a ^ M) := by
-  subst hK
-  exact ⟨Nat.mul_pos hM h.pos, Nat.coprime_mul_iff_left.2 ⟨hMc, h.coprime⟩,
-    by rw [mul_smul, h.nsmul_eq, cls_pow]⟩
 
 /-- Three elements of `V` have representatives with a common denominator. -/
 theorem exists_isVRep₃ (v₁ v₂ v₃ : V l L) : ∃ (N : ℕ) (a₁ a₂ a₃ : Lˣ),

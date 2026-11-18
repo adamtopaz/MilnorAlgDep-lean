@@ -89,7 +89,7 @@ open IntermediateField KaehlerDifferential
 
 variable {l L : Type*} [Field l] [Field L] [Algebra l L]
 
--- TODO(move): general field theory.
+-- General field theory (a candidate for Mathlib).
 /-- If `y ^ n ∈ F` with `n ≠ 0` in `F` and `y ≠ 0`, then `y` is separable over `F`. -/
 theorem isSeparable_of_pow_eq_algebraMap {F : Type*} [Field F] [Algebra F L] {y : L} {n : ℕ}
     (hn : (n : F) ≠ 0) (hy : y ≠ 0) {z : F} (h : y ^ n = algebraMap F L z) : IsSeparable F y := by
@@ -99,20 +99,6 @@ theorem isSeparable_of_pow_eq_algebraMap {F : Type*} [Field F] [Algebra F L] {y 
     exact hy (pow_eq_zero_iff (by rintro rfl; simp at hn) |>.1 h)
   refine (Polynomial.separable_X_pow_sub_C z hn hz).of_dvd (minpoly.dvd F y ?_)
   simp [h]
-
--- TODO(move): `Standard/Differentials/Basis.lean`.
-omit [Algebra l L] in
-/-- If `E` is separable algebraic over `l(x)` with `x` transcendental over `l`, there is an
-`l`-derivation `δ` of `E` with `δ x = 1`: the coordinate of `d : E → Ω[E⁄l]` along the basis
-`d x` (`MilnorAlgDep.kaehlerBasis`). -/
-theorem exists_derivation_apply_eq_one {E : Type*} [Field E] [Algebra l E] {a : Unit → E}
-    (hb : AlgebraicIndependent l a) (hsep : Algebra.IsSeparable (adjoin l (Set.range a)) E) :
-    ∃ δ : Derivation l E E, δ (a ()) = 1 := by
-  let b := kaehlerBasis hb hsep
-  refine ⟨(b.coord ()).compDer (D l E), ?_⟩
-  change b.coord () (D l E (a ())) = 1
-  rw [← kaehlerBasis_apply hb hsep (), Module.Basis.coord_apply, Module.Basis.repr_self,
-    Finsupp.single_eq_same]
 
 /-- **Core of Blueprint Lemma 6.13.** Let `S ∈ L` be transcendental over `l`, `A : ℤ` and
 `B : ℕ` non-zero in `L` (i.e. prime to the characteristic exponent), and `c, c' ∈ l` with
@@ -181,58 +167,6 @@ theorem eq_of_zpow_eq_of_transcendental {S S' : L} (hS : Transcendental l S) {A 
     simpa [hcoe] using h2
 
 end Core
-
-section Classes
-
-variable {l L : Type*} [Field l] [Field L] [Algebra l L]
-
--- TODO(move): `Foundations/V.lean`.
-/-- (V1) in the form used in Blueprint Lemma 6.13: if `A • [u] = B • [v]` in `V l L` and `l` is
-relatively algebraically closed in `L`, then `u ^ A = c * v ^ B` for some `c ∈ l`. -/
-theorem V.exists_zpow_eq_mul_pow_of_smul_cls_eq [IsRelAlgClosed l L] {u v : Lˣ} {A : ℤ} {B : ℕ}
-    (h : (A : ℚ) • cls (constUnits l L) (.ofMul u) = (B : ℚ) • cls (constUnits l L) (.ofMul v)) :
-    ∃ c : l, (u : L) ^ A = algebraMap l L c * (v : L) ^ B := by
-  have key : cls (constUnits l L) (.ofMul (u ^ A / v ^ B)) = 0 := by
-    rw [cls_div, cls_zpow, cls_pow, ← Int.cast_smul_eq_zsmul ℚ, ← Nat.cast_smul_eq_nsmul ℚ, h,
-      sub_self]
-  obtain ⟨c, hc⟩ := (V.cls_eq_zero_iff' _).1 key
-  refine ⟨c, ?_⟩
-  rw [hc, Units.val_div_eq_div_val, Units.val_zpow_eq_zpow_val, Units.val_pow_eq_pow_val,
-    div_mul_cancel₀ _ (pow_ne_zero _ v.ne_zero)]
-
-end Classes
-
-section Frobenius
-
-variable {L : Type*} [Field L]
-
--- TODO(move): `Foundations/`.
-/-- The Frobenius twist on classes: `[Frob^j y] = p ^ j • [y]`, where `p` is the characteristic
-exponent of the perfect field `L`. -/
-theorem cls_frobeniusEquiv_zpow [PerfectField L] (H : Subgroup Lˣ) (j : ℤ) (y : Lˣ) :
-    cls H (.ofMul (Units.map
-        (((frobeniusEquiv L (ringExpChar L) ^ j : L ≃+* L) : L →+* L) : L →* L) y)) =
-      ((ringExpChar L : ℚ) ^ j) • cls H (.ofMul y) := by
-  set p := ringExpChar L
-  set σ := frobeniusEquiv L p
-  have hnat : ∀ (n : ℕ) (z : Lˣ),
-      Units.map (((σ ^ n : L ≃+* L) : L →+* L) : L →* L) z = z ^ p ^ n := by
-    intro n z
-    ext
-    rw [Units.coe_map, Units.val_pow_eq_pow_val, ← iterateFrobeniusEquiv_eq_pow]
-    rfl
-  have hp : (p : ℚ) ≠ 0 := Nat.cast_ne_zero.2 (expChar_ne_zero L p)
-  obtain ⟨n, rfl | rfl⟩ := Int.eq_nat_or_neg j
-  · rw [zpow_natCast, hnat, cls_pow, zpow_natCast, ← Nat.cast_smul_eq_nsmul ℚ, Nat.cast_pow]
-  · set z := Units.map (((σ ^ (-(n : ℤ)) : L ≃+* L) : L →+* L) : L →* L) y
-    have hz : Units.map (((σ ^ n : L ≃+* L) : L →+* L) : L →* L) z = y := by
-      ext
-      simp [z, zpow_neg]
-    conv_rhs => rw [← hz, hnat, cls_pow]
-    rw [← Nat.cast_smul_eq_nsmul ℚ, smul_smul, zpow_neg, zpow_natCast, Nat.cast_pow,
-      inv_mul_cancel₀ (pow_ne_zero _ hp), one_smul]
-
-end Frobenius
 
 /-- Every non-zero rational number is `p ^ j * A / B` with `A, B` non-zero in `L` (i.e. prime to
 `p`), where `p` is the characteristic exponent of `L`. In characteristic `0`, `j = 0`. -/
