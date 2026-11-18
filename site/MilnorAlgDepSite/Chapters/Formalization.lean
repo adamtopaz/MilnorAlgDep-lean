@@ -50,7 +50,7 @@ MilnorAlgDep/
     Delta.lean            Δ, Lemma 6.5, τ                     6.3.1, 6.5
     StepC.lean            Lemmas 6.10-6.12 (Γ = 0)            6.6.1
     Main.lean             Theorem A, char L = 0               6.7
-  CharP/                  (in progress, contains sorry)
+  CharP/                  (Chapters 3-6, in progress)
     Frobenius.lean        Frob^j as frobZ                     2.2
     Levels.lean           levels, Lemma 3.2                   3.1
     Normalized.lean       normalized triples, Lemma 3.5       3.2
@@ -81,7 +81,7 @@ MilnorAlgDep/
     TheoremD.lean         Theorem D                           7.4
 ```
 
-The files under `CharP/` for Chapters 3–5 are being proved, and Steps A and C in positive
+The files under `CharP/` for Chapters 3–5 have just been merged; Steps A and C in positive
 characteristic will add further files there.
 Every file is a Lean module and starts with a docstring saying which part of the blueprint it
 formalizes; every declaration corresponding to a numbered statement has a docstring naming it.
@@ -214,7 +214,7 @@ Placeholders refer to the positive characteristic part, which is in progress.
     {name}`algebraicIndependent_iff_linearIndependent_kaehler_D`
 *
   * other statements of Chapters 3–5
-  * placeholder (in progress in `CharP/`)
+  * see `MilnorAlgDep/CharP/` (to be described in Chapters 3–5)
 *
   * Section 6.1
   * {name}`extendPsi`, {name}`theoremA_perfect_of_isPRadical`,
@@ -420,7 +420,5 @@ tag := "ss:formalStatus"
 %%%
 
 See {ref "ss:status"}[Section 1.5].
-The main theorems depend on one `sorry`, the proof of {name}`theoremA_core_charP` in
-`MilnorAlgDep/CharP/Main.lean`.
-The other files under `CharP/` contain further `sorry`s while they are being written; there are
-none outside `CharP/`.
+At the time of writing, the only `sorry` in the library is the proof of
+{name}`theoremA_core_charP` in `MilnorAlgDep/CharP/Main.lean`.

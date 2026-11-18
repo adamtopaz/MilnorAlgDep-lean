@@ -267,10 +267,11 @@ The main theorems depend on exactly one unproved declaration,
 {name}`theoremA_core_charP`: Theorem A for perfect fields $`K` and $`L` with
 $`\chr L > 0`, whose proof is the subject of {ref "sec:levels"}[Chapters 3–5] and of the
 characteristic $`p` parts of {ref "sec:main"}[Chapter 6].
-Its proof is `sorry`.
-The files for that proof, under `MilnorAlgDep/CharP/`, are being written and still contain
-`sorry`s; outside `CharP/` there are none.
-In detail (November 2026):
+Its proof is `sorry`, and at the time of writing (November 2026) it is the only `sorry` in the
+library.
+The formalization of Chapters 3–5 (in `MilnorAlgDep/CharP/`) has just been merged; Steps A
+and C in positive characteristic are in progress.
+In detail:
 
 :::table +header
 *
