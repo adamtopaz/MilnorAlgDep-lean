@@ -83,21 +83,21 @@ Status: `todo`, `active`, `review`, `done`.
 | WP0 | Foundations + frozen statements (with `sorry`) | — | done |
 | WP-B | Abstract Step B | — | done |
 | WP-S | Standard facts: S1–S3, Lemma 2.2, Lemma 3.1 | — | done |
-| WP-V1 | Verso site infrastructure + GitHub Pages | — | review |
+| WP-V1 | Verso site infrastructure + GitHub Pages | — | done |
 | WP-R | Eigenvalue lemma (Lemma 2.2), `Standard/Eigenvalue.lean` | — | done |
 | WP-K0 | Existence of valuations, `Milnor/ValuationExt.lean` | — | done |
-| WP-K1 | `Milnor/Defs`: grading, degree one, functoriality | WP0 | active |
-| WP-K2 | Tame symbol, Lemma 7.2 | WP-K1 | active |
+| WP-K1 | `Milnor/Defs`: grading, degree one, functoriality | WP0 | done |
+| WP-K2 | Tame symbol, Lemma 7.2 | WP-K1 | done |
 | WP-K3 | Theorems B, C, D from Theorem A | WP-K2 | active |
-| WP-U | Uniqueness, Lemma 6.13 | WP0 | active |
-| WP-A0 | Theorem A in characteristic 0 | WP0, WP-B, WP-S | active |
+| WP-U | Uniqueness, Lemma 6.13 | WP0 | done |
+| WP-A0 | Theorem A in characteristic 0 | WP0, WP-B, WP-S | done |
 | WP-P1 | Levels and normalized triples (Section 3) | WP0, WP-S | active |
 | WP-P2 | Models (Section 4) | WP-P1 | todo |
 | WP-P3 | Quadrangle (Section 5) | WP-P2 | todo |
 | WP-P4 | Step A (6.1–6.2) | WP-P3 | todo |
 | WP-P5 | Adapted model (6.3) | WP-P2, WP-P4 | todo |
 | WP-P6 | Step C in characteristic p (6.6) | WP-P5, WP-B | todo |
-| WP-P7 | Reduction to perfect fields, assembly of Theorem A | WP-P6, WP-A0, WP-U | active |
+| WP-P7 | Reduction to perfect fields, assembly of Theorem A | WP-P6, WP-A0, WP-U | done |
 | WP-V2 | Verso companion text | all | todo |
 | WP-Z | Final audit: no `sorry`, `#print axioms`, statement review | all | todo |
 
@@ -121,3 +121,8 @@ The statements in these stub files are frozen too.
   polynomial, without Gauss's lemma. WP-B needed no hypothesis beyond (H0)-(H3).
 
 (The supervisor records decisions, deviations from the blueprint and discovered gaps here.)
+- 2026-11-18: Theorem A is proved when `char L = 0`; uniqueness (Lemma 6.13), the reductions,
+  Lemmas 7.1 and 7.2 and the `GradedAlgebra` instance are proved. Remaining `sorry`s:
+  `CharP/Main.lean` (the characteristic p core) and Theorems B, C, D (WP-K3 in progress).
+- Possible strengthening for the final audit: drop `hφsymm` from `theoremD` (redundant given
+  `MilnorKQ.gradedAlgebra`), and note that Lemma 7.2(a) does not use `IsRelAlgClosed`.
