@@ -1198,8 +1198,8 @@ Induction on $`j` gives the claim.
 
 By (eq:padic), $`\psi(u) - r_j[s] = p^j w_j` with $`w_j \in W`, so
 $`p^j (N w_j) = [a\, s^{-N r_j}]`.
-Let $`(M_j, g)` be a representative of $`N w_j` with $`g \in L_A` (definition of $`W`; for
-$`N w_j = 0` it is $`(1, 1)`).
+Let $`(M_j, g)` be a representative of $`N w_j` with $`g \in L_A`; it exists by the definition of
+$`W`, also when $`N w_j = 0`.
 Then $`(a\, s^{-N r_j})^{M_j} = c\, g^{p^j}` with $`c \in l^\times` by (V1), and $`g \in E` by
 (eq:Epower), since $`g^{p^j} = c^{-1} (a\, s^{-N r_j})^{M_j} \in E`.
 So for every $`j`,
