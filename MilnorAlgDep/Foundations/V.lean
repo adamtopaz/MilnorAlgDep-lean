@@ -164,7 +164,25 @@ representative `(N, a)` with `N` prime to the characteristic exponent of `L`. -/
 theorem exists_rep_coprime [PerfectField L] {v : V l L} (hv : v ≠ 0) :
     ∃ (N : ℕ) (a : Lˣ), 0 < N ∧ N.Coprime (ringExpChar L) ∧ (a : L) ∉ (algebraMap l L).range ∧
       N • v = cls (constUnits l L) (.ofMul a) := by
-  sorry
+  obtain ⟨n, b, hn, hb⟩ := exists_nsmul_eq_cls v
+  rcases expChar_is_prime_or_one L (ringExpChar L) with hprime | hone
+  · set p := ringExpChar L
+    obtain ⟨j, m, hndvd, rfl⟩ := Nat.exists_eq_pow_mul_and_not_dvd hn.ne' p hprime.one_lt.ne'
+    have hm : 0 < m := Nat.pos_of_ne_zero fun h ↦ by simp [h] at hn
+    let c : Lˣ := Units.map ((iterateFrobeniusEquiv L p j).symm : L →* L) b
+    have hc : c ^ (p ^ j) = b := by
+      ext
+      rw [Units.val_pow_eq_pow_val]
+      change ((iterateFrobeniusEquiv L p j).symm b) ^ p ^ j = b
+      rw [← iterateFrobenius_def, ← coe_iterateFrobeniusEquiv, RingEquiv.apply_symm_apply]
+    have key : m • v = cls (constUnits l L) (.ofMul c) := by
+      refine nsmul_left_cancel (pow_ne_zero j hprime.ne_zero) ?_
+      rw [← cls_pow, hc, ← hb, smul_smul]
+    refine ⟨m, c, hm, ?_, not_mem_range_of_nsmul_eq_cls hv hm key, key⟩
+    exact Nat.coprime_comm.1 ((Nat.Prime.coprime_iff_not_dvd hprime).2 hndvd)
+  · refine ⟨n, b, hn, ?_, not_mem_range_of_nsmul_eq_cls hv hn hb, hb⟩
+    rw [hone]
+    exact Nat.coprime_one_right n
 
 /-- Blueprint (V2): if `l` is relatively algebraically closed in `L` and `(N, a)`, `(N', a')`
 are representatives of the same element (`N • v = [a]`, `N' • v = [a']`), then
@@ -173,7 +191,12 @@ theorem rep_unique [IsRelAlgClosed l L] {v : V l L} {N N' : ℕ} {a a' : Lˣ}
     (h : N • v = cls (constUnits l L) (.ofMul a))
     (h' : N' • v = cls (constUnits l L) (.ofMul a')) :
     ∃ c : l, (a : L) ^ N' = algebraMap l L c * (a' : L) ^ N := by
-  sorry
+  have key : cls (constUnits l L) (.ofMul (a ^ N' / a' ^ N)) = 0 := by
+    rw [cls_div, cls_pow, cls_pow, ← h, ← h', smul_smul, smul_smul, mul_comm, sub_self]
+  obtain ⟨c, hc⟩ := (cls_eq_zero_iff' _).1 key
+  refine ⟨c, ?_⟩
+  rw [hc, Units.val_div_eq_div_val, Units.val_pow_eq_pow_val, Units.val_pow_eq_pow_val,
+    div_mul_cancel₀ _ (pow_ne_zero _ a'.ne_zero)]
 
 end V
 
