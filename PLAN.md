@@ -95,12 +95,12 @@ Status: `todo`, `active`, `review`, `done`.
 | WP-P2 | Section 4 proofs: `CharP/Models` (Lemma 4.3, heights, lines, lax, propagation) | WP-P1 interface | done |
 | WP-P3 | `CharP/Trichotomy`, `CharP/Quadrangle` (Lemmas 4.6, 5.1) | WP-P1 interface | done |
 | WP-P4 | Section 6 skeleton; Step A (`LevelV`, `StepA`: gauge, cocycle, Prop 6.1); Lemma 6.4; `Main.lean` from the skeleton | WP-P1..P3 | done |
-| WP-P5 | Lemma 6.5 in `CharP/AdaptedModel` (6 `sorry`) | WP-P4 | active |
-| WP-P6a | `CharP/StepCFields` (eigenvalue lemma in a model, `eq:Epower`, norm argument; 5 `sorry`) | WP-P4 | active |
-| WP-P6b | `CharP/StepC` (`eq:roots`, Lemmas 6.10, 6.11, Prop 6.12; 15 `sorry`) | WP-P4 | active |
+| WP-P5 | Lemma 6.5 in `CharP/AdaptedModel` (6 `sorry`) | WP-P4 | done |
+| WP-P6a | `CharP/StepCFields` (eigenvalue lemma in a model, `eq:Epower`, norm argument; 5 `sorry`) | WP-P4 | done |
+| WP-P6b | `CharP/StepC` (`eq:roots`, Lemmas 6.10, 6.11, Prop 6.12; 15 `sorry`) | WP-P4 | done |
 | WP-P7 | Reduction to perfect fields, assembly of Theorem A | — | done |
-| WP-V2 | Verso companion text | all | todo |
-| WP-Z | Final audit: no `sorry`, `#print axioms`, statement review | all | todo |
+| WP-V2 | Verso companion text (a: char 0 + K-theory, b: Sections 3-5 done; c: Section 6 in char p) | all | active |
+| WP-Z | Final pass: cleanup and strengthening (Z1), independent statement audit (Z2) | all | active |
 
 ### Stub files and wiring (supervisor)
 
@@ -141,3 +141,11 @@ The statements in these stub files are frozen too.
   statements. Step A (gauge, cocycle, Proposition 6.1) and Lemma 6.4 are proved. Remaining
   `sorry`s: `AdaptedModel` (6), `StepCFields` (5), `StepC` (15). Companion text for Chapters 1-5,
   7-9 and the characteristic 0 part of Chapter 6 is published.
+- 2026-11-18: **All `sorry`s are gone.** `theoremA`, `theoremA_perfect`, `theoremA_perfect_unique`,
+  `theoremB`, `theoremC`, `theoremD` (and the uniqueness clauses) depend only on `propext`,
+  `Classical.choice`, `Quot.sound`; the frozen statements and the definitions they mention are
+  byte-identical to the interface reviewed in PR #5. No error was found in the blueprint; the
+  simplifications found on the way are recorded in the PR descriptions (#22, #27, #28).
+- Final pass (supervisor decision): unused hypotheses may be dropped from frozen statements
+  (`hφsymm` in `theoremD`, `hr'` in `theoremB_unique`/`theoremC_unique`, `IsRelAlgClosed` in
+  Lemma 7.2(a)); nothing else about the frozen statements changes.
