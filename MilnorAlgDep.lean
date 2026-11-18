@@ -18,6 +18,7 @@ public import MilnorAlgDep.CharP.StepA
 public import MilnorAlgDep.CharP.StepC
 public import MilnorAlgDep.CharP.StepCFields
 public import MilnorAlgDep.CharP.Trichotomy
+public import MilnorAlgDep.Converse
 public import MilnorAlgDep.Foundations.AlgIndep
 public import MilnorAlgDep.Foundations.PerfectClosure
 public import MilnorAlgDep.Foundations.Points

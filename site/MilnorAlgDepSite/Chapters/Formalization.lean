@@ -65,6 +65,7 @@ MilnorAlgDep/
     ExtendPsi.lean        extension of ψ to K^i               6.1
   Uniqueness.lean         Lemma 6.13                          6.7
   TheoremA.lean           statements of Theorem A             1.1
+  Converse.lean           converse of Theorem A, non-vacuity  1.1
   Milnor/
     Defs.lean             MilnorKQ, grading, φ₁, τ_*, r^deg   7
     Basic.lean            properties, direct sum              7

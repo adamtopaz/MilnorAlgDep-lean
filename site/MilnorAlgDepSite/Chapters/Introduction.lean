@@ -84,6 +84,19 @@ $`V_{L|l} = V_{L^i|l^i}` ({ref "ss:perfectClosure"}[Section 2.3.1]).
 
 Conversely, every pair $`(\tau, r)` as in the theorem defines a homomorphism
 $`\psi = r[\tau]` satisfying (A1) and (A2).
+
+{docstring MilnorAlgDep.theoremA_converse}
+
+{docstring MilnorAlgDep.theoremA_converse_perfectClosure}
+
+The hypotheses of Theorem A can be satisfied together: if a perfect field $`L` contains $`d`
+elements algebraically independent over $`l`, then $`K = L`, $`k = l` and $`\psi = [\,\cdot\,]`
+satisfy (A1)–(A4), and $`L = \QQ(X_0, X_1)` is an explicit example.
+
+{docstring MilnorAlgDep.theoremA_perfect_hypotheses}
+
+{docstring MilnorAlgDep.theoremA_perfect_hypotheses_ratFunc}
+
 For function fields of transcendence degree at least $`2` over algebraically closed fields, a
 statement of this kind is due to {citet Bib.BT}[].
 Theorem A has no assumption on the fields, and its proof is different.
