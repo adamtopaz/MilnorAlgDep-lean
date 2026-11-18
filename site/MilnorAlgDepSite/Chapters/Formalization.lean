@@ -41,6 +41,7 @@ MilnorAlgDep/
   Standard/
     Differentials/        (S1)-(S3), Lemma 4.5 (general)      2.4
     Eigenvalue.lean       Lemma 2.2                           2.4.5
+    SepCrit.lean          separability criterion (Lemma 3.1)  3.2
   StepB/
     Basic.lean            μ, t, Lemmas 6.6, 6.7               6.4
     Abstract.lean         Lemma 6.8, (P3), Prop. 6.9          6.5
@@ -50,16 +51,15 @@ MilnorAlgDep/
     Delta.lean            Δ, Lemma 6.5, τ                     6.3.1, 6.5
     StepC.lean            Lemmas 6.10-6.12 (Γ = 0)            6.6.1
     Main.lean             Theorem A, char L = 0               6.7
-  CharP/                  (Chapters 3-6, in progress)
-    Frobenius.lean        Frob^j as frobZ                     2.2
-    Levels.lean           levels, Lemma 3.2                   3.1
-    Normalized.lean       normalized triples, Lemma 3.5       3.2
-    Model.lean            models, Lemma 4.2                   4
-    Models.lean           points in a model, Lemma 4.3        4
-    Trichotomy.lean       Lemma 4.6                           4
+  CharP/                  (Chapters 3-5; Chapter 6 in progress)
+    Frobenius.lean        Frob^j as frobZ, l is perfect       2.2, 3
+    Model.lean            Def. 4.1, Lemma 4.2, criterion      3.2, 4.1
+    Levels.lean           ≈, levDiff, Lemma 3.2               3.3
+    Normalized.lean       Def. 3.4, Lemma 3.5, levelTriple    3.4
+    Models.lean           hgt, ω, Lemmas 4.3, 4.5             4.2, 4.3
+    Trichotomy.lean       Lemma 4.6                           4.4
     Quadrangle.lean       Lemma 5.1                           5
     Main.lean             Theorem A, char L > 0 (sorry)       3-6
-  Standard/SepCrit.lean   replaces Lemma 3.1                  3
   Reduction.lean          reduction to perfect K and L        6.1
   Reduction/
     ExtendPsi.lean        extension of ψ to K^i               6.1
@@ -81,8 +81,9 @@ MilnorAlgDep/
     TheoremD.lean         Theorem D                           7.4
 ```
 
-The files under `CharP/` for Chapters 3–5 have just been merged; Steps A and C in positive
-characteristic will add further files there.
+The files under `CharP/` for Chapters 3–5 are complete, with no `sorry`; they are listed in
+dependency order.
+Steps A and C in positive characteristic will add further files there.
 Every file is a Lean module and starts with a docstring saying which part of the blueprint it
 formalizes; every declaration corresponding to a numbered statement has a docstring naming it.
 The root module `MilnorAlgDep` imports all files.
@@ -151,6 +152,11 @@ The following encoding choices are made throughout.
 * _Differentials._ $`\Omega_{E|l}` is `Ω[E⁄l]` and $`d` is `KaehlerDifferential.D l E`.
   "$`E` is separable algebraic over $`l(A)`" is
   `Algebra.IsSeparable (IntermediateField.adjoin l (Set.range a)) E` for a family `a : ι → E`.
+* _Levels._ {ref "sec:levels"}[Chapters 3–5] work with elements instead of sets of levels:
+  points are given by transcendental elements, levels by level differences
+  {name}`levDiff` `l p s t` $`= \lev(s) - \lev(t)`, level triples by
+  {name}`levelTriple` `l p x y z`, and the model level by heights {name}`hgt` `l p B y`.
+  The dictionary is in {cref "ss:elementwise"}[].
 
 # Blueprint items and Lean declarations
 %%%
@@ -213,8 +219,56 @@ Placeholders refer to the positive characteristic part, which is in progress.
   * {name}`algebraicIndependent_of_linearIndependent_kaehler_D`,
     {name}`algebraicIndependent_iff_linearIndependent_kaehler_D`
 *
-  * other statements of Chapters 3–5
-  * see `MilnorAlgDep/CharP/` (to be described in Chapters 3–5)
+  * $`\Frob^j`; $`l` is perfect (Chapter 3)
+  * {name}`frobZ`, {name}`IsRelAlgClosed.perfectField`, {name}`point_frobZ`
+*
+  * Lemma 3.1
+  * not formalized; replaced by {name}`isSeparable_adjoin_of_linearIndependent_kaehler_D`,
+    {name}`isSeparable_of_linearIndependent_modelD`
+*
+  * same point, $`s \approx t`
+  * {name}`SamePoint`, {name}`SepEquiv`
+*
+  * Lemma 3.2
+  * {name}`existsUnique_sepEquiv_frobZ`, {name}`SepEquiv.trans`
+*
+  * Definition 3.3 (levels)
+  * {name}`levDiff`, {name}`levDiff_eq_iff`, {name}`levDiff_nonneg_iff`
+*
+  * Definition 3.4 (normalized triples)
+  * {name}`IsCollinearTriple`, {name}`IsNormalized`
+*
+  * Lemma 3.5, level triples
+  * {name}`exists_isNormalized`, {name}`IsNormalized.isNormalized_iff`,
+    {name}`levelTriple`, {name}`isNormalized_levelTriple`,
+    {name}`levelTriple_eq_of_isNormalized`
+*
+  * Definition 4.1 (models)
+  * {name}`model`, {name}`modelD`
+*
+  * Lemma 4.2
+  * {name}`modelBasis`, {name}`mem_model_of_isSeparable`,
+    {name}`exists_pow_pow_mem_model`
+*
+  * Lemma 4.3
+  * {name}`frobZ_neg_mem_model_iff`, {name}`hgt_eq_zero_iff`,
+    {name}`span_modelD_eq_of_hgt_eq_zero`
+*
+  * Definition 4.4 (height, line)
+  * {name}`hgt`, {name}`hgt_sub_hgt`, {name}`omega`,
+    {name}`omega_eq_of_samePoint`
+*
+  * Lemma 4.5 for points, propagation
+  * {name}`not_linearIndependent_modelD_of_not_algebraicIndependent`,
+    {name}`omega_le_sup_of_isAlgebraic`, {name}`omega_eq_inf_of_isAlgebraic`
+*
+  * Lemma 4.6
+  * {name}`IsNormalized.trichotomy_lt`, {name}`IsNormalized.trichotomy_eq_of_omega_ne`,
+    {name}`IsNormalized.trichotomy_eq_of_omega_eq`, {name}`IsNormalized.hgt_le_of_hgt_le`,
+    {name}`isNormalized_of_hgt_eq_zero`, {name}`IsNormalized.hgt_eq_of_omega_ne`
+*
+  * Lemma 5.1
+  * {name}`quadrangle`, {name}`levelTriple_fst_add_levelTriple_fst`
 *
   * Section 6.1
   * {name}`extendPsi`, {name}`theoremA_perfect_of_isPRadical`,
@@ -324,7 +378,8 @@ tag := "ss:deviations"
 
 The formal proofs follow the blueprint, with the following differences.
 None of them is a correction of a mathematical error; the formalization so far has found no gap
-in the characteristic $`0` part of the blueprint or in its Section 7.
+in the characteristic $`0` part of the blueprint, in its Sections 2–5 or in its Section 7 (see
+also {cref "ss:formalAdds"}[]).
 
 _Organization._
 
@@ -363,6 +418,40 @@ _Standard facts_ ({ref "sec:conv"}[Chapter 2]).
 * _The eigenvalue lemma avoids Gauss's lemma_ ({ref "ss:eigenvalue"}[Section 2.4.5]).
   It works with the minimal polynomial over $`l(a)`, and identifies the eigenvalues of the Euler
   operator on $`l(a)` as differences of orders of vanishing at $`0`.
+
+_Levels, models, quadrangle_ ({ref "sec:levels"}[Chapters 3–5]).
+
+* _Element-wise formulation_ ({cref "ss:elementwise"}[]).
+  There is no torsor of levels $`\Lambda(P)`: the formalization uses the relation $`\approx`
+  ({name}`SepEquiv`), "same point" ({name}`SamePoint`) and the level difference
+  {name}`levDiff` `l p s t` $`= \lev(s) - \lev(t) \in \ZZ` with its calculus.
+  Normalized triples are a predicate on elements that includes "three distinct collinear points"
+  ({name}`IsNormalized`, {name}`IsCollinearTriple`), and the level triple is recorded relative to
+  three elements ({name}`levelTriple`).
+  The model level $`\lambda_A(P)` is not defined: heights are defined directly as a supremum
+  ({name}`hgt`), and the line of a point through its canonical model generator ({name}`omega`).
+* _Lemma 3.1 is not formalized._
+  It is replaced by a separability criterion: over a perfect field, if the differentials of a
+  family are linearly independent, every element algebraic over the field it generates is
+  separable over it ({name}`isSeparable_adjoin_of_linearIndependent_kaehler_D`; proof through the
+  minimal polynomial, coordinate derivations and (S3)).
+  No irreducible multivariate relation occurs in the formal proofs: Lemma 3.2 is proved in the
+  model of the one-element family $`(t)`, Lemma 3.5 (a) in the models of $`(x, y)` and
+  $`(x, z_0)`, Lemma 3.5 (b) with the span statements of (S2), and the trichotomy from "each of
+  $`dx, dy, dz` lies in the span of the other two".
+* _Models are defined for any family_ $`B` ({name}`model`), not only for transcendence bases, and
+  the differential {name}`modelD` is a total function, $`0` outside the model.
+* _Lemma 4.3_ is proved from two facts, that the height is constant on $`\approx`-classes and
+  that $`\hgt(\Frob^j y) = \hgt(y) + j`, instead of the blueprint's case analysis.
+* _Lemma 4.5_ holds for any algebraically dependent family of transcendental elements, so
+  propagation needs no distinctness hypothesis.
+* _Lemma 4.6 (c)_ holds under the weaker hypothesis $`i \leq j`
+  ({name}`IsNormalized.hgt_le_of_hgt_le`).
+* _Lemma 5.1_ is stated for seven elements and six normalized triples ({name}`quadrangle`) and
+  proved in coordinates with respect to {name}`modelBasis`; the incidences
+  $`G \notin \{A, C, D, E\}`, $`H \notin \{A, B, C, G\}` come out of the distinctness of the lines
+  instead of being proved first, and only the inclusion half of propagation is used.
+  The consequence used for Lemma 6.3 is {name}`levelTriple_fst_add_levelTriple_fst`.
 
 _Theorem A_ ({ref "sec:main"}[Chapter 6]).
 

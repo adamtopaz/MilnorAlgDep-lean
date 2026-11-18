@@ -94,7 +94,10 @@ Status: `todo`, `active`, `review`, `done`.
 | WP-P1 | Section 3 proofs: `Standard/SepCrit`, `CharP/Frobenius`, `CharP/Model`, `CharP/Levels`, `CharP/Normalized` (interface for Sections 3-5 merged) | WP0, WP-S | done |
 | WP-P2 | Section 4 proofs: `CharP/Models` (Lemma 4.3, heights, lines, lax, propagation) | WP-P1 interface | done |
 | WP-P3 | `CharP/Trichotomy`, `CharP/Quadrangle` (Lemmas 4.6, 5.1) | WP-P1 interface | done |
-| WP-P4 | Section 6 skeleton in characteristic p (`CharP/StepA`, `AdaptedModel`, `StepC`, `Main`), then proofs | WP-P1 interface | active |
+| WP-P4 | Section 6 skeleton; Step A (`LevelV`, `StepA`: gauge, cocycle, Prop 6.1); Lemma 6.4; `Main.lean` from the skeleton | WP-P1..P3 | done |
+| WP-P5 | Lemma 6.5 in `CharP/AdaptedModel` (6 `sorry`) | WP-P4 | active |
+| WP-P6a | `CharP/StepCFields` (eigenvalue lemma in a model, `eq:Epower`, norm argument; 5 `sorry`) | WP-P4 | active |
+| WP-P6b | `CharP/StepC` (`eq:roots`, Lemmas 6.10, 6.11, Prop 6.12; 15 `sorry`) | WP-P4 | active |
 | WP-P7 | Reduction to perfect fields, assembly of Theorem A | — | done |
 | WP-V2 | Verso companion text | all | todo |
 | WP-Z | Final audit: no `sorry`, `#print axioms`, statement review | all | todo |
@@ -134,3 +137,7 @@ The statements in these stub files are frozen too.
 - Docstring numbering to fix in the final audit: blueprint numbering is Lemma 2.1 = (S1)-(S3),
   Lemma 2.2 = eigenvalue, Lemma 4.5 = lax, Lemma 4.6 = trichotomy; some WP-S docstrings say
   "Lemma 2.3" / "Lemma 4.6" for (S) / lax. Several helper lemmas are marked `TODO(move)`.
+- 2026-11-18: Section 6 skeleton merged; `theoremA_core_charP` is proved from the skeleton
+  statements. Step A (gauge, cocycle, Proposition 6.1) and Lemma 6.4 are proved. Remaining
+  `sorry`s: `AdaptedModel` (6), `StepCFields` (5), `StepC` (15). Companion text for Chapters 1-5,
+  7-9 and the characteristic 0 part of Chapter 6 is published.
