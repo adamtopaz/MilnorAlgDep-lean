@@ -7,7 +7,7 @@ public import MilnorAlgDep.CharP.Quadrangle
 # Step A: the levels of `ψ(x)` and `ψ(1 - x)`
 
 Blueprint Section 6.2 (`sec:stepA`) with `Γ = ℤ`: Proposition 6.1 (`prop:levels`),
-equation (6.2) `eq:nohom`, Lemma 6.2 (`lem:gauge`), Lemma 6.3 (`lem:cocycle`), equation (6.4)
+equation `eq:nohom`, Lemma 6.2 (`lem:gauge`), Lemma 6.3 (`lem:cocycle`), equation
 `eq:nu`.
 
 We work with `H : CharPHyp K l L`, `L` perfect of characteristic `p`, `l` relatively algebraically
@@ -16,7 +16,7 @@ closed, and (for Proposition 6.1) `K` perfect.
 ## Main definitions
 
 * `CharPHyp.n p s = lev ψ(1 - s) - lev ψ(s)` for `s ∉ k`.
-* `CharPHyp.c p u w`: for `ψ`-independent `u, w`, the integer `c(u, w)` of (6.3) `eq:defc`, i.e.
+* `CharPHyp.c p u w`: for `ψ`-independent `u, w`, the integer `c(u, w)` of `eq:defc`, i.e.
   `(lev ψ(u), lev ψ(w) + c(u, w), *)` is the level triple of `(Q_u, Q_w, Q_{u+w})`. In terms of
   the chosen representatives `ρ`, it is the first entry of `levelTriple l p (ρ u) (ρ w) (ρ (u+w))`.
 * `CharPHyp.ν p s`: the right hand side of Lemma 6.2, as a function of `s`.
@@ -28,8 +28,8 @@ closed, and (for Proposition 6.1) `K` perfect.
   case `n(s) = 0 < n(1/s)`; exhaustiveness is `n_inv_nonneg_of_n_eq_zero`.
 * `CharPHyp.c_add_c`: Lemma 6.3 (cocycle), from the quadrangle lemma
   (`levelTriple_fst_add_levelTriple_fst`).
-* `CharPHyp.ν_neg_mul`: equation (6.4) `eq:nu`.
-* `nohom`: equation (6.2) `eq:nohom`.
+* `CharPHyp.ν_neg_mul`: equation `eq:nu`.
+* `nohom`: equation `eq:nohom`.
 * `CharPHyp.n_eq_zero`, `CharPHyp.levDiffV_one_sub`, `CharPHyp.hgtV_one_sub`:
   Proposition 6.1, `lev ψ(1 - x) = lev ψ(x)` for `x ∉ k`.
 -/
@@ -85,7 +85,7 @@ theorem levelTriple_swap_fst (p : ℕ) [Fact p.Prime] [CharP L p] [PerfectField 
 
 end Aux
 
-/-- Blueprint equation (6.2) `eq:nohom`: if `K` is perfect of positive characteristic, every
+/-- Blueprint equation `eq:nohom`: if `K` is perfect of positive characteristic, every
 homomorphism `Kˣ → ℤ` is trivial (`Kˣ` is divisible by the characteristic). -/
 theorem nohom {K : Type*} [Field K] [PerfectField K] (hK : ringChar K ≠ 0)
     (χ : Additive Kˣ →+ ℤ) : χ = 0 := by
@@ -103,7 +103,7 @@ value is meaningless). -/
 noncomputable def n (s : K) : ℤ :=
   levDiffV p (H.ψK (1 - s)) (H.ψK s)
 
-/-- Blueprint (6.3) `eq:defc`: for `ψ`-independent `u, w`, the integer `c(u, w)` such that
+/-- Blueprint `eq:defc`: for `ψ`-independent `u, w`, the integer `c(u, w)` such that
 `(lev ψ(u), lev ψ(w) + c(u, w), *)` is the level triple of `(Q_u, Q_w, Q_{u+w})`, i.e. the first
 entry of the level triple of `(Q_u, Q_w, Q_{u+w})` relative to the chosen representatives
 `ρ u, ρ w, ρ (u + w)` (`isNormalized_levelTriple`). Meaningless if `u, w` are not
@@ -197,7 +197,7 @@ theorem c_add_c {u w z : K} (h : VAlgIndep l ![H.ψK u, H.ψK w, H.ψK z]) :
 
 /-! ### Proposition 6.1 -/
 
-/-- Blueprint equation (6.4) `eq:nu`: `ν(-s s') = ν(s) + ν(s')` for `ψ`-independent `s, s'`. -/
+/-- Blueprint equation `eq:nu`: `ν(-s s') = ν(s) + ν(s')` for `ψ`-independent `s, s'`. -/
 theorem ν_neg_mul {s s' : K} (h : VAlgIndep l ![H.ψK s, H.ψK s']) :
     H.ν p (-(s * s')) = H.ν p s + H.ν p s' := by
   sorry

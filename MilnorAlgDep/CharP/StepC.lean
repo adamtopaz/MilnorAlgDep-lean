@@ -6,7 +6,7 @@ public import MilnorAlgDep.Standard.Eigenvalue
 /-!
 # Step C in characteristic `p`: identification of `ψ` on `K₀`
 
-Blueprint Section 6.6 with `Γ = ℤ`, and equation (6.6) `eq:roots` from Section 6.5.
+Blueprint Section 6.6 with `Γ = ℤ`, and equation `eq:roots` from Section 6.5.
 
 Throughout, `H : CharPHyp K l L` with `K`, `L` perfect, `L` of characteristic `p`, and `l`
 relatively algebraically closed; `B = H.B p` is the adapted transcendence basis, `F = L_B` the
@@ -15,21 +15,21 @@ Proposition 6.9. By Proposition 6.9 `K` has characteristic `p` (`CharPHyp.charP_
 
 ## Main statements
 
-* (6.6) `eq:roots`: `CharPHyp.pow_mem_K₀` (`Frob(K₀) ⊆ K₀`), `CharPHyp.exists_pow_pow_mem_K₀`
+* `eq:roots`: `CharPHyp.pow_mem_K₀` (`Frob(K₀) ⊆ K₀`), `CharPHyp.exists_pow_pow_mem_K₀`
   (`K = ⋃ Frob^{-j}(K₀)`), `CharPHyp.exists_primitive_root` and
   `CharPHyp.hgtV_pow_pow_of_primitive` (every `x ∈ K₀ \ k` is `Frob^j(x₀)` for a unique primitive
   `x₀`, with `j = ht ψ(x)`).
 * **Lemma 6.10** (`lem:tauinQ`): `CharPHyp.τ_mem_pointV`, `CharPHyp.τ_mem_range_of_mem`,
   `CharPHyp.τ_notMem_range`.
 * `exists_intCast_of_modelDLog_eq`: the eigenvalue lemma (Lemma 2.2) in the form used in
-  Lemmas 6.10, 6.11 and (6.7) `eq:lift`.
+  Lemmas 6.10, 6.11 and `eq:lift`.
 * **Lemma 6.11** (`lem:theta`): `CharPHyp.exists_θ`, through `CharPHyp.hgt_τ_eq_of_transverse`,
   `CharPHyp.exists_hgt_τ_coeff` (heights `e(x) = e₀` and coefficient `θ` constant) and
   `CharPHyp.hgt_τ_eq_zero` (`e₀ = 0`).
 * **Proposition 6.12** (`prop:rational`), case `Γ = ℤ`: `CharPHyp.exists_rat_ψ₀_eq`, broken into
-  - `CharPHyp.exists_lift`: (6.7) `eq:lift`;
-  - `CharPHyp.exists_padic`: (6.8) `eq:padic`, `ψ - r_j [τ] ∈ p^j W` on `K₀ˣ`;
-  - `mem_of_pow_pow_mem`: (6.9) `eq:Epower`, `E ∩ L_A^{p^j} = E^{p^j}`;
+  - `CharPHyp.exists_lift`: `eq:lift`;
+  - `CharPHyp.exists_padic`: `eq:padic`, `ψ - r_j [τ] ∈ p^j W` on `K₀ˣ`;
+  - `mem_of_pow_pow_mem`: `eq:Epower`, `E ∩ L_A^{p^j} = E^{p^j}`;
   - `exists_pow_eq_mul_pow_pow`: from `p^j • v = [b]` with `v ∈ W`, `b ∈ E` to
     `b^M = c y^{p^j}` with `y ∈ E`;
   - `exists_dvd_sub_of_forall_pow_eq`: the norm argument and unique factorization in `l[s]`
@@ -40,7 +40,7 @@ Proposition 6.9. By Proposition 6.9 `K` has characteristic `p` (`CharPHyp.charP_
 ## Remark on the blueprint
 
 In the proof of Proposition 6.12 the integers `r_j` need not be compatible (`r_{j+1} ≡ r_j`): only
-(6.8) for each `j` separately is used. We therefore state (6.8) as `∀ j, ∃ r, …`.
+`eq:padic` for each `j` separately is used. We therefore state `eq:padic` as `∀ j, ∃ r, …`.
 -/
 
 @[expose] public section
@@ -59,7 +59,7 @@ variable (p : ℕ) [Fact p.Prime] [CharP L p] [PerfectField L] [IsRelAlgClosed l
 
 include p in
 /-- **Blueprint Lemma 2.2** (eigenvalue lemma) in a model, in the form used in Lemmas 6.10, 6.11
-and in (6.7) `eq:lift`: let `a ∈ L_B` with `d a ≠ 0` in `Ω_B`, and `b ≠ 0` separable algebraic
+and in `eq:lift`: let `a ∈ L_B` with `d a ≠ 0` in `Ω_B`, and `b ≠ 0` separable algebraic
 over `l(a)`. If `dlog b = κ • dlog a` in `Ω_B` with `κ ∈ l`, then `κ` lies in the prime field
 `F_p`, i.e. is the image of an integer. (Apply Lemma 2.2 to the derivation `δ` of the field of
 elements separable over `l(a)` with `d f = δ(f) • dlog a`; `Ω_{E|l} → Ω_B` is injective because
@@ -70,7 +70,7 @@ theorem exists_intCast_of_modelDLog_eq {B : ι → L} {a b : L} (ha : a ∈ mode
     ∃ m : ℤ, (m : l) = κ := by
   sorry
 
-/-- Blueprint (6.9) `eq:Epower`: let `s ∈ L_B` with `d s ≠ 0` in `Ω_B`, and let `E ∋ s` be an
+/-- Blueprint `eq:Epower`: let `s ∈ L_B` with `d s ≠ 0` in `Ω_B`, and let `E ∋ s` be an
 intermediate field contained in `L_B` and separable algebraic over `l(s)`. If `z ∈ L_B` and
 `z^{p^j} ∈ E`, then `z ∈ E`; i.e. `E ∩ L_B^{p^j} = E^{p^j}`. (Since `Ω_{E|l} → Ω_B` is injective,
 `dy = 0` for `y ∈ E ∩ L_B^p`, so `y ∈ E^p` by (S3); induction on `j`.) -/
@@ -83,7 +83,7 @@ theorem mem_of_pow_pow_mem {B : ι → L} {s : L} (hs : s ∈ model l B) (hds : 
 /-- Blueprint, proof of Proposition 6.12 (lines 723-725): let `E` be as in `mem_of_pow_pow_mem`.
 If `v ∈ W` and `p^j • v = [b]` with `b ∈ E`, then `b^M = c • y^{p^j}` for some `M` prime to `p`,
 `c ∈ lˣ` and `y ∈ E`. (If `v ≠ 0`, take a representative `(M, g)` of `v` with `g ∈ L_B`; then
-`b^M = c g^{p^j}` and `g ∈ E` by (6.9). If `v = 0`, `b ∈ l`.) -/
+`b^M = c g^{p^j}` and `g ∈ E` by `eq:Epower`. If `v = 0`, `b ∈ l`.) -/
 theorem exists_pow_eq_mul_pow_pow {B : ι → L} {s : L} (hs : s ∈ model l B)
     (hds : modelD l B s ≠ 0) {E : IntermediateField l L} (hsE : s ∈ E) (hE : E ≤ model l B)
     (hsep : ∀ y ∈ E, IsSeparable l⟮s⟯ y) {v : V l L} (hv : v ∈ W l p B) {j : ℕ} {b : Lˣ}
@@ -121,13 +121,13 @@ namespace CharPHyp
 variable {K : Type*} [Field K] [PerfectField K] (H : CharPHyp K l L)
 variable (p : ℕ) [Fact p.Prime] [CharP L p] [PerfectField L] [IsRelAlgClosed l L]
 
-/-! ### Primitive roots, (6.6) `eq:roots` -/
+/-! ### Primitive roots, `eq:roots` -/
 
-/-- Blueprint (6.6) `eq:roots`: `Frob(K₀) ⊆ K₀` (`ψ(x^p) = p ψ(x)` has height `ht ψ(x) + 1`). -/
+/-- Blueprint `eq:roots`: `Frob(K₀) ⊆ K₀` (`ψ(x^p) = p ψ(x)` has height `ht ψ(x) + 1`). -/
 theorem pow_mem_K₀ {x : K} (hx : x ∈ H.K₀ p) : x ^ p ∈ H.K₀ p := by
   sorry
 
-/-- Blueprint (6.6) `eq:roots`: `K = ⋃_j Frob^{-j}(K₀)`, i.e. some `x^{p^j}` lies in `K₀`. -/
+/-- Blueprint `eq:roots`: `K = ⋃_j Frob^{-j}(K₀)`, i.e. some `x^{p^j}` lies in `K₀`. -/
 theorem exists_pow_pow_mem_K₀ (x : K) : ∃ j : ℕ, x ^ p ^ j ∈ H.K₀ p := by
   sorry
 
@@ -135,13 +135,13 @@ theorem hgtV_nonneg {x : K} (hx : x ∈ H.K₀ p) (hxk : x ∉ H.k) :
     0 ≤ hgtV p (H.B p) (H.ψK x) :=
   (H.mem_K₀_iff_hgtV p hxk).1 hx
 
-/-- Blueprint (6.6) `eq:roots`: for a primitive `x₀`, `ht ψ(x₀^{p^j}) = j`. In particular the
+/-- Blueprint `eq:roots`: for a primitive `x₀`, `ht ψ(x₀^{p^j}) = j`. In particular the
 decomposition `x = Frob^j(x₀)` of `exists_primitive_root` is unique. -/
 theorem hgtV_pow_pow_of_primitive {x₀ : H.K₀ p} (hx₀ : (H.data p).Δ x₀ ≠ 0) (j : ℕ) :
     hgtV p (H.B p) (H.ψK ((x₀ : K) ^ p ^ j)) = j := by
   sorry
 
-/-- Blueprint (6.6) `eq:roots`: every `x ∈ K₀ \ k` is `Frob^j(x₀)` with `x₀` primitive and
+/-- Blueprint `eq:roots`: every `x ∈ K₀ \ k` is `Frob^j(x₀)` with `x₀` primitive and
 `j = ht ψ(x) ≥ 0` (the *primitive root* of `x`; `K` is perfect of characteristic `p`). -/
 theorem exists_primitive_root (x : H.K₀ p) (hx : (x : K) ∉ H.k) :
     ∃ x₀ : H.K₀ p, (H.data p).Δ x₀ ≠ 0 ∧ x₀ ^ p ^ (hgtV p (H.B p) (H.ψK x)).toNat = x := by
@@ -150,7 +150,7 @@ theorem exists_primitive_root (x : H.K₀ p) (hx : (x : K) ∉ H.k) :
 /-! ### Lemma 6.10 -/
 
 /-- **Blueprint Lemma 6.10** (`lem:tauinQ`), first part: `τ(x) ∈ Q_x` for `x ∈ K₀ \ k` (from
-`μ(x) ∈ Q_x`, Lemma 6.5(b), for primitive `x`, and (6.6) in general). -/
+`μ(x) ∈ Q_x`, Lemma 6.5(b), for primitive `x`, and `eq:roots` in general). -/
 theorem τ_mem_pointV {x : H.K₀ p} (hx : (x : K) ∉ H.k) : H.τ p x ∈ pointV l (H.ψK x) := by
   sorry
 
@@ -226,7 +226,7 @@ theorem dlogA_τV (x : (H.K₀ p)ˣ) :
     dlogA p (H.B p) (H.τV p (.ofMul x)) = modelDLog l (H.B p) (H.τ p x) :=
   dlogA_cls p (H.τ_mem_F p x)
 
-/-- Blueprint (6.7) `eq:lift`: if `ψ' : K₀ˣ → W` vanishes on `kˣ` and `ψ'(x) ∈ G_{Q_x}` for
+/-- Blueprint `eq:lift`: if `ψ' : K₀ˣ → W` vanishes on `kˣ` and `ψ'(x) ∈ G_{Q_x}` for
 `x ∈ K₀ \ k`, then there is an integer `m` with `ψ' - m [τ] ∈ p W` on `K₀ˣ`. -/
 theorem exists_lift (ψ' : Additive (H.K₀ p)ˣ →+ V l L) (hW : ∀ x, ψ' x ∈ W l p (H.B p))
     (hk : ∀ x : (H.K₀ p)ˣ, ((x : H.K₀ p) : K) ∈ H.k → ψ' (.ofMul x) = 0)
@@ -236,8 +236,8 @@ theorem exists_lift (ψ' : Additive (H.K₀ p)ˣ →+ V l L) (hW : ∀ x, ψ' x 
       ψ' (.ofMul x) - m • H.τV p (.ofMul x) = p • w := by
   sorry
 
-/-- Blueprint (6.8) `eq:padic`: for every `j` there is an integer `r_j` with
-`ψ - r_j [τ] ∈ p^j W` on `K₀ˣ` (by induction on `j`, applying (6.7) to
+/-- Blueprint `eq:padic`: for every `j` there is an integer `r_j` with
+`ψ - r_j [τ] ∈ p^j W` on `K₀ˣ` (by induction on `j`, applying `eq:lift` to
 `ψ_j = p^{-j}(ψ - r_j [τ])`). -/
 theorem exists_padic (j : ℕ) : ∃ r : ℤ, ∀ x : (H.K₀ p)ˣ, ∃ w ∈ W l p (H.B p),
     H.ψ₀ p (.ofMul x) - r • H.τV p (.ofMul x) = p ^ j • w := by

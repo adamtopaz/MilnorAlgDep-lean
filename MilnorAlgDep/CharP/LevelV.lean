@@ -34,7 +34,7 @@ made explicit) and (A4) (`ringChar K ≠ 0`), as `MilnorAlgDep.Char0Hyp` does in
 `0`. `CharPHyp.ψK` is `ψ` extended to `K` by `ψK 0 = 0`, and `CharPHyp.ρ p x = vRep p (ψK x)` is
 the chosen representative of `ψ(x)`. The blueprint writes `Q_x` for `pointV l (H.ψK x)`.
 
-## Equation (6.1) `eq:sum` and its consequences (lines 409-414)
+## Equation `eq:sum` and its consequences (lines 409-414)
 
 * `CharPHyp.ψK_add`, `CharPHyp.pointV_ψK_one_sub_neg_div`: `eq:sum`.
 * `CharPHyp.isCollinearTriple_add`: for `ψ`-independent `x, y`, the points `Q_x, Q_y, Q_{x+y}`
@@ -477,11 +477,11 @@ theorem transcendental_ρ {x : K} (hx : x ∉ H.k) : Transcendental l (H.ρ p x 
 
 end Rep
 
-/-! ### (A2) and equation (6.1) `eq:sum` -/
+/-! ### (A2) and equation `eq:sum` -/
 
 section Sum
 
-/-- Blueprint equation (6.1) `eq:sum`, first part: `ψ(x + y) = ψ(y) + ψ(1 - (-x/y))`. -/
+/-- Blueprint equation `eq:sum`, first part: `ψ(x + y) = ψ(y) + ψ(1 - (-x/y))`. -/
 theorem ψK_add {x y : K} (hy : y ≠ 0) (hxy : x + y ≠ 0) :
     H.ψK (x + y) = H.ψK y + H.ψK (1 - -x / y) := by
   have e : x + y = y * (1 - -x / y) := by field_simp; ring
@@ -503,7 +503,7 @@ theorem pointV_ψK_one_sub {x : K} (hx : x ∉ H.k) :
     (H.ψK_ne_zero (H.one_sub_notMem hx)), not_not] at hdep
   exact hdep.symm
 
-/-- Blueprint equation (6.1) `eq:sum`, second part: for `x / y ∉ k`, `ψ(1 - (-x/y))` is a non-zero
+/-- Blueprint equation `eq:sum`, second part: for `x / y ∉ k`, `ψ(1 - (-x/y))` is a non-zero
 element of `G_{Q_{x/y}}`. -/
 theorem pointV_ψK_one_sub_neg_div {x y : K} (hxy : x / y ∉ H.k) :
     H.ψK (1 - -x / y) ≠ 0 ∧ pointV l (H.ψK (1 - -x / y)) = pointV l (H.ψK (x / y)) := by

@@ -16,11 +16,11 @@ conclusion (Blueprint Proposition 6.9).
 The development is in
 
 * `MilnorAlgDep.CharP.LevelV`: levels and heights of elements of `V`, the hypotheses
-  `CharPHyp`, equation (6.1) `eq:sum` (Section 6.1);
+  `CharPHyp`, equation `eq:sum` (Section 6.1);
 * `MilnorAlgDep.CharP.StepA`: Step A, Proposition 6.1 (Section 6.2);
 * `MilnorAlgDep.CharP.AdaptedModel`: `W`, `dlog_A`, `K₀`, `Δ`, Lemmas 6.4 and 6.5, and
   `τ : K₀ → L` from the abstract Step B (Section 6.3, Proposition 6.9);
-* `MilnorAlgDep.CharP.StepC`: (6.6) `eq:roots`, Lemmas 6.10, 6.11, Proposition 6.12
+* `MilnorAlgDep.CharP.StepC`: `eq:roots`, Lemmas 6.10, 6.11, Proposition 6.12
   (Section 6.6).
 
 This file contains the end of the proof (blueprint Section 6.7): `τ` extends uniquely from `K₀`
@@ -41,7 +41,7 @@ variable {K l L : Type*} [Field K] [Field l] [Field L] [Algebra l L] [PerfectFie
   (H : CharPHyp K l L)
 variable (p : ℕ) [Fact p.Prime] [CharP L p] [PerfectField L] [IsRelAlgClosed l L]
 
-/-- `K` is `p`-radical over `K₀` (blueprint (6.6) `eq:roots`: `K = ⋃_j Frob^{-j}(K₀)`). -/
+/-- `K` is `p`-radical over `K₀` (blueprint `eq:roots`: `K = ⋃_j Frob^{-j}(K₀)`). -/
 theorem isPRadical_K₀ : IsPRadical (H.K₀ p).subtype p where
   pow_mem' x := by
     obtain ⟨j, hj⟩ := H.exists_pow_pow_mem_K₀ p x
