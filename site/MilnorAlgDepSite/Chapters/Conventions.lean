@@ -324,8 +324,9 @@ a transcendence basis over which $`E` is separable algebraic, and (S2) applies:
 
 {docstring MilnorAlgDep.kaehler_D_eq_zero_iff_isAlgebraic}
 
-These two statements are all that the characteristic $`0` proof of Theorem A needs to know about
-differentials, as the blueprint's remark on formalization (Remark 8.3) predicts.
+Together with (S2) for a point ({ref "ss:model0"}[Section 6.3.1]), these two statements are all
+that the characteristic $`0` proof of Theorem A needs to know about differentials; the blueprint's
+remark on formalization lists only the two ({ref "sec:remarks"}[Chapter 8]).
 
 ## The eigenvalue lemma
 %%%

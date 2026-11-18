@@ -22,8 +22,9 @@ Two transcendental elements of a point are compared by how far apart they are in
 direction: this is their level.
 These chapters are only needed in positive characteristic.
 
-All results of these three chapters except Lemma 3.1 are formalized, for $`p` prime; so
-$`\Gamma = \ZZ`, and $`\Frob^j` is {name}`frobZ` `L p j`.
+All results of these three chapters except Lemma 3.1 are formalized (Lemma 4.2 (b) only for
+$`j = 0`, the case used), for $`p` prime; so $`\Gamma = \ZZ`, and $`\Frob^j` is
+{name}`frobZ` `L p j`.
 The Lean files `MilnorAlgDep/CharP/*.lean` work with two fields `l`, `L` and `[Algebra l L]`, and
 assume `(p : ℕ) [Fact p.Prime] [CharP L p] [PerfectField L] [IsRelAlgClosed l L]` when the
 characteristic matters; statements that do not involve $`p` assume `[PerfectField l]` instead.
@@ -251,14 +252,16 @@ Reflexivity and symmetry are clear ({name}`SepEquiv.refl`, {name}`SepEquiv.symm`
 Transitivity ({name}`SepEquiv.trans`) is transitivity of separability: if $`u` is separable over
 $`l(s)` and $`s` over $`l(t)`, then $`l(s)` is contained in the model $`L_{(t)}` of the
 one-element family $`(t)`, and an element separable over a subfield of a model lies in the model
-({cref "lem:model"}[] (b)); so $`u` is separable over $`l(t)`
+({name}`mem_model_of_isSeparable`, the case $`j = 0` of {cref "lem:model"}[] (b), which holds for
+the model of any family); so $`u` is separable over $`l(t)`
 ({name}`isSeparable_adjoin_simple_trans`).
 
 _Existence._
 Let $`E = L_{(t)}` be the field of elements separable algebraic over $`l(t)`; by (S2),
 $`\Omega_{E|l}` has basis $`dt`, and $`l` is relatively algebraically closed in $`E`.
-Since $`s` is algebraic over $`l(t)`, some $`s^{p^m}` lies in $`E` ({cref "lem:model"}[] (c)),
-and it is not in $`l`.
+Since $`s` is algebraic over $`l(t)`, some $`s^{p^m}` lies in $`E`
+({name}`exists_pow_pow_mem_model`, the argument of {cref "lem:model"}[] (c) for the family
+$`(t)`), and it is not in $`l`.
 By (S3) for $`E`, $`s^{p^m} = z^{p^k}` with $`z \in E` and $`dz \neq 0`.
 Then $`z` is separable over $`l(t)`, it is transcendental over $`l` (as $`dz \neq 0`), and it lies
 in the point $`Q_t`; so $`t` is algebraic over $`l(z)`, and the separability criterion, applied in
@@ -425,15 +428,16 @@ The formal proof works in models instead.
 Let $`x, y, z` be elements of the three points and let $`E` be the model of $`(x, y)`, with basis
 $`dx, dy` of $`\Omega_E`.
 Since $`z` is algebraic over $`l(x, y)`, some $`z_0 = \Frob^k(z)` lies in $`E` and has
-$`dz_0 \neq 0` ({name}`exists_frobZ_mem_model_modelD_ne_zero`, from {cref "lem:model"}[] (c) and
-(S3)).
+$`dz_0 \neq 0` ({name}`exists_frobZ_mem_model_modelD_ne_zero`, from
+{name}`exists_pow_pow_mem_model` and (S3)).
 Write $`dz_0 = \alpha\, dx + \beta\, dy` with $`\alpha, \beta \in E`.
 
 * If $`\alpha \neq 0` and $`\beta \neq 0`, then $`dx, dy, dz_0` are pairwise linearly independent,
   and $`(x, y, z_0)` is normalized by {name}`isNormalized_of_linearIndependent_modelD`.
 * If $`\beta = 0`, then $`\alpha \neq 0`, and we twist $`y` instead.
-  Let $`E' \subset E` be the model of $`(x, z_0)` and $`y_0 = \Frob^c(y)` a model generator of
-  $`Q_y` in $`E'`, so $`dy_0 = \gamma\, dx + \delta\, dz_0 \neq 0` in $`\Omega_{E'}`.
+  Let $`E' \subset E` be the model of $`(x, z_0)`, and, by the same lemma, let
+  $`y_0 = \Frob^c(y)` be an element of $`E'` with $`dy_0 \neq 0` in $`\Omega_{E'}`, say
+  $`dy_0 = \gamma\, dx + \delta\, dz_0`.
   Pushed forward to $`\Omega_E`, where $`dz_0 = \alpha\, dx`, this gives
   $`dy_0 = (\gamma + \delta\alpha)\, dx`.
   Now $`c > 0`: for $`c = 0` this would put $`dy` in $`E\,dx`, and for $`c < 0` we would have

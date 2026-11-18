@@ -17,8 +17,12 @@ tag := "sec:remarks"
 The blueprint ends with remarks on its hypotheses and on open questions; they are reproduced
 here, followed by what the formalization has found about the hypotheses of individual statements.
 The blueprint's third remark, on formalization, is superseded by
-{ref "sec:formalization"}[Chapter 9]; its prediction that the characteristic $`0` proof needs only
-two facts about differentials was borne out ({cref "ss:lax-general"}[]).
+{ref "sec:formalization"}[Chapter 9].
+It says that the characteristic $`0` proof only needs two facts about differentials
+({cref "ss:lax-general"}[]); the formal proof needs one more, (S2) for a point $`Q_a`, which
+gives $`\mu(x) \in Q_x` and the derivation to which the eigenvalue lemma is applied
+({cref "ss:model0"}[]), as in the blueprint's own proofs of {cref "lem:K0"}[] and
+{cref "lem:tauinQ"}[].
 
 # The hypotheses of Theorem A
 %%%
@@ -41,12 +45,12 @@ $`v(x) < 0` then $`v(1-x) = v(x)`.
 In the formal statement of (A2), "dependent" includes the case that one of the two elements is
 $`0` ({cref "ss:reading"}[]), so such a $`\psi` satisfies the formal (A2) as well.
 
-In the formalization (A4) appears in two places.
-The blueprint's use, "every homomorphism $`K^\times \to \ZZ` is trivial", belongs to Step A in
-positive characteristic.
-Besides, in positive characteristic (A4) makes the characteristic of $`K` a prime $`q`, which the
-reduction to a perfect field $`K` needs ({name}`theoremA_perfect_aux`).
-The characteristic $`0` proof does not use (A4) ({name}`theoremA_perfect_of_charZero`).
+When $`\chr L = 0`, (A4) is vacuous.
+The blueprint's use of (A4), "every homomorphism $`K^\times \to \ZZ` is trivial", belongs to Step A
+in positive characteristic, which is not yet formalized.
+The formal reduction to a perfect field $`K` also uses (A4), to know that the characteristic of
+$`K` is a prime $`q` when $`\chr L > 0` ({name}`theoremA_perfect_aux`); this use comes from the
+way the formal proof is organized and could be avoided by a case split on $`\chr K`.
 
 # Open points
 %%%
@@ -82,7 +86,8 @@ _Hypotheses that are not needed._
 
 * {cref "lem:trichotomy"}[] (c): $`i \leq j` implies $`k \geq i`; neither $`i = j` nor
   $`\omega_A(P) = \omega_A(Q)` is needed ({name}`IsNormalized.hgt_le_of_hgt_le`).
-  This is the only inaccuracy found in Chapters 3–5.
+  Apart from a missing "distinct" in the example after {cref "lem:lax"}[] ({cref "ss:lax"}[]),
+  this is the only inaccuracy found in Chapters 3–5.
 * {cref "lem:lax"}[]: the lines of the points of any algebraically dependent family of
   transcendental elements are linearly dependent; the points need not be distinct
   ({name}`not_linearIndependent_modelD_of_not_algebraicIndependent`).
@@ -103,8 +108,8 @@ _Hypotheses that are not needed._
 * The uniqueness statements need less than the blueprint assumes: {name}`theoremA_perfect_unique`
   only needs $`\psi \neq 0`, and $`r' \neq 0` is not used in {name}`theoremB_unique` and
   {name}`theoremC_unique`.
-* In characteristic $`0` the proof of {cref "thm:A"}[] needs neither the reduction to a perfect
-  field $`K` nor (A4) ({name}`theoremA_perfect_of_charZero`).
+* In characteristic $`0` the proof of {cref "thm:A"}[] needs no reduction to a perfect field
+  $`K` ({name}`theoremA_perfect_of_charZero` holds for any field $`K`).
 * Step B needs no hypothesis beyond (H0)–(H3) ({ref "ss:stepB"}[Section 6.4]).
 
 _Tools that are avoided._

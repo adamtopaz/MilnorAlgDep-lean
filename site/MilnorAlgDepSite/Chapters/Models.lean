@@ -167,8 +167,10 @@ _Proof of {cref "lem:pointsmodel"}[] (as formalized)._
    $`c \in L_{(t)} \subset L_B`, and symmetrically.
 
 The factor $`c` in step 4 is separable algebraic over $`l(t)`, so it lies in the point $`Q_t`
-({name}`exists_modelD_eq_smul_of_isSeparable`); this is how Chapter 6 shows
-$`\mu(x) \in Q_x`.
+({name}`exists_modelD_eq_smul_of_isSeparable`); this is how the blueprint shows
+$`\mu(x) \in Q_x` in the proof of {cref "lem:K0"}[] (b).
+(The formal characteristic $`0` proof uses the analogous statement for the point $`Q_a`,
+{name}`exists_mem_pointV_dlog_eq_smul`.)
 
 # The lax property
 %%%
@@ -218,8 +220,10 @@ A line contained in two distinct planes is their intersection
 No distinctness of $`X` from the other points is needed.
 Only the first half, the inclusion, is used in {ref "sec:quadrangle"}[Chapter 5].
 
-When $`\Gamma \neq 0` the converse of {cref "lem:lax"}[] fails: if $`a, b \in A`, then
-$`Q_a` and $`Q_{a + \Frob(b)}` are distinct points with the same line $`L_A\, da`.
+When $`\Gamma \neq 0` the converse of {cref "lem:lax"}[] fails: if $`a, b \in A` are distinct,
+then $`Q_a` and $`Q_{a + \Frob(b)}` are distinct points with the same line $`L_A\, da`.
+(The blueprint omits "distinct": for $`a = b`, $`a + a^p` lies in $`Q_a`. This example is not
+formalized.)
 The next lemma describes exactly what happens on a collinear triple.
 
 # The trichotomy
