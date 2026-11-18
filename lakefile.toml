@@ -14,5 +14,7 @@ name = "mathlib"
 scope = "leanprover-community"
 rev = "v4.36.0"
 
+# Every file under `MilnorAlgDep/` is built, whether or not the root file imports it.
 [[lean_lib]]
 name = "MilnorAlgDep"
+globs = ["MilnorAlgDep.*"]
