@@ -88,7 +88,7 @@ Status: `todo`, `active`, `review`, `done`.
 | WP-K0 | Existence of valuations, `Milnor/ValuationExt.lean` | — | done |
 | WP-K1 | `Milnor/Defs`: grading, degree one, functoriality | WP0 | done |
 | WP-K2 | Tame symbol, Lemma 7.2 | WP-K1 | done |
-| WP-K3 | Theorems B, C, D from Theorem A | WP-K2 | active |
+| WP-K3 | Theorems B, C, D from Theorem A | WP-K2 | done |
 | WP-U | Uniqueness, Lemma 6.13 | WP0 | done |
 | WP-A0 | Theorem A in characteristic 0 | WP0, WP-B, WP-S | done |
 | WP-P1 | Levels and normalized triples (Section 3) | WP0, WP-S | active |
@@ -126,3 +126,6 @@ The statements in these stub files are frozen too.
   `CharP/Main.lean` (the characteristic p core) and Theorems B, C, D (WP-K3 in progress).
 - Possible strengthening for the final audit: drop `hφsymm` from `theoremD` (redundant given
   `MilnorKQ.gradedAlgebra`), and note that Lemma 7.2(a) does not use `IsRelAlgClosed`.
+- 2026-11-18: Theorems B, C, D are proved from the statement of Theorem A (WP-K3). The only
+  remaining `sorry` is `theoremA_core_charP` in `CharP/Main.lean`. The root file is regenerated
+  with `scripts/mk-root.sh`; the copyright-header linter is disabled in `lakefile.toml`.
