@@ -13,6 +13,7 @@ that are injective in degree one come from field embeddings (Theorems B, C, D).
 
 - `PLAN.md` — architecture, work packages and status.
 - `CLAUDE.md` — conventions for the agents doing the formalization.
-- Companion text (Verso): https://adamtopaz.github.io/MilnorAlgDep-lean/
+- Companion text (Verso): https://adamtopaz.github.io/MilnorAlgDep-lean/, source in `site/`
+  (build with `site/build.sh`; see `site/README.md`).
 
 Status: in progress.
