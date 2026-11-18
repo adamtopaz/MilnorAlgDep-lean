@@ -181,11 +181,35 @@ theorem dlogA_of_notMem (hv : v ∉ W l p B) : dlogA p B v = 0 :=
 
 variable [CharP L p] [IsRelAlgClosed l L]
 
+omit [IsRelAlgClosed l L] in
+theorem natCast_model_ne_zero {N : ℕ} {a : Lˣ} (hv : IsVRep p v N a) :
+    ((N : ℕ) : model l B) ≠ 0 := fun h ↦
+  hv.natCast_ne_zero p (by simpa using congrArg Subtype.val h)
+
 /-- **Blueprint Lemma 6.4(a)**: `dlog_A(v) = N⁻¹ • da/a` for every representative `(N, a)` of
 `v ∈ W` (`N` prime to `p`, `a ∈ L_B`). -/
 theorem dlogA_eq {N : ℕ} {a : Lˣ} (hv : IsVRep p v N a) (ha : (a : L) ∈ model l B) :
     dlogA p B v = ((N : model l B))⁻¹ • modelDLog l B a := by
-  sorry
+  have hex : ∃ (N : ℕ) (a : Lˣ), IsVRep p v N a ∧ (a : L) ∈ model l B := ⟨N, a, hv, ha⟩
+  rw [dlogA, dite_eq_left hex]
+  obtain ⟨hv₀, ha₀⟩ := hex.choose_spec.choose_spec
+  obtain ⟨c, hc⟩ := V.rep_unique hv₀.nsmul_eq hv.nsmul_eq
+  have hc0 : c ≠ 0 := by
+    rintro rfl
+    rw [map_zero, zero_mul] at hc
+    exact pow_ne_zero _ (Units.ne_zero _) hc
+  have key : (N : model l B) • modelDLog l B (hex.choose_spec.choose : L) =
+      (hex.choose : model l B) • modelDLog l B a := by
+    rw [← modelDLog_pow ha₀ (Units.ne_zero _), ← modelDLog_pow ha a.ne_zero, hc,
+      modelDLog_algebraMap_mul c hc0 (pow_mem ha _) (pow_ne_zero _ a.ne_zero)]
+  have hN := natCast_model_ne_zero p (B := B) hv
+  have hN₀ := natCast_model_ne_zero p (B := B) hv₀
+  calc ((hex.choose : ℕ) : model l B)⁻¹ • modelDLog l B (hex.choose_spec.choose : L)
+      = ((hex.choose : model l B)⁻¹ * (N : model l B)⁻¹) •
+          ((N : model l B) • modelDLog l B (hex.choose_spec.choose : L)) := by
+        rw [smul_smul, mul_assoc, inv_mul_cancel₀ hN, mul_one]
+    _ = (N : model l B)⁻¹ • modelDLog l B a := by
+        rw [key, smul_smul, mul_comm, ← mul_assoc, mul_inv_cancel₀ hN₀, one_mul]
 
 theorem dlogA_cls {a : Lˣ} (ha : (a : L) ∈ model l B) :
     dlogA p B (cls (constUnits l L) (.ofMul a)) = modelDLog l B a := by
@@ -199,7 +223,23 @@ theorem dlogA_zero : dlogA p B (0 : V l L) = 0 := by
 /-- **Blueprint Lemma 6.4(a)**: `dlog_A` is additive on `W`. -/
 theorem dlogA_add (hv : v ∈ W l p B) (hw : w ∈ W l p B) :
     dlogA p B (v + w) = dlogA p B v + dlogA p B w := by
-  sorry
+  obtain ⟨N, a, hva, ha⟩ := mem_W_iff_exists.1 hv
+  obtain ⟨M, b, hwb, hb⟩ := mem_W_iff_exists.1 hw
+  have hrep : IsVRep p (v + w) (N * M) (a ^ M * b ^ N) :=
+    ⟨Nat.mul_pos hva.pos hwb.pos, Nat.coprime_mul_iff_left.2 ⟨hva.coprime, hwb.coprime⟩, by
+      rw [cls_mul, cls_pow, cls_pow, ← hva.nsmul_eq, ← hwb.nsmul_eq, smul_add, smul_smul,
+        smul_smul, mul_comm M N]⟩
+  have hmem : ((a ^ M * b ^ N : Lˣ) : L) ∈ model l B := by
+    push_cast
+    exact mul_mem (pow_mem ha M) (pow_mem hb N)
+  have hN := natCast_model_ne_zero p (B := B) hva
+  have hM := natCast_model_ne_zero p (B := B) hwb
+  rw [dlogA_eq p hrep hmem, dlogA_eq p hva ha, dlogA_eq p hwb hb]
+  push_cast
+  rw [modelDLog_mul (pow_mem ha M) (pow_mem hb N) (pow_ne_zero _ a.ne_zero)
+    (pow_ne_zero _ b.ne_zero), modelDLog_pow ha a.ne_zero, modelDLog_pow hb b.ne_zero, smul_add,
+    smul_smul, smul_smul]
+  congr 1 <;> congr 1 <;> field_simp
 
 /-- **Blueprint Lemma 6.4(a)**: `dlog_A : W → Ω_B` as a homomorphism. -/
 noncomputable def dlogAHom (l : Type*) {L : Type*} [Field l] [Field L] [Algebra l L] (p : ℕ)
@@ -225,36 +265,104 @@ variable [Fact p.Prime] [PerfectField L]
 
 /-- The chosen representative of `v ∈ W` lies in `L_B`. -/
 theorem vRep_mem_model (hv : v ∈ W l p B) : (vRep p v : L) ∈ model l B := by
-  sorry
+  obtain ⟨N, a, hva, ha⟩ := mem_W_iff_exists.1 hv
+  have h' := isVRep_vRep p v
+  obtain ⟨c, hc⟩ := V.rep_unique h'.nsmul_eq hva.nsmul_eq
+  set t : model l B :=
+    ⟨algebraMap l L c * (a : L) ^ vRepNat p v,
+      mul_mem (IntermediateField.algebraMap_mem _ c) (pow_mem ha _)⟩
+  have ht0 : t ≠ 0 := fun h0 ↦ by
+    have : (vRep p v : L) ^ N = 0 := by
+      rw [hc]
+      exact congrArg Subtype.val h0
+    exact pow_ne_zero _ (Units.ne_zero _) this
+  have hroot : Polynomial.aeval (vRep p v : L) (Polynomial.X ^ N - Polynomial.C t) = 0 := by
+    rw [map_sub, map_pow, Polynomial.aeval_X, Polynomial.aeval_C,
+      IntermediateField.algebraMap_apply, hc, sub_self]
+  have hsep : IsSeparable (model l B) (vRep p v : L) :=
+    (Polynomial.separable_X_pow_sub_C t (natCast_model_ne_zero p hva) ht0).of_dvd
+      (minpoly.dvd _ _ hroot)
+  exact mem_model_of_isSeparable le_rfl hsep
 
 /-- Blueprint Section 6.3: `W = {0} ∪ {v ≠ 0 : ht(v) ≥ 0}` (by Lemma 4.3(a)). -/
 theorem mem_W_iff (hB : IsTranscendenceBasis l B) : v ∈ W l p B ↔ v = 0 ∨ 0 ≤ hgtV p B v := by
-  sorry
+  constructor
+  · intro hv
+    by_cases hv0 : v = 0
+    · exact Or.inl hv0
+    exact Or.inr ((mem_model_iff_hgt_nonneg p hB ((isVRep_vRep p v).transcendental p hv0)).1
+      (vRep_mem_model p hv))
+  · rintro (rfl | h)
+    · exact zero_mem _
+    by_cases hv0 : v = 0
+    · rw [hv0]
+      exact zero_mem _
+    exact ⟨_, _, isVRep_vRep p v,
+      (mem_model_iff_hgt_nonneg p hB ((isVRep_vRep p v).transcendental p hv0)).2 h⟩
 
 /-- **Blueprint Lemma 6.4(b)**: for `v ∈ W \ 0`, `dlog_A(v) ≠ 0` iff `ht(v) = 0`. -/
 theorem dlogA_ne_zero_iff (hB : IsTranscendenceBasis l B) (hv : v ∈ W l p B) (hv0 : v ≠ 0) :
     dlogA p B v ≠ 0 ↔ hgtV p B v = 0 := by
-  sorry
+  have h' := isVRep_vRep p v
+  have hm := vRep_mem_model p hv
+  have hN := natCast_model_ne_zero p (B := B) h'
+  rw [dlogA_eq p h' hm, hgtV, hgt_eq_zero_iff p hB (h'.transcendental p hv0), Ne, smul_eq_zero,
+    not_or, modelDLog_eq_zero_iff hm (Units.ne_zero _)]
+  simp [hN, hm]
 
-/-- **Blueprint Lemma 6.4(b)**: if `ht(v) = 0`, then `F · dlog_A(v) = ω_B(Q_v)`. -/
-theorem span_dlogA_eq_omega (hB : IsTranscendenceBasis l B) (hv0 : v ≠ 0)
-    (hv : hgtV p B v = 0) : (model l B) ∙ dlogA p B v = omega l p B (vRep p v : L) := by
-  sorry
+/-- **Blueprint Lemma 6.4(b)**: if `ht(v) = 0`, then `F · dlog_A(v) = ω_B(Q_v)`. (For `v = 0`
+both sides are `0`.) -/
+theorem span_dlogA_eq_omega (hB : IsTranscendenceBasis l B) (hv : hgtV p B v = 0) :
+    (model l B) ∙ dlogA p B v = omega l p B (vRep p v : L) := by
+  have hW : v ∈ W l p B := (mem_W_iff p hB).2 (Or.inr hv.ge)
+  have h' := isVRep_vRep p v
+  have hm := vRep_mem_model p hW
+  have hN := natCast_model_ne_zero p (B := B) h'
+  have ha0 : (⟨(vRep p v : L), hm⟩ : model l B) ≠ 0 :=
+    fun h0 ↦ Units.ne_zero _ (congrArg Subtype.val h0)
+  rw [omega_eq_span_of_hgt_eq_zero p hv, dlogA_eq p h' hm, modelDLog_of_mem hm, smul_smul]
+  exact Submodule.span_singleton_smul_eq (IsUnit.mk0 _ (mul_ne_zero (inv_ne_zero hN)
+    (inv_ne_zero ha0))) _
 
 /-- **Blueprint Lemma 6.4(c)**: `ker dlog_A = p W`. -/
 theorem dlogA_eq_zero_iff (hB : IsTranscendenceBasis l B) (hv : v ∈ W l p B) :
     dlogA p B v = 0 ↔ ∃ w ∈ W l p B, v = p • w := by
-  sorry
+  have hp := (Fact.out : p.Prime)
+  have hp0 : (p : ℚ) ≠ 0 := Nat.cast_ne_zero.2 hp.ne_zero
+  constructor
+  · intro h0
+    by_cases hv0 : v = 0
+    · exact ⟨0, zero_mem _, by rw [hv0, smul_zero]⟩
+    have hh : hgtV p B v ≠ 0 := fun h ↦ (dlogA_ne_zero_iff p hB hv hv0).2 h h0
+    have hpos : 0 ≤ hgtV p B v := ((mem_W_iff p hB).1 hv).resolve_left hv0
+    refine ⟨(p : ℚ)⁻¹ • v, (mem_W_iff p hB).2 (Or.inr ?_), ?_⟩
+    · rw [hgtV_smul p hB hv0 (inv_ne_zero hp0), padicValRat.inv, padicValRat.self hp.one_lt]
+      omega
+    · rw [← Nat.cast_smul_eq_nsmul ℚ, smul_smul, mul_inv_cancel₀ hp0, one_smul]
+  · rintro ⟨w, hw, rfl⟩
+    have : CharP (model l B) p := (Algebra.charP_iff (model l B) L p).mpr inferInstance
+    have e : dlogA p B (p • w) = p • dlogA p B w := map_nsmul (dlogAHom l p B) p ⟨w, hw⟩
+    rw [e, ← Nat.cast_smul_eq_nsmul (model l B), CharP.cast_eq_zero, zero_smul]
 
 /-- **Blueprint Lemma 6.4(c)**: `V = ⋃_j p^{-j} W`. -/
 theorem exists_pow_nsmul_mem_W (hB : IsTranscendenceBasis l B) (v : V l L) :
     ∃ j : ℕ, p ^ j • v ∈ W l p B := by
-  sorry
+  by_cases hv0 : v = 0
+  · exact ⟨0, by rw [hv0, smul_zero]; exact zero_mem _⟩
+  refine ⟨(-hgtV p B v).toNat, (mem_W_iff p hB).2 (Or.inr ?_)⟩
+  rw [hgtV_pow_nsmul p hB hv0]
+  omega
 
 /-- **Blueprint Lemma 6.4(c)**: `⋂_j p^j W = 0`. -/
 theorem eq_zero_of_forall_mem_pow_nsmul_W (hB : IsTranscendenceBasis l B)
     (h : ∀ j : ℕ, ∃ w ∈ W l p B, v = p ^ j • w) : v = 0 := by
-  sorry
+  by_contra hv0
+  obtain ⟨w, hw, hvw⟩ := h ((hgtV p B v).toNat + 1)
+  have hw0 : w ≠ 0 := fun h0 ↦ hv0 (by rw [hvw, h0, smul_zero])
+  have hpos : 0 ≤ hgtV p B w := ((mem_W_iff p hB).1 hw).resolve_left hw0
+  have e := hgtV_pow_nsmul p hB hw0 ((hgtV p B v).toNat + 1)
+  rw [← hvw] at e
+  omega
 
 end W
 
