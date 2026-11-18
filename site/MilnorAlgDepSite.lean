@@ -49,10 +49,11 @@ the Lean sources; {ref "sec:formalization"}[the last chapter] explains how the f
 organized and where it deviates from the blueprint.
 
 The blueprint is an unrefereed draft.
-Its characteristic $`0` part and its Section 7 are machine-checked: Theorem A is formalized in
-characteristic $`0`, and Theorems B, C and D are formalized as consequences of Theorem A.
-The positive characteristic core of Theorem A is being formalized
-({ref "ss:status"}[Section 1.5]); the corresponding parts of the text are marked "placeholder".
+Its proofs are now machine-checked in full: Theorems A, B, C and D are formalized in all
+characteristics, with no `sorry` and no axioms beyond the standard ones
+({ref "ss:status"}[Section 1.5]).
+The formalization found no error in the blueprint; where the formal proofs are simpler or differ
+from it, the text says so, and {ref "ss:deviations"}[Section 9.4] collects these places.
 
 {include 1 MilnorAlgDepSite.Chapters.Introduction}
 

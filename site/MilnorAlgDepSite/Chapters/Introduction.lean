@@ -244,14 +244,18 @@ of a valuation to a larger field.
 No result about Milnor $`K`-theory beyond its definition is used.
 
 Gauss' lemma, unique factorization and the norm are needed only in positive characteristic
-({cref "lem:sepcrit"}[] and {cref "prop:rational"}[]); the formalization does not use Lemma 3.1,
-which it replaces by a criterion with differentials ({cref "ss:sepcrit"}[]).
+({cref "lem:sepcrit"}[] and {cref "prop:rational"}[]).
+The formal proofs use the norm, but neither Gauss' lemma nor unique factorization: Lemma 3.1 is
+replaced by a criterion with differentials ({cref "ss:sepcrit"}[]), and in
+{cref "prop:rational"}[] the order at $`s` of a rational function is replaced by its degree
+({ref "ss:stepCP"}[Section 6.6.2]).
 The blueprint also uses Gauss' lemma in the proof of the eigenvalue lemma ({cref "lem:R"}[]) and a
 discrete valuation in the proof of (S3) ({cref "lem:standard"}[]); the formal proofs avoid both.
 The formalization takes from Mathlib: Kähler differentials (`KaehlerDifferential`) with the
 base change theorem for formally étale extensions, separability and perfect closures
-(`IsPerfectClosure`), algebraic independence and the algebraic matroid, and valuation subrings
-with Chevalley's extension theorem (`Ideal.image_subset_nonunits_valuationSubring`).
+(`IsPerfectClosure`, `PerfectRing.lift`), algebraic independence and the algebraic matroid, the
+norm (`Algebra.norm`) and the degree of rational functions (`RatFunc.intDegree`), and valuation
+subrings with Chevalley's extension theorem (`Ideal.image_subset_nonunits_valuationSubring`).
 
 # Status
 %%%
@@ -261,64 +265,69 @@ tag := "ss:status"
 The blueprint is an unrefereed working draft.
 The statements go beyond the literature cited (in the transcendence degree, and in allowing
 non-surjective homomorphisms), so it should be read as a detailed proposal for a proof.
-Its characteristic $`0` part and its Section 7 are now machine-checked; the positive
-characteristic part is being formalized.
+Its proofs are now machine-checked in full.
 
-The main theorems depend on exactly one unproved declaration,
-{name}`theoremA_core_charP`: Theorem A for perfect fields $`K` and $`L` with
-$`\chr L > 0`, whose proof is the subject of {ref "sec:levels"}[Chapters 3–5] and of the
-characteristic $`p` parts of {ref "sec:main"}[Chapter 6].
-Its proof is `sorry`, and at the time of writing (November 2026) it is the only `sorry` in the
-library.
-The formalization of Chapters 3–5 (in `MilnorAlgDep/CharP/`) has just been merged; Steps A
-and C in positive characteristic are in progress.
+The library `MilnorAlgDep` contains no `sorry`, and the main theorems depend only on the three
+standard axioms of Lean and Mathlib.
+For the eight main statements, `#print axioms` gives (November 2026):
+
+```
+'MilnorAlgDep.theoremA' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MilnorAlgDep.theoremA_perfect' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MilnorAlgDep.theoremA_perfect_unique' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MilnorAlgDep.theoremB' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MilnorAlgDep.theoremB_unique' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MilnorAlgDep.theoremC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MilnorAlgDep.theoremC_unique' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MilnorAlgDep.theoremD' depends on axioms: [propext, Classical.choice, Quot.sound]
+```
+
 In detail:
 
 :::table +header
 *
   * Part
   * Lean
-  * Status
+  * Text
 *
   * Theorem A, $`\chr L = 0`
   * {name}`theoremA_perfect_of_charZero`
-  * proved
+  * {ref "sec:main"}[Chapter 6]
 *
   * Theorem A, $`\chr L > 0`, $`K` and $`L` perfect
   * {name}`theoremA_core_charP`
-  * `sorry` (in progress)
+  * {ref "sec:levels"}[Chapters 3–6]
 *
   * Reduction to perfect $`K` and $`L` (Section 6.1)
   * {name}`theoremA_perfect_aux`, {name}`theoremA_aux`
-  * proved
+  * {ref "ss:reductions"}[Section 6.1]
 *
   * Uniqueness in Theorem A ({cref "lem:unique"}[])
   * {name}`theoremA_perfect_unique`
-  * proved
+  * {ref "ss:end"}[Section 6.7]
 *
   * Lemmas 7.1–7.3
   * see {ref "sec:K"}[Chapter 7]
-  * proved
+  * {ref "sec:K"}[Chapter 7]
 *
-  * Theorems B, C, D
+  * Theorems B, C, D, from Theorem A
   * {name}`theoremB`, {name}`theoremC`, {name}`theoremD`
-  * proved from Theorem A
+  * {ref "sec:K"}[Chapter 7]
 *
   * Uniqueness in Theorems B, C
   * {name}`theoremB_unique`, {name}`theoremC_unique`
-  * proved
+  * {ref "sec:K"}[Chapter 7]
 :::
 
-"Proved" means that `#print axioms` lists only `propext`, `Classical.choice` and `Quot.sound`.
-The statements `theoremA_perfect`, `theoremA`, `theoremB`, `theoremC` and `theoremD` cover all
-characteristics, so `#print axioms` also lists `sorryAx` for them, coming from
-{name}`theoremA_core_charP` alone; their proofs are otherwise complete.
-For fields of characteristic $`0` these proofs never use {name}`theoremA_core_charP`: the case
-split on `ringChar L` in {name}`theoremA_perfect_aux` sends them to
-{name}`theoremA_perfect_of_charZero`.
-In this sense the characteristic $`0` part of the blueprint, and the deduction of Theorems B–D
-from Theorem A, are machine-checked.
+The two characteristics are proved separately: the case split on `ringChar L` in
+{name}`theoremA_perfect_aux` sends fields of characteristic $`0` to
+{name}`theoremA_perfect_of_charZero`, whose proof does not use the files for positive
+characteristic, and fields of positive characteristic to {name}`theoremA_core_charP`.
 
-In positive characteristic the steps carrying most of the weight, and the first places to look
-for a mistake, are {cref "lem:trichotomy"}[], {cref "lem:quadrangle"}[], Lemmas 6.2 and 6.3, and
-{cref "prop:rational"}[].
+In positive characteristic the blueprint names as the steps carrying most of the weight, and the
+first places to look for a mistake, {cref "lem:trichotomy"}[], {cref "lem:quadrangle"}[],
+{cref "lem:gauge"}[], {cref "lem:cocycle"}[] and {cref "prop:rational"}[].
+All of them are formalized, and none needed a correction.
+The formalization found no error in the blueprint; it found hypotheses that are not needed and
+arguments that can be simplified, which are recorded where they occur and collected in
+{cref "ss:formalAdds"}[] and {ref "ss:deviations"}[Section 9.4].

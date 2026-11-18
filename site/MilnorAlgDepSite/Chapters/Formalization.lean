@@ -16,8 +16,8 @@ tag := "sec:formalization"
 
 The Lean development lives in the library `MilnorAlgDep` of the
 [repository](https://github.com/adamtopaz/MilnorAlgDep-lean), on top of Mathlib.
-Its goal is Theorems A–D with no `sorry` and no axioms beyond the standard ones; the current
-state is described in {ref "ss:status"}[Section 1.5].
+It proves Theorems A–D with no `sorry` and no axioms beyond the standard ones
+({ref "ss:status"}[Section 1.5]).
 This chapter describes how the library is organized, how to read its statements, which Lean
 declaration formalizes which statement of the blueprint, and where the formal proofs deviate
 from the blueprint.
@@ -51,7 +51,7 @@ MilnorAlgDep/
     Delta.lean            Δ, Lemma 6.5, τ                     6.3.1, 6.5
     StepC.lean            Lemmas 6.10-6.12 (Γ = 0)            6.6.1
     Main.lean             Theorem A, char L = 0               6.7
-  CharP/                  (Chapters 3-5; Chapter 6 in progress)
+  CharP/                  Theorem A, char L > 0
     Frobenius.lean        Frob^j as frobZ, l is perfect       2.2, 3
     Model.lean            Def. 4.1, Lemma 4.2, criterion      3.2, 4.1
     Levels.lean           ≈, levDiff, Lemma 3.2               3.3
@@ -59,7 +59,12 @@ MilnorAlgDep/
     Models.lean           hgt, ω, Lemmas 4.3, 4.5             4.2, 4.3
     Trichotomy.lean       Lemma 4.6                           4.4
     Quadrangle.lean       Lemma 5.1                           5
-    Main.lean             Theorem A, char L > 0 (sorry)       3-6
+    LevelV.lean           levDiffV, hgtV, CharPHyp, (eq:sum)  6.1.1
+    StepA.lean            Lemmas 6.2, 6.3, Prop. 6.1          6.2
+    AdaptedModel.lean     W, dlog_A, K₀, Lemmas 6.4, 6.5, τ   6.3.2, 6.5
+    StepCFields.lean      eigenvalue lemma, norm argument     6.6.2
+    StepC.lean            (eq:roots), Lemmas 6.10-6.12        6.5.1, 6.6.2
+    Main.lean             τ on K, Theorem A, char L > 0       6.7
   Reduction.lean          reduction to perfect K and L        6.1
   Reduction/
     ExtendPsi.lean        extension of ψ to K^i               6.1
@@ -81,9 +86,8 @@ MilnorAlgDep/
     TheoremD.lean         Theorem D                           7.4
 ```
 
-The files under `CharP/` for Chapters 3–5 are complete, with no `sorry`; they are listed in
-dependency order.
-Steps A and C in positive characteristic will add further files there.
+The files under `CharP/` are listed in dependency order.
+No file contains a `sorry`.
 Every file is a Lean module and starts with a docstring saying which part of the blueprint it
 formalizes; every declaration corresponding to a numbered statement has a docstring naming it.
 The root module `MilnorAlgDep` imports all files.
@@ -162,8 +166,6 @@ The following encoding choices are made throughout.
 %%%
 tag := "ss:table"
 %%%
-
-Placeholders refer to the positive characteristic part, which is in progress.
 
 :::table +header
 *
@@ -274,8 +276,27 @@ Placeholders refer to the positive characteristic part, which is in progress.
   * {name}`extendPsi`, {name}`theoremA_perfect_of_isPRadical`,
     {name}`theoremA_perfect_aux`, {name}`theoremA_aux`
 *
-  * Proposition 6.1, Lemmas 6.2, 6.3
-  * placeholder
+  * Section 6.1, $`\Gamma = \ZZ`: hypotheses, levels and heights in $`V`
+  * {name}`CharPHyp`, {name}`IsVRep`, {name}`levDiffV`, {name}`levDiffV_eq`,
+    {name}`levDiffV_smul_left`, {name}`hgtV`
+*
+  * (eq:sum) and its consequences
+  * {name}`CharPHyp.ψK_add`, {name}`CharPHyp.pointV_ψK_one_sub_neg_div`,
+    {name}`CharPHyp.isCollinearTriple_add`, {name}`CharPHyp.isAlgebraic_ρ_add`
+*
+  * (eq:nohom)
+  * {name}`nohom`
+*
+  * $`n`, $`c` (eq:defc), Lemma 6.2
+  * {name}`CharPHyp.n`, {name}`CharPHyp.c`, {name}`CharPHyp.ν`, {name}`CharPHyp.c_eq_ν`,
+    {name}`isNormalized_of_coords`
+*
+  * Lemma 6.3
+  * {name}`CharPHyp.c_add_c`
+*
+  * (eq:nu), Proposition 6.1
+  * {name}`CharPHyp.ν_neg_mul`, {name}`CharPHyp.exists_addMonoidHom_eq_ν`,
+    {name}`CharPHyp.n_eq_zero`, {name}`CharPHyp.levDiffV_one_sub`, {name}`CharPHyp.hgtV_one_sub`
 *
   * Lemma 6.4, $`\Gamma = 0`
   * {name}`dlog`, {name}`dlog_injective`,
@@ -285,8 +306,20 @@ Placeholders refer to the positive characteristic part, which is in progress.
   * {name}`Char0Hyp.data_Δ_eq_zero_iff`, {name}`Char0Hyp.μ_mem_pointV`,
     {name}`Char0Hyp.exists_Δhom_notMem_span`
 *
-  * Lemmas 6.4, 6.5, $`\Gamma = \ZZ`
-  * placeholder
+  * adapted model, $`W`, $`\dlog_A` (6.3)
+  * {name}`CharPHyp.trBasis`, {name}`CharPHyp.F`, {name}`W`, {name}`mem_W_iff`,
+    {name}`dlogA`
+*
+  * Lemma 6.4, $`\Gamma = \ZZ`
+  * {name}`dlogA_eq`, {name}`dlogA_add`, {name}`dlogA_ne_zero_iff`,
+    {name}`span_dlogA_eq_omega`, {name}`dlogA_eq_zero_iff`, {name}`exists_pow_nsmul_mem_W`,
+    {name}`eq_zero_of_forall_mem_pow_nsmul_W`
+*
+  * $`K_0`, $`\Delta` (6.3), Lemma 6.5, $`\Gamma = \ZZ`
+  * {name}`CharPHyp.K₀`, {name}`CharPHyp.Δhom`, {name}`CharPHyp.Δhom_eq_zero_iff_one_sub`,
+    {name}`CharPHyp.Δhom_one_sub_mem_span`, {name}`CharPHyp.μ_mem_pointV`,
+    {name}`CharPHyp.linearIndependent_Δhom_x`, {name}`CharPHyp.exists_Δhom_notMem_span`,
+    {name}`CharPHyp.data`
 *
   * hypotheses of Step B
   * {name}`StepBData`
@@ -308,7 +341,11 @@ Placeholders refer to the positive characteristic part, which is in progress.
 *
   * Proposition 6.9
   * {name}`StepBData.τ`, {name}`StepBData.exists_ringHom`,
-    {name}`Char0Hyp.τ`
+    {name}`Char0Hyp.τ`, {name}`CharPHyp.τ`, {name}`CharPHyp.ringChar_eq`
+*
+  * (eq:roots)
+  * {name}`CharPHyp.pow_mem_K₀`, {name}`CharPHyp.exists_pow_pow_mem_K₀`,
+    {name}`CharPHyp.exists_primitive_root`, {name}`CharPHyp.hgtV_pow_pow_of_primitive`
 *
   * Lemma 6.10, $`\Gamma = 0`
   * {name}`Char0Hyp.τ_mem_pointV`, {name}`Char0Hyp.τ_mem_range_of_mem`,
@@ -320,11 +357,34 @@ Placeholders refer to the positive characteristic part, which is in progress.
   * Proposition 6.12, $`\Gamma = 0`
   * {name}`Char0Hyp.exists_rat_ψ_eq`
 *
-  * Lemmas 6.10–6.12, $`\Gamma = \ZZ`
-  * placeholder
+  * eigenvalue lemma in a model (6.6.2)
+  * {name}`exists_intCast_of_modelDLog_eq`
+*
+  * Lemma 6.10, $`\Gamma = \ZZ`
+  * {name}`CharPHyp.τ_mem_pointV`, {name}`CharPHyp.τ_mem_range_of_mem`,
+    {name}`CharPHyp.τ_notMem_range`
+*
+  * Lemma 6.11, $`\Gamma = \ZZ`
+  * {name}`CharPHyp.hgt_τ_eq_of_transverse`, {name}`CharPHyp.exists_hgt_τ_coeff`,
+    {name}`CharPHyp.hgt_τ_eq_zero`, {name}`CharPHyp.exists_dlogA_eq_smul`,
+    {name}`CharPHyp.exists_θ`
+*
+  * (eq:lift), (eq:padic)
+  * {name}`CharPHyp.exists_lift`, {name}`CharPHyp.exists_padic`
+*
+  * (eq:Epower), the norm argument
+  * {name}`mem_of_pow_pow_mem`, {name}`exists_pow_eq_mul_pow_pow`,
+    {name}`exists_dvd_sub_of_forall_pow_eq`, {name}`exists_dvd_sub_of_dvd`
+*
+  * Proposition 6.12, $`\Gamma = \ZZ`
+  * {name}`CharPHyp.exists_rat_ψ₀_eq`, {name}`CharPHyp.zsmul_ψ₀_eq_of_dvd`
 *
   * Section 6.7, $`\Gamma = 0`
   * {name}`theoremA_perfect_of_charZero`
+*
+  * Section 6.7, $`\Gamma = \ZZ`
+  * {name}`CharPHyp.τK`, {name}`CharPHyp.exists_rat_ψ_eq`, {name}`CharPHyp.τK_mem_range_iff`,
+    {name}`CharPHyp.isRelAlgClosed_k`, {name}`theoremA_core_charP`
 *
   * Lemma 6.13
   * {name}`theoremA_perfect_unique_aux`,
@@ -377,9 +437,9 @@ tag := "ss:deviations"
 %%%
 
 The formal proofs follow the blueprint, with the following differences.
-None of them is a correction of a mathematical error; the formalization so far has found no gap
-in the characteristic $`0` part of the blueprint, in its Sections 2–5 or in its Section 7 (see
-also {cref "ss:formalAdds"}[]).
+None of them is a correction of a mathematical error: the formalization found no error and no gap
+anywhere in the blueprint (see also {cref "ss:formalAdds"}[]).
+The differences are simplifications, reorganizations, and choices of encoding.
 
 _Organization._
 
@@ -387,9 +447,11 @@ _Organization._
   The blueprint is uniform in the characteristic, at the price of a characteristic exponent
   $`p = 1` and $`\Gamma = 0` in characteristic $`0`; in Lean that would force case distinctions
   through the whole theory of levels.
-  {ref "sec:levels"}[Chapters 3–5] and Step A are formalized for $`p` prime only, and the
+  {ref "sec:levels"}[Chapters 3–5] and the characteristic $`p` parts of
+  {ref "sec:main"}[Chapter 6] are formalized for $`p` prime only (`MilnorAlgDep/CharP/`), and the
   characteristic $`0` proof uses $`\dlog \colon V_{L|l} \to \Omega_{L|l}` directly
   ({ref "ss:model0"}[Section 6.3.1]).
+  The two proofs share the standard facts, the reductions and the abstract Step B.
 * _Step B is abstract_ ({ref "ss:stepB"}[Section 6.4]).
   Lemmas 6.6–6.8 and Proposition 6.9 are proved for any homomorphism $`\Delta` satisfying
   (H0)–(H3), and used in both characteristics.
@@ -455,6 +517,32 @@ _Levels, models, quadrangle_ ({ref "sec:levels"}[Chapters 3–5]).
 
 _Theorem A_ ({ref "sec:main"}[Chapter 6]).
 
+* _Levels of elements of_ $`V` ({ref "ss:notationP"}[Section 6.1.1]).
+  As in Chapters 3–5, only level differences {name}`levDiffV` `p v w` $`= \lev(v) - \lev(w)` and
+  heights {name}`hgtV` are defined, through fixed representatives prime to $`p`; one rule,
+  $`\lev(qv) = \lev(v) + v_p(q)` for $`q \in \QQ^\times`, covers the blueprint's remarks on
+  $`pv`, $`-v` and $`Nv`.
+  $`\psi` is extended to $`K` by $`\psi(0) = 0` ({name}`CharPHyp.ψK`).
+* _(eq:sum) is used in an unconditional form_: $`Q_{x+y}` lies on $`\la Q_x, Q_y \ra` whenever
+  $`x, y, x + y \neq 0` ({name}`CharPHyp.isAlgebraic_ρ_add`).
+  This gives the incidences of {cref "lem:cocycle"}[] directly, and the blueprint's proof of
+  $`G \neq B` there is not needed.
+* _Lemma 6.2._
+  The function $`\nu` is defined by the case formula of the lemma, which becomes the identity
+  $`c(u, w) = \nu(-u/w)` ({name}`CharPHyp.c_eq_ν`).
+  In all three cases normality is checked by one criterion, pairwise linearly independent
+  differentials in the model of two elements ({name}`isNormalized_of_coords`), instead of the
+  irreducible relation of the triple and Lemma 3.1.
+* _Proposition 6.1._
+  The constant $`\delta_0 = \nu(-s) - \nu(s)` is shown to vanish at each pair of
+  $`\psi`-independent elements directly, without proving first that it is a constant; the
+  homomorphism $`\chi` computes $`\varrho` with the fixed element $`x_1`.
+* _Lemmas 6.4 and 6.5._
+  $`W` is defined as the set of elements with a representative in $`L_A` ({name}`W`), which is
+  visibly a subgroup, and identified with $`\{0\} \cup \{\hgt \geq 0\}` afterwards
+  ({name}`mem_W_iff`).
+  In Lemma 6.5 (c) four monomials $`x_1, x_2, x_3, x_1 x_2 x_3` replace the $`p^2 + p + 1` lines
+  of $`\mathbf P^2(\FF_p)` ({name}`exists_notMem_span_four`).
 * _Lemma 6.8 and Proposition 6.9._
   $`\tau` is defined on $`\mathcal N` with one fixed primitive element $`z_0`, and its
   multiplicativity on $`\mathcal N` is never needed separately; $`\tau(-1) = -1` is obtained from
@@ -466,6 +554,31 @@ _Theorem A_ ({ref "sec:main"}[Chapter 6]).
   injectivity of $`\Omega_{Q_a|l} \to \Omega_{L|l}`; the richness hypothesis (H3) comes from the
   elements $`x_1 x_2^n`; in Lemmas 6.10 and 6.11 representatives may have different
   denominators.
+* _Representatives in characteristic_ $`p`.
+  A common denominator for several representatives is used only in {cref "lem:gauge"}[]
+  ({name}`exists_isVRep₃`).
+  Elsewhere (the proofs of $`\mu(x) \in Q_x` and of Lemmas 6.10, 6.11) the chosen representatives
+  $`(N, a)`, $`(M, b)` are used, and $`(NM, a^M)`, $`(NM, b^N)` where a common denominator matters.
+* _Lemmas 6.10 and 6.11 in characteristic_ $`p`.
+  $`\tau(c) \in Q_x` is shown for every $`x \in K_0 \sm k`, and $`\tau(k) \subset l` follows with
+  $`x = x_1, x_2` instead of two transverse elements.
+  In {cref "lem:theta"}[], $`e_0 = 0` is proved before $`\theta \in l`, so that $`\tau(x)` is
+  already known to be a model generator when the coefficient is shown to lie in $`Q_x`
+  ({name}`CharPHyp.exists_dlogA_eq_smul`, shared with (eq:lift)); $`\theta` is an integer prime to
+  $`p`.
+  The eigenvalue lemma in a model is applied without the injectivity of
+  $`\Omega_{E|l} \to \Omega_A` ({name}`exists_intCast_of_modelDLog_eq`).
+* _Proposition 6.12._
+  The integers $`r_j` of (eq:padic) need not be compatible: the formal statement is "for every
+  $`j` there is $`r_j`" ({name}`CharPHyp.exists_padic`).
+  The norm argument uses the degree on $`l(s) \cong l(X)` instead of the order at $`s`
+  ({name}`exists_dvd_sub_of_forall_pow_eq`), so unique factorization in $`l[s]` and the exponents
+  $`\varepsilon_P` do not occur.
+  The factorization $`MN = p^\beta n'` is unnecessary (the conclusion holds with $`\beta = 0`), but
+  is kept ({name}`exists_dvd_sub_of_dvd`).
+* _End of the proof._
+  $`\tau` is extended from $`K_0` to $`K` by Mathlib's `PerfectRing.lift`, since $`K` is
+  $`p`-radical over $`K_0` and $`L` is perfect ({name}`CharPHyp.τK`).
 * _Uniqueness (Lemma 6.13) assumes only $`\psi \neq 0`_, which implies the blueprint's
   hypotheses.
   Instead of dividing logarithmic differentials, the proof applies a derivation $`\delta` with
@@ -509,5 +622,5 @@ tag := "ss:formalStatus"
 %%%
 
 See {ref "ss:status"}[Section 1.5].
-At the time of writing, the only `sorry` in the library is the proof of
-{name}`theoremA_core_charP` in `MilnorAlgDep/CharP/Main.lean`.
+The library has no `sorry`, and the main theorems depend only on the axioms `propext`,
+`Classical.choice` and `Quot.sound`.

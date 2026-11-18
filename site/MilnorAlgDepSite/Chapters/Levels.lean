@@ -309,14 +309,14 @@ $`\lev(\Frob^j s) = \lev(s) + j` ({name}`levDiff_frobZ_left`,
 {name}`levDiff_frobZ_right`);
 and the level of an element only depends on its $`\approx`-class
 ({name}`SepEquiv.levDiff_left`, {name}`SepEquiv.levDiff_right`).
-For the levels of elements of $`V_{L|l}` ({cref "ss:reductions"}[]) one also needs
+For the levels of elements of $`V_{L|l}` ({cref "ss:notationP"}[]) one also needs
 $`\lev(cs) = \lev(s)` for $`c \in l^\times`, $`\lev(s^N) = \lev(s)` for $`N` prime to $`p`, and
 $`\lev(s^{-1}) = \lev(s)` ({name}`levDiff_algebraMap_mul_left`,
 {name}`levDiff_pow_left`, {name}`levDiff_inv_left`): in each case the two elements are
 $`\approx`-equivalent.
 
 The order on levels has a direct description, which the blueprint states in the proof of
-Lemma 6.2:
+{cref "lem:gauge"}[]:
 
 {docstring MilnorAlgDep.levDiff_nonneg_iff}
 
@@ -387,9 +387,9 @@ $`(j, k)` such that $`(\lev x, \lev y + j, \lev z + k)` is in the orbit:
 
 {docstring MilnorAlgDep.levelTriple_eq_of_isNormalized}
 
-For example, the integer $`c(u, w)` of Step A is the first entry of
+For example, the integer $`c(u, w)` of Step A ({cref "sec:stepA"}[]) is the first entry of
 {name}`levelTriple` `l p a b d`, where $`a, b, d` represent $`\psi(u)`, $`\psi(w)`,
-$`\psi(u + w)`.
+$`\psi(u + w)` ({name}`CharPHyp.c`).
 
 _Proof of (b) (as formalized)._
 "If": being normalized is invariant under a diagonal twist by $`\Frob^j`
@@ -452,6 +452,6 @@ Write $`dz_0 = \alpha\, dx + \beta\, dy` with $`\alpha, \beta \in E`.
 
 No injectivity of $`\Omega_{E'} \to \Omega_E` is needed.
 
-Chapter 6 also uses that $`(x, y, xy)` is normalized for algebraically independent $`x, y`
-({name}`isNormalized_mul`): $`xy` lies in $`l(x, y)`, $`x` in $`l(y, xy)` and $`y` in
-$`l(x, xy)`.
+The proof of {cref "lem:theta"}[] also uses that $`(x, y, xy)` is normalized for algebraically
+independent $`x, y` ({name}`isNormalized_mul`): $`xy` lies in $`l(x, y)`, $`x` in $`l(y, xy)`
+and $`y` in $`l(x, xy)`.
