@@ -1,7 +1,7 @@
 module
 
 public import MilnorAlgDep.Milnor.DegOne
-public import MilnorAlgDep.Milnor.DLog
+public import MilnorAlgDep.Char0.DLog
 public import MilnorAlgDep.Milnor.PrimeField
 
 /-!
@@ -48,6 +48,23 @@ theorem map_eq_zero_of_pow_eq_one {H : Subgroup Lˣ} (f : Additive Kˣ →+ VOf 
     (hn : 0 < n) (hz : z ^ n = 1) : f (.ofMul z) = 0 := by
   apply nsmul_left_cancel hn.ne'
   rw [← map_nsmul, ← ofMul_pow, hz, ofMul_one, map_zero, smul_zero]
+
+/-- Blueprint (S2), characteristic `0`: if `v ≠ 0` and `v, w ∈ V_{L|l}` are algebraically
+dependent over `l`, then `dlog w` is an `L`-multiple of `dlog v`. -/
+theorem exists_dlog_eq_smul_of_not_vAlgIndep {l : Type*} [Field l] [Algebra l L] [CharZero L]
+    [IsRelAlgClosed l L] {v w : V l L} (h : ¬ VAlgIndep l ![v, w]) (hv : v ≠ 0) :
+    ∃ μ : L, dlog l L w = μ • dlog l L v := by
+  rw [vAlgIndep_pair_iff_linearIndependent_dlog, LinearIndependent.pair_iff] at h
+  push Not at h
+  obtain ⟨s, t, hst, hne⟩ := h
+  have hv' : dlog l L v ≠ 0 := fun h0 ↦ hv (dlog_eq_zero_iff.1 h0)
+  have ht : t ≠ 0 := by
+    rintro rfl
+    rw [zero_smul, add_zero, smul_eq_zero] at hst
+    exact hne (hst.resolve_right hv') rfl
+  refine ⟨-(t⁻¹ * s), ?_⟩
+  rw [neg_smul, ← smul_smul, ← smul_neg, eq_inv_smul_iff₀ ht, eq_neg_iff_add_eq_zero, add_comm,
+    hst]
 
 section subfieldOfKer
 
@@ -192,7 +209,7 @@ variable [CharZero L]
 variable (l₀ φ) in
 /-- Blueprint Lemma 7.3 (iii): `Δ = dlog ∘ ψ : K^× → Ω[L⁄l₀]` (characteristic `0`). -/
 noncomputable def delta : Additive Kˣ →+ Ω[L⁄l₀] :=
-  (dlog l₀ L).toAddMonoidHom.comp (psi l₀ φ)
+  (dlog l₀ L).comp (psi l₀ φ)
 
 omit hl₀ hφ hφ₁ in
 theorem delta_apply (x : Kˣ) : delta l₀ φ (.ofMul x) = dlog l₀ L (psi l₀ φ (.ofMul x)) :=
@@ -239,7 +256,7 @@ theorem exists_transcendental_delta_not_mem
   obtain ⟨x, hx⟩ := A3
   have hli : LinearIndependent L
       ![delta l₀ φ (.ofMul (x 0)), delta l₀ φ (.ofMul (x 1))] := by
-    convert linearIndependent_dlog hx using 1
+    convert vAlgIndep_iff_linearIndependent_dlog.1 hx using 1
     ext i
     fin_cases i <;> rfl
   have h1 : ∃ x₁ : Kˣ, ∀ μ : L, delta l₀ φ (.ofMul x₁) ≠ μ • delta l₀ φ (.ofMul c) := by
