@@ -244,7 +244,8 @@ of a valuation to a larger field.
 No result about Milnor $`K`-theory beyond its definition is used.
 
 Gauss' lemma, unique factorization and the norm are needed only in positive characteristic
-(Lemma 3.1 and {cref "prop:rational"}[]).
+({cref "lem:sepcrit"}[] and {cref "prop:rational"}[]); the formalization does not use Lemma 3.1,
+which it replaces by a criterion with differentials ({cref "ss:sepcrit"}[]).
 The blueprint also uses Gauss' lemma in the proof of the eigenvalue lemma ({cref "lem:R"}[]) and a
 discrete valuation in the proof of (S3) ({cref "lem:standard"}[]); the formal proofs avoid both.
 The formalization takes from Mathlib: Kähler differentials (`KaehlerDifferential`) with the
