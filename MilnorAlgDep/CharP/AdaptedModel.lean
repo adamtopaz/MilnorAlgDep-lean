@@ -30,7 +30,7 @@ For `H : CharPHyp K l L`:
 * `CharPHyp.trBasis p`, `CharPHyp.B p`: a transcendence basis of `L / l` containing the chosen
   representatives `ρ p (x i)` of `ψ(x i)`; `CharPHyp.F p = L_B`.
 * `CharPHyp.K₀ p : Subfield K`: `K₀ = {0} ∪ ψ⁻¹(W)` (Lemma 6.5(a); closure under addition uses
-  Proposition 6.1, `CharPHyp.K₀_add_mem`).
+  Proposition 6.1 through `CharPHyp.ψK_one_sub_mem_W`, see `CharPHyp.K₀_add_mem`).
 * `CharPHyp.Δhom p : K₀ˣ → Ω_B`, `Δ = dlog_A ∘ ψ`, and the hypotheses (H0)-(H3) of the abstract
   Step B: `Δhom_neg_one`, `Δhom_eq_zero_iff_one_sub` and `Δhom_one_sub_mem_span` (Lemma 6.5(b)),
   `linearIndependent_Δhom_x` and `exists_Δhom_notMem_span` (Lemma 6.5(c)).
@@ -42,7 +42,8 @@ For `H : CharPHyp K l L`:
 
 Lemma 6.5(c) is proved with the four monomials `x₀, x₁, x₂, x₀ x₁ x₂` instead of all
 `p² + p + 1` lines `(i₀ : i₁ : i₂) ∈ P²(F_p)`: their `Δ`'s are pairwise non-proportional, and a
-line contains at most one of them, so one of them avoids any three given lines.
+line contains at most one of them, so one of them avoids any three given lines
+(`exists_notMem_span_four`).
 -/
 
 @[expose] public section
@@ -421,7 +422,7 @@ theorem exists_notMem_span_four {e : Fin 3 → Ω} (h : LinearIndependent F e) (
     ∃ i : Fin 4, ![e 0, e 1, e 2, e 0 + e 1 + e 2] i ∉ F ∙ v₁ ∧
       ![e 0, e 1, e 2, e 0 + e 1 + e 2] i ∉ F ∙ v₂ ∧
       ![e 0, e 1, e 2, e 0 + e 1 + e 2] i ∉ F ∙ v₃ := by
-  set u : Fin 4 → Ω := ![e 0, e 1, e 2, e 0 + e 1 + e 2] with hu
+  set u : Fin 4 → Ω := ![e 0, e 1, e 2, e 0 + e 1 + e 2]
   by_contra hcon
   push Not at hcon
   -- each `u i` lies on one of the three lines, `F ∙ v_{c i}`
