@@ -51,7 +51,9 @@ The matroid gives the basic facts about points quickly:
 {docstring MilnorAlgDep.point_inf_point_eq_bot}
 
 Flats of higher rank, lines and collinearity are used only in positive characteristic
-({ref "sec:levels"}[Chapters 3–5] and {cref "sec:stepA"}[]) and are formalized there.
+({ref "sec:levels"}[Chapters 3–5] and {cref "sec:stepA"}[]); the formalization does not
+define them, but states everything in terms of elements ({cref "ss:elementwise"}[]): for
+instance "$`Q_x` lies on the line $`\la Q_y, Q_z \ra`" is "$`x` is algebraic over $`l(y, z)`".
 
 # Frobenius and the group Γ
 %%%
@@ -299,8 +301,8 @@ Lean this is part of the characteristic $`0` criterion below.
 tag := "ss:lax-general"
 %%%
 
-The lax property (Lemma 4.5) holds in the following general form, for any family in any extension
-$`E` of a perfect field $`l`: if $`y_1, \dots, y_m \in E` have linearly independent differentials
+The lax property ({cref "lem:lax"}[]) holds in the following general form, for any family in
+any extension $`E` of a perfect field $`l`: if $`y_1, \dots, y_m \in E` have linearly independent differentials
 in $`\Omega_{E|l}`, then they are algebraically independent over $`l`.
 It is used for (S3) above and, in characteristic $`0`, gives a criterion for algebraic
 independence.
@@ -322,8 +324,9 @@ a transcendence basis over which $`E` is separable algebraic, and (S2) applies:
 
 {docstring MilnorAlgDep.kaehler_D_eq_zero_iff_isAlgebraic}
 
-These two statements are all that the characteristic $`0` proof of Theorem A needs to know about
-differentials, as the blueprint's remark on formalization (Remark 8.3) predicts.
+Together with (S2) for a point ({ref "ss:model0"}[Section 6.3.1]), these two statements are all
+that the characteristic $`0` proof of Theorem A needs to know about differentials; the blueprint's
+remark on formalization lists only the two ({ref "sec:remarks"}[Chapter 8]).
 
 ## The eigenvalue lemma
 %%%
