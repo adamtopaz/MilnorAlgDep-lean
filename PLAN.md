@@ -91,9 +91,9 @@ Status: `todo`, `active`, `review`, `done`.
 | WP-K3 | Theorems B, C, D from Theorem A | WP-K2 | done |
 | WP-U | Uniqueness, Lemma 6.13 | WP0 | done |
 | WP-A0 | Theorem A in characteristic 0 | WP0, WP-B, WP-S | done |
-| WP-P1 | Section 3 proofs: `Standard/SepCrit`, `CharP/Frobenius`, `CharP/Model`, `CharP/Levels`, `CharP/Normalized` (interface for Sections 3-5 merged) | WP0, WP-S | active |
-| WP-P2 | Section 4 proofs: `CharP/Models` (Lemma 4.3, heights, lines, lax, propagation) | WP-P1 interface | active |
-| WP-P3 | `CharP/Trichotomy`, `CharP/Quadrangle` (Lemmas 4.6, 5.1) | WP-P1 interface | active |
+| WP-P1 | Section 3 proofs: `Standard/SepCrit`, `CharP/Frobenius`, `CharP/Model`, `CharP/Levels`, `CharP/Normalized` (interface for Sections 3-5 merged) | WP0, WP-S | done |
+| WP-P2 | Section 4 proofs: `CharP/Models` (Lemma 4.3, heights, lines, lax, propagation) | WP-P1 interface | done |
+| WP-P3 | `CharP/Trichotomy`, `CharP/Quadrangle` (Lemmas 4.6, 5.1) | WP-P1 interface | done |
 | WP-P4 | Section 6 skeleton in characteristic p (`CharP/StepA`, `AdaptedModel`, `StepC`, `Main`), then proofs | WP-P1 interface | active |
 | WP-P7 | Reduction to perfect fields, assembly of Theorem A | — | done |
 | WP-V2 | Verso companion text | all | todo |
@@ -127,3 +127,10 @@ The statements in these stub files are frozen too.
 - 2026-11-18: Theorems B, C, D are proved from the statement of Theorem A (WP-K3). The only
   remaining `sorry` is `theoremA_core_charP` in `CharP/Main.lean`. The root file is regenerated
   with `scripts/mk-root.sh`; the copyright-header linter is disabled in `lakefile.toml`.
+- 2026-11-18: Sections 3-5 are proved in characteristic p (levels, Lemma 3.5, models, Lemma 4.3,
+  lax, trichotomy, quadrangle). Lemma 3.1 is not formalized: it is replaced by a differential
+  separability criterion (`Standard/SepCrit.lean`). Blueprint Lemma 4.6(c) holds under the weaker
+  hypothesis `i ≤ j` (`IsNormalized.hgt_le_of_hgt_le`).
+- Docstring numbering to fix in the final audit: blueprint numbering is Lemma 2.1 = (S1)-(S3),
+  Lemma 2.2 = eigenvalue, Lemma 4.5 = lax, Lemma 4.6 = trichotomy; some WP-S docstrings say
+  "Lemma 2.3" / "Lemma 4.6" for (S) / lax. Several helper lemmas are marked `TODO(move)`.
