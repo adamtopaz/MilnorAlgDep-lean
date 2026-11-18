@@ -2,6 +2,7 @@ module
 
 public import MilnorAlgDep.Milnor.Defs
 public import Mathlib.LinearAlgebra.TensorProduct.Lift
+public import Mathlib.RingTheory.GradedAlgebra.Basic
 
 /-!
 # Basic properties of rational Milnor K-rings
@@ -30,6 +31,8 @@ in the proofs of Theorems B, C and D.
   (for instance `𝒦_*(L) → 𝒦_*(L|l)`).
 * `VOf.lift`: the `ℚ`-linear map `VOf H → W` induced by an additive map `Lˣ → W` vanishing on
   `H`.
+* `MilnorKQ.gradedAlgebra`: the instance `GradedAlgebra (grade H)`, i.e. `MilnorKQ H` is the
+  direct sum of the `grade H n` (`MilnorKQ.grade_isInternal`).
 -/
 
 @[expose] public section
@@ -436,6 +439,67 @@ theorem degScale_bijective {r : ℚ} (hr : r ≠ 0) : Function.Bijective (degSca
   (degScaleEquiv r hr).bijective
 
 end DegScale
+
+section GradedAlgebra
+
+/-! ### The direct sum decomposition
+
+`MilnorKQ H` is the direct sum of the `grade H n`; the proof follows
+`Mathlib/LinearAlgebra/ExteriorAlgebra/Grading.lean`: the Steinberg relations are homogeneous. -/
+
+open scoped DirectSum
+
+variable (H : Subgroup Lˣ)
+
+instance : SetLike.GradedMonoid (grade H) :=
+  Submodule.nat_power_gradedMonoid (LinearMap.range (ι H))
+
+/-- `ι` into the direct sum `⨁ n, grade H n` (auxiliary for `MilnorKQ.gradedAlgebra`). -/
+protected noncomputable def GradedAlgebra.ι : VOf H →ₗ[ℚ] ⨁ n : ℕ, grade H n :=
+  DirectSum.lof ℚ ℕ (fun n ↦ grade H n) 1 ∘ₗ
+    (ι H).codRestrict _ fun v ↦ ι_mem_grade_one H v
+
+theorem GradedAlgebra.ι_apply (v : VOf H) :
+    GradedAlgebra.ι H v = DirectSum.of (fun n ↦ grade H n) 1 ⟨ι H v, ι_mem_grade_one H v⟩ :=
+  rfl
+
+theorem GradedAlgebra.ι_mul_ι_eq_zero {a b : Lˣ} (hab : (a : L) + b = 1) :
+    GradedAlgebra.ι H (cls H (.ofMul a)) * GradedAlgebra.ι H (cls H (.ofMul b)) = 0 := by
+  rw [GradedAlgebra.ι_apply, GradedAlgebra.ι_apply, DirectSum.of_mul_of]
+  exact DFinsupp.single_eq_zero.mpr (Subtype.ext <| MilnorKQ.ι_mul_ι_eq_zero H hab)
+
+/-- `GradedAlgebra.ι` lifted to `MilnorKQ H` (auxiliary for `MilnorKQ.gradedAlgebra`). -/
+noncomputable def GradedAlgebra.liftι : MilnorKQ H →ₐ[ℚ] ⨁ n : ℕ, grade H n :=
+  lift (GradedAlgebra.ι H) fun _ _ hab ↦ GradedAlgebra.ι_mul_ι_eq_zero H hab
+
+theorem GradedAlgebra.liftι_eq (n : ℕ) (x : grade H n) :
+    GradedAlgebra.liftι H x = DirectSum.of (fun n ↦ grade H n) n x := by
+  obtain ⟨x, hx⟩ := x
+  dsimp only [Subtype.coe_mk, DirectSum.lof_eq_of]
+  induction hx using Submodule.pow_induction_on_left' with
+  | algebraMap => simp_rw [AlgHom.commutes, DirectSum.algebraMap_apply]; rfl
+  | add _ _ _ _ _ ihx ihy => simp_rw [map_add, ihx, ihy, ← map_add]; rfl
+  | mem_mul _ hm _ _ _ ih =>
+      obtain ⟨_, rfl⟩ := hm
+      simp_rw [map_mul, ih, GradedAlgebra.liftι, lift_ι, GradedAlgebra.ι_apply,
+        DirectSum.of_mul_of]
+      exact DirectSum.of_eq_of_gradedMonoid_eq (Sigma.subtype_ext (add_comm _ _) rfl)
+
+/-- Blueprint 1.2: `MilnorKQ H` is a graded algebra, the direct sum of the `grade H n`. -/
+noncomputable instance gradedAlgebra : GradedAlgebra (grade H) :=
+  GradedAlgebra.ofAlgHom _ (GradedAlgebra.liftι H)
+    (by
+      refine algHom_ext <| LinearMap.ext fun v ↦ ?_
+      dsimp only [LinearMap.comp_apply, AlgHom.toLinearMap_apply, AlgHom.comp_apply,
+        AlgHom.id_apply, GradedAlgebra.liftι]
+      rw [lift_ι, GradedAlgebra.ι_apply, DirectSum.coeAlgHom_of, Subtype.coe_mk])
+    (GradedAlgebra.liftι_eq H)
+
+/-- The grades form an internal direct sum decomposition of `MilnorKQ H`. -/
+theorem grade_isInternal : DirectSum.IsInternal (grade H) :=
+  DirectSum.Decomposition.isInternal _
+
+end GradedAlgebra
 
 end MilnorKQ
 
