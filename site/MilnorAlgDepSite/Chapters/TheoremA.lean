@@ -29,8 +29,8 @@ The characteristic $`0` proof consists of {ref "ss:reductions"}[Section 6.1],
 {ref "ss:stepC0"}[6.6.1] and {ref "ss:end"}[6.7].
 The characteristic $`p` proof uses {ref "sec:levels"}[Chapters 3–5] and, in this chapter,
 {ref "ss:reductions"}[Section 6.1] with {ref "ss:notationP"}[6.1.1], Step A
-({ref "sec:stepA"}[Section 6.2]), {ref "ss:modelP"}[Section 6.3.2], Step B, the primitive roots
-at the end of {ref "ss:embedding"}[Section 6.5], {ref "ss:stepCP"}[Section 6.6.2] and
+({ref "sec:stepA"}[Section 6.2]), {ref "ss:modelP"}[Section 6.3.2], Step B with
+{ref "ss:roots"}[Section 6.5.1], {ref "ss:stepCP"}[Section 6.6.2] and
 {ref "ss:end"}[Section 6.7].
 Both are complete; {ref "ss:assembly"}[Section 6.7.1] shows how they are put together.
 

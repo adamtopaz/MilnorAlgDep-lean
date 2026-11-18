@@ -197,8 +197,8 @@ In Lean the prime field is `⊥`, so {name}`eigenvalue_mem_primeField` concludes
   highlighted, with hovers (see "The idea" in Chapter 1). Errors are build errors unless the
   block is marked as expected to fail (`lean +error`).
 * For a declaration that does not exist yet, write the intended name as plain code
-  (`` `MilnorAlgDep.theoremA` ``) and mark the paragraph as a placeholder, as the stubs do. Do not
-  use `{name}` or `{docstring}` for it: that is a build error.
+  (`` `MilnorAlgDep.theoremA` ``) and mark the paragraph as a placeholder. Do not use `{name}` or
+  `{docstring}` for it: that is a build error. (The published text has no placeholders.)
 
 If a declaration is renamed in `MilnorAlgDep`, the site build fails with an error pointing at the
 reference. Fix the reference in the text.

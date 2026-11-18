@@ -94,6 +94,13 @@ The root module `MilnorAlgDep` imports all files.
 Hovering over a name in this text shows its type and documentation; clicking it jumps to its
 documentation.
 
+The statements of Theorems A–D and the definitions they mention ({name}`V`, the class map
+{name}`VOf.cls`, {name}`VAlgIndep`, and {name}`MilnorKQ` with its grading) were written and
+reviewed at the start of the formalization, before any proof, and were changed afterwards only by
+explicit decision; this text calls them the _frozen_ statements.
+`TheoremA.lean` contains the frozen statements of Theorem A, each proved by forwarding to a theorem
+with the same statement ({ref "ss:assembly"}[Section 6.7.1]).
+
 # Reading the formal statements
 %%%
 tag := "ss:reading"
