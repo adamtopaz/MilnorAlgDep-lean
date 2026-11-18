@@ -1,6 +1,6 @@
 module
 
-public import MilnorAlgDep.Milnor.Defs
+public import MilnorAlgDep.Milnor.DegOne
 public import MilnorAlgDep.TheoremA
 
 /-!
@@ -50,7 +50,20 @@ theorem theoremB [PerfectField K] [PerfectField L] (k : Subfield K) (l : Subfiel
     ∃ (τ : K →+* L) (hτ : ∀ x : K, τ x ∈ l ↔ x ∈ k) (r : ℚ), r ≠ 0 ∧
       φ = (degScale (constUnits l L) r).comp
         (map τ (constUnits_le_comap fun x hx ↦ (hτ x).2 hx)) := by
-  sorry
+  have : IsRelAlgClosed k K := IsRelAlgClosed.of_subfield hk
+  have : IsRelAlgClosed l L := IsRelAlgClosed.of_subfield hl
+  -- `ψ = φ₁ ∘ [·] : Kˣ → V_{L|l}`
+  let ψ : Additive Kˣ →+ V l L := (degOne φ).toAddMonoidHom.comp (cls _)
+  have hψ (x : Kˣ) : ψ (.ofMul x) = degOne φ 〚x〛 := rfl
+  -- (A1), from the injectivity of `φ₁` and (V1)
+  have A1 (x : Kˣ) : ψ (.ofMul x) = 0 ↔ (x : K) ∈ k := by
+    rw [hψ, ← map_zero (degOne φ), hφ₁.eq_iff, V.cls_eq_zero_iff, mem_constUnits_subfield]
+  -- (A2), from `φ {x, 1 - x} = 0` and Lemma 7.2(a)
+  have A2 (x y : Kˣ) (hxy : (x : K) + y = 1) (_ : (x : K) ∉ k) :
+      ¬ VAlgIndep l ![ψ (.ofMul x), ψ (.ofMul y)] :=
+    not_vAlgIndep_of_isGraded hφ hxy
+  obtain ⟨-, -, τ, r, hr, hτ, hψτ⟩ := theoremA_perfect k l hl ψ A1 A2 A3 A4
+  exact ⟨τ, hτ, r, hr, eq_degScale_comp_map hφ τ _ r hψτ⟩
 
 /-- **Blueprint Theorem B, uniqueness.** If `r^deg ∘ τ_* = r'^deg ∘ τ'_*` for field embeddings
 `τ, τ' : K → L` with `τ⁻¹(l) = τ'⁻¹(l) = k ≠ K` and `r, r' ≠ 0`, then `τ' = Frob^j ∘ τ` and
@@ -64,6 +77,25 @@ theorem theoremB_unique [PerfectField L] (k : Subfield K) (l : Subfield L)
       (degScale (constUnits l L) r').comp (map τ' (constUnits_le_comap fun x hx ↦ (hτ' x).2 hx))) :
     ∃ j : ℤ, τ' = ((frobeniusEquiv L (ringExpChar L) ^ j : L ≃+* L) : L →+* L).comp τ ∧
       r' = (ringExpChar L : ℚ) ^ (-j) * r := by
-  sorry
+  -- The hypothesis `r' ≠ 0` is not needed (it follows from the others).
+  have _ := hr'
+  have : IsRelAlgClosed l L := IsRelAlgClosed.of_subfield hl
+  set F := (degScale (constUnits l L) r).comp (map τ (constUnits_le_comap fun x hx ↦ (hτ x).2 hx))
+  let ψ : Additive Kˣ →+ V l L := (degOne F).toAddMonoidHom.comp (cls _)
+  have h₁ (x : Kˣ) : ψ (.ofMul x) = r • 〚Units.map (τ : K →* L) x〛 := by
+    change degOne F _ = _
+    rw [degOne_degScale_comp_map, LinearMap.smul_apply, mapRingHom_cls]
+  have h₂ (x : Kˣ) : ψ (.ofMul x) = r' • 〚Units.map (τ' : K →* L) x〛 := by
+    change degOne F _ = _
+    rw [h, degOne_degScale_comp_map, LinearMap.smul_apply, mapRingHom_cls]
+  have hψ : ψ ≠ 0 := by
+    obtain ⟨x, hx⟩ := hkK
+    have hx0 : x ≠ 0 := fun h0 ↦ hx (h0 ▸ k.zero_mem)
+    intro h0
+    have h0x := DFunLike.congr_fun h0 (.ofMul (Units.mk0 x hx0))
+    rw [h₁, AddMonoidHom.zero_apply, smul_eq_zero, V.cls_eq_zero_iff,
+      mem_constUnits_subfield] at h0x
+    exact h0x.elim hr fun h ↦ hx ((hτ x).1 h)
+  exact theoremA_perfect_unique l hl ψ hψ τ τ' r r' h₁ h₂
 
 end MilnorAlgDep
