@@ -80,10 +80,12 @@ Status: `todo`, `active`, `review`, `done`.
 
 | WP | Content | Depends on | Status |
 |----|---------|------------|--------|
-| WP0 | Foundations + frozen statements (with `sorry`) | — | todo |
-| WP-B | Abstract Step B | — | todo |
-| WP-S | Standard facts: S1–S3, Lemma 2.2, Lemma 3.1 | — | todo |
-| WP-V1 | Verso site infrastructure + GitHub Pages | — | todo |
+| WP0 | Foundations + frozen statements (with `sorry`) | — | done |
+| WP-B | Abstract Step B | — | done |
+| WP-S | Standard facts: S1–S3, Lemma 2.2, Lemma 3.1 | — | done |
+| WP-V1 | Verso site infrastructure + GitHub Pages | — | review |
+| WP-R | Eigenvalue lemma (Lemma 2.2), `Standard/Eigenvalue.lean` | — | done |
+| WP-K0 | Existence of valuations, `Milnor/ValuationExt.lean` | — | done |
 | WP-K1 | `Milnor/Defs`: grading, degree one, functoriality | WP0 | todo |
 | WP-K2 | Tame symbol, Lemma 7.2 | WP-K1 | todo |
 | WP-K3 | Theorems B, C, D from Theorem A | WP-K2 | todo |
@@ -99,6 +101,23 @@ Status: `todo`, `active`, `review`, `done`.
 | WP-V2 | Verso companion text | all | todo |
 | WP-Z | Final audit: no `sorry`, `#print axioms`, statement review | all | todo |
 
+### Stub files and wiring (supervisor)
+
+`TheoremA.lean` is frozen and only forwards to:
+
+- `Reduction.lean`: `theoremA_perfect_aux` (from the two cases below), `theoremA_aux` (WP-P7);
+- `Uniqueness.lean`: `theoremA_perfect_unique_aux` (WP-U);
+- `Char0/Main.lean`: `theoremA_perfect_of_charZero` (WP-A0);
+- `CharP/Main.lean`: `theoremA_core_charP`, for perfect `K`, `L` (WP-P6);
+- `Milnor/Symbols.lean`: Lemma 7.2 (WP-K2).
+
+The statements in these stub files are frozen too.
+
 ## Log
+
+- 2026-11-18: all files use the Lean module system (see `CLAUDE.md`).
+- 2026-11-18: WP-S proves (S3)(b) via the perfect core instead of a discrete valuation, and
+  Lemma 4.6 for arbitrary families over a perfect field. WP-R proves Lemma 2.2 from the minimal
+  polynomial, without Gauss's lemma. WP-B needed no hypothesis beyond (H0)-(H3).
 
 (The supervisor records decisions, deviations from the blueprint and discovered gaps here.)

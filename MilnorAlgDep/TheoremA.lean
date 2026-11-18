@@ -1,6 +1,7 @@
 module
 
-public import MilnorAlgDep.Foundations.PerfectClosure
+public import MilnorAlgDep.Reduction
+public import MilnorAlgDep.Uniqueness
 
 /-!
 # Theorem A
@@ -89,8 +90,8 @@ theorem theoremA_perfect [PerfectField L] (k : Subfield K) (l : Subfield L)
     (A4 : ringChar L ≠ 0 → ringChar K ≠ 0) :
     ringChar K = ringChar L ∧ (∀ x : K, IsAlgebraic k x → x ∈ k) ∧
       ∃ (τ : K →+* L) (r : ℚ), r ≠ 0 ∧ (∀ x : K, τ x ∈ l ↔ x ∈ k) ∧
-        ∀ x : Kˣ, ψ (.ofMul x) = r • 〚Units.map (τ : K →* L) x〛 := by
-  sorry
+        ∀ x : Kˣ, ψ (.ofMul x) = r • 〚Units.map (τ : K →* L) x〛 :=
+  theoremA_perfect_aux k l hl ψ A1 A2 A3 A4
 
 /-- **Blueprint Theorem A, uniqueness** (Blueprint Lemma 6.13), for a perfect field `L`.
 
@@ -110,8 +111,8 @@ theorem theoremA_perfect_unique [PerfectField L] (l : Subfield L)
     (h : ∀ x : Kˣ, ψ (.ofMul x) = r • 〚Units.map (τ : K →* L) x〛)
     (h' : ∀ x : Kˣ, ψ (.ofMul x) = r' • 〚Units.map (τ' : K →* L) x〛) :
     ∃ j : ℤ, τ' = ((frobeniusEquiv L (ringExpChar L) ^ j : L ≃+* L) : L →+* L).comp τ ∧
-      r' = (ringExpChar L : ℚ) ^ (-j) * r := by
-  sorry
+      r' = (ringExpChar L : ℚ) ^ (-j) * r :=
+  theoremA_perfect_unique_aux l hl ψ hψ τ τ' r r' h h'
 
 /-- **Blueprint Theorem A**, for arbitrary fields `K` and `L`.
 
@@ -138,7 +139,7 @@ theorem theoremA (k : Subfield K) (l : Subfield L)
     [IsPerfectClosure (algebraMap L M) p] :
     ringChar K = ringChar L ∧ (∀ x : K, IsAlgebraic k x → x ∈ k) ∧
       ∃ (τ : K →+* M) (r : ℚ), r ≠ 0 ∧ (∀ x : K, τ x ∈ perfectClosureIn l M p ↔ x ∈ k) ∧
-        ∀ x : Kˣ, V.toPerfectClosure l M p (ψ (.ofMul x)) = r • 〚Units.map (τ : K →* M) x〛 := by
-  sorry
+        ∀ x : Kˣ, V.toPerfectClosure l M p (ψ (.ofMul x)) = r • 〚Units.map (τ : K →* M) x〛 :=
+  theoremA_aux k l hl ψ A1 A2 A3 A4 p M
 
 end MilnorAlgDep
