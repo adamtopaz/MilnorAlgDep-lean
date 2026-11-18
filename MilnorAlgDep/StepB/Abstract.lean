@@ -1,4 +1,9 @@
-import MilnorAlgDep.StepB.Basic
+module
+
+public import MilnorAlgDep.StepB.Basic
+import Mathlib.Algebra.Module.Torsion.Field
+import Mathlib.Tactic.FieldSimp
+import Mathlib.Tactic.LinearCombination
 
 /-!
 # Abstract Step B: the field embedding
@@ -28,6 +33,8 @@ of Proposition 6.9 (transverse or not) is replaced by: `Δ y ∉ F ∙ Δ x` (th
 directly) or `Δ y ∈ F ∙ Δ x` (then the blueprint's auxiliary `z` is used); this avoids an
 appeal to symmetry.
 -/
+
+@[expose] public section
 
 namespace MilnorAlgDep
 
@@ -89,7 +96,7 @@ lemma Transverse.add_eq_mul (h : D.Transverse x y) : x + y = y * (1 - -x / y) :=
 lemma Transverse.Δ_add (h : D.Transverse x y) :
     D.Δ (x + y) = D.μ (-x / y) • D.Δ x + (1 - D.μ (-x / y)) • D.Δ y := by
   have hs := h.Δ_neg_div_ne_zero
-  rw [h.add_eq_mul, D.map_mul _ _ (D.ne_zero_of_Δ_ne_zero h.Δ_ne_zero_right)
+  rw [h.add_eq_mul, D.Δ_mul _ _ (D.ne_zero_of_Δ_ne_zero h.Δ_ne_zero_right)
     (D.one_sub_ne_zero_of_Δ_ne_zero hs), D.Δ_one_sub hs, h.Δ_neg_div]
   simp only [smul_sub, sub_smul, one_smul]
   abel
@@ -127,7 +134,7 @@ lemma Transverse.t_add_eq (h : D.Transverse x y) :
       (by simp [D.Δ_inv (D.ne_zero_of_Δ_ne_zero hy)]) (by simp)
   have ht : D.t (-x) = D.τ₀ (-1) * D.t x := by
     rw [neg_eq_neg_one_mul]
-    exact D.t_mul_of_Δ_eq_zero (neg_ne_zero.2 one_ne_zero) D.map_neg_one hx
+    exact D.t_mul_of_Δ_eq_zero (neg_ne_zero.2 one_ne_zero) D.Δ_neg_one hx
   rw [h.add_eq_mul, h₁.t_mul, D.t_one_sub hs, div_eq_mul_inv, h₂.t_mul, D.t_inv hy, ht]
   field_simp [D.t_ne_zero hy]
 
@@ -171,32 +178,32 @@ lemma τFun_of_Δ_ne_zero (h : D.Δ x ≠ 0) : D.τFun x = D.t x := by
   simp [τFun, h]
 
 lemma τFun_zero : D.τFun 0 = 0 := by
-  rw [τFun_of_Δ_eq_zero _ D.map_zero, τ₀, zero_mul, D.t_of_Δ_eq_zero D.map_zero, zero_div]
+  rw [τFun_of_Δ_eq_zero _ D.Δ_zero, τ₀, zero_mul, D.t_of_Δ_eq_zero D.Δ_zero, zero_div]
 
 lemma τFun_one : D.τFun 1 = 1 := by
   rw [τFun_of_Δ_eq_zero _ D.Δ_one, τ₀, one_mul, div_self (D.t_ne_zero D.Δ_z₀)]
 
 lemma τFun_neg_one : D.τFun (-1) = -1 := by
-  rw [τFun_of_Δ_eq_zero _ D.map_neg_one, τ₀_neg_one]
+  rw [τFun_of_Δ_eq_zero _ D.Δ_neg_one, τ₀_neg_one]
 
-lemma Δ_ne_zero_of_not_mem_span (hz : D.Δ z ∉ F ∙ D.Δ x) : D.Δ z ≠ 0 := fun h ↦
+lemma Δ_ne_zero_of_notMem_span (hz : D.Δ z ∉ F ∙ D.Δ x) : D.Δ z ≠ 0 := fun h ↦
   hz (by rw [h]; exact zero_mem _)
 
-lemma Δ_mul_ne_zero_of_not_mem_span (hx : x ≠ 0) (hz : D.Δ z ∉ F ∙ D.Δ x) :
+lemma Δ_mul_ne_zero_of_notMem_span (hx : x ≠ 0) (hz : D.Δ z ∉ F ∙ D.Δ x) :
     D.Δ (x * z) ≠ 0 := by
-  rw [D.map_mul _ _ hx (D.ne_zero_of_Δ_ne_zero (D.Δ_ne_zero_of_not_mem_span hz))]
+  rw [D.Δ_mul _ _ hx (D.ne_zero_of_Δ_ne_zero (D.Δ_ne_zero_of_notMem_span hz))]
   intro h
   apply hz
   rw [eq_neg_of_add_eq_zero_right h]
   exact neg_mem (mem_span_singleton_self _)
 
 /-- Blueprint equation (P3) (`eq:P3`): `t (x z) = τ x * t z` for `x ≠ 0` and primitive `z` with
-`F Δ z ≠ F Δ x`. (In this situation `x z` is primitive: `Δ_mul_ne_zero_of_not_mem_span`.) -/
-theorem t_mul_of_not_mem_span (hx : x ≠ 0) (hz : D.Δ z ∉ F ∙ D.Δ x) :
+`F Δ z ≠ F Δ x`. (In this situation `x z` is primitive: `Δ_mul_ne_zero_of_notMem_span`.) -/
+theorem t_mul_of_notMem_span (hx : x ≠ 0) (hz : D.Δ z ∉ F ∙ D.Δ x) :
     D.t (x * z) = D.τFun x * D.t z := by
   by_cases hΔx : D.Δ x = 0
   · rw [τFun_of_Δ_eq_zero _ hΔx]
-    exact D.t_mul_of_Δ_eq_zero hx hΔx (D.Δ_ne_zero_of_not_mem_span hz)
+    exact D.t_mul_of_Δ_eq_zero hx hΔx (D.Δ_ne_zero_of_notMem_span hz)
   · rw [τFun_of_Δ_ne_zero _ hΔx]
     exact ((D.transverse_iff).2 ⟨hΔx, hz⟩).t_mul
 
@@ -210,26 +217,26 @@ theorem τFun_mul (x y : K) : D.τFun (x * y) = D.τFun x * D.τFun y := by
   · simp [τFun_zero]
   by_cases hy : D.Δ y ∈ F ∙ D.Δ x
   · -- choose `z` with `F Δ z` different from `F Δ x`, `F Δ (x y)`, `F Δ y`
-    obtain ⟨z, hzx, hzxy, hzy⟩ := D.exists_not_mem_span (D.Δ x) (D.Δ (x * y)) (D.Δ y)
-    have hz := D.Δ_ne_zero_of_not_mem_span hzx
+    obtain ⟨z, hzx, hzxy, hzy⟩ := D.exists_Δ_notMem_span (D.Δ x) (D.Δ (x * y)) (D.Δ y)
+    have hz := D.Δ_ne_zero_of_notMem_span hzx
     have hyz : D.Δ (y * z) ∉ F ∙ D.Δ x := by
-      rw [D.map_mul _ _ hy0 (D.ne_zero_of_Δ_ne_zero hz)]
+      rw [D.Δ_mul _ _ hy0 (D.ne_zero_of_Δ_ne_zero hz)]
       intro h
       exact hzx (by simpa using sub_mem h hy)
-    have e₁ := D.t_mul_of_not_mem_span (mul_ne_zero hx0 hy0) hzxy
-    have e₂ := D.t_mul_of_not_mem_span hy0 hzy
-    have e₃ := D.t_mul_of_not_mem_span hx0 hyz
+    have e₁ := D.t_mul_of_notMem_span (mul_ne_zero hx0 hy0) hzxy
+    have e₂ := D.t_mul_of_notMem_span hy0 hzy
+    have e₃ := D.t_mul_of_notMem_span hx0 hyz
     rw [← mul_assoc, e₁, e₂] at e₃
     exact mul_right_cancel₀ (D.t_ne_zero hz) (e₃.trans (mul_assoc _ _ _).symm)
-  · rw [τFun_of_Δ_ne_zero _ (D.Δ_mul_ne_zero_of_not_mem_span hx0 hy),
-      τFun_of_Δ_ne_zero _ (D.Δ_ne_zero_of_not_mem_span hy), D.t_mul_of_not_mem_span hx0 hy]
+  · rw [τFun_of_Δ_ne_zero _ (D.Δ_mul_ne_zero_of_notMem_span hx0 hy),
+      τFun_of_Δ_ne_zero _ (D.Δ_ne_zero_of_notMem_span hy), D.t_mul_of_notMem_span hx0 hy]
 
 /-- Blueprint Proposition 6.9 (`prop:tau`), step (2): `τ (1 - s) = 1 - τ s` for `s ≠ 0, 1`. -/
 theorem τFun_one_sub (hs0 : s ≠ 0) (hs1 : s ≠ 1) : D.τFun (1 - s) = 1 - D.τFun s := by
   by_cases hs : D.Δ s = 0
   swap
   · rw [τFun_of_Δ_ne_zero _ (D.Δ_one_sub_ne_zero hs), τFun_of_Δ_ne_zero _ hs, D.t_one_sub hs]
-  have h1s : D.Δ (1 - s) = 0 := (D.eq_zero_iff_one_sub s hs0 hs1).1 hs
+  have h1s : D.Δ (1 - s) = 0 := (D.Δ_eq_zero_iff_one_sub s hs0 hs1).1 hs
   have h1s0 : 1 - s ≠ 0 := sub_ne_zero.2 hs1.symm
   rw [τFun_of_Δ_eq_zero _ h1s, τFun_of_Δ_eq_zero _ hs]
   obtain ⟨x, y, h⟩ := D.exists_transverse
@@ -245,7 +252,7 @@ theorem τFun_one_sub (hs0 : s ≠ 0) (hs1 : s ≠ 1) : D.τFun (1 - s) = 1 - D.
   have e₂ := h₂.t_add
   have e₃ : D.t (-s * x) = -1 * (D.τ₀ s * D.t x) := by
     rw [show -s * x = -1 * (s * x) by ring,
-      D.t_mul_of_Δ_eq_zero (neg_ne_zero.2 one_ne_zero) D.map_neg_one (by rwa [hsx]),
+      D.t_mul_of_Δ_eq_zero (neg_ne_zero.2 one_ne_zero) D.Δ_neg_one (by rwa [hsx]),
       D.τ₀_neg_one, D.t_mul_of_Δ_eq_zero hs0 hs hx]
   rw [e₃, h.t_add, show x + y + -s * x = (1 - s) * x + y by ring, e₁] at e₂
   exact mul_right_cancel₀ (D.t_ne_zero hx) (by linear_combination e₂)
@@ -319,7 +326,7 @@ theorem τ_sub_one_smul_Δ_one_sub' (x : K) : (D.τ x - 1) • D.Δ (1 - x) = D.
     · simp
     rcases eq_or_ne x 1 with rfl | hx1
     · simp
-    rw [h, (D.eq_zero_iff_one_sub x hx0 hx1).1 h, smul_zero, smul_zero]
+    rw [h, (D.Δ_eq_zero_iff_one_sub x hx0 hx1).1 h, smul_zero, smul_zero]
   · exact D.τ_sub_one_smul_Δ_one_sub h
 
 /-- **Abstract Step B** (blueprint Lemmas 6.6–6.8 and Proposition 6.9, `prop:tau`):
@@ -347,7 +354,7 @@ theorem eq_τ (τ' : K →+* F)
       rw [D.Δ_mul_of_Δ_eq_zero hx0 hx hz₀0]
       exact D.Δ_z₀
     have e := hprim _ hxz
-    rw [_root_.map_mul, _root_.map_mul, hprim _ D.Δ_z₀] at e
+    rw [map_mul, map_mul, hprim _ D.Δ_z₀] at e
     exact mul_right_cancel₀ ((map_ne_zero D.τ).2 hz₀0) e
   · exact hprim x hx
 
@@ -374,23 +381,23 @@ open Classical in
 `Δ x = f x` for `x ≠ 0` and `Δ 0 = 0`. The hypotheses `h0`–`h3` are (H0)–(H3). -/
 noncomputable def ofAddMonoidHom : StepBData K F Ω where
   Δ x := if hx : x = 0 then 0 else f (.ofMul (Units.mk0 x hx))
-  map_zero := by simp
-  map_mul x y hx hy := by
+  Δ_zero := by simp
+  Δ_mul x y hx hy := by
     simp only [mul_ne_zero hx hy, hx, hy, dite_false, ← map_add, ← ofMul_mul, Units.mk0_mul]
-  map_neg_one := by
+  Δ_neg_one := by
     simp only [neg_eq_zero, one_ne_zero, dite_false]
     convert h0
     ext
     simp
-  eq_zero_iff_one_sub x hx0 hx1 := by
+  Δ_eq_zero_iff_one_sub x hx0 hx1 := by
     have h1x : 1 - x ≠ 0 := sub_ne_zero.2 hx1.symm
     simp only [hx0, h1x, dite_false]
     exact h1 (Units.mk0 x hx0) h1x
-  one_sub_mem_span x hx0 hx1 hx := by
+  Δ_one_sub_mem_span x hx0 hx1 hx := by
     have h1x : 1 - x ≠ 0 := sub_ne_zero.2 hx1.symm
     simp only [hx0, h1x, dite_false] at hx ⊢
     exact h2 (Units.mk0 x hx0) h1x hx
-  exists_not_mem_span v₁ v₂ v₃ := by
+  exists_Δ_notMem_span v₁ v₂ v₃ := by
     obtain ⟨z, hz⟩ := h3 v₁ v₂ v₃
     refine ⟨z, ?_⟩
     simpa [Units.ne_zero] using hz

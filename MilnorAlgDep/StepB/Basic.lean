@@ -1,4 +1,9 @@
-import Mathlib
+module
+
+public import Mathlib.LinearAlgebra.LinearIndependent.Lemmas
+import Mathlib.Algebra.Module.Torsion.Field
+import Mathlib.Tactic.FieldSimp
+import Mathlib.Tactic.LinearCombination
 
 /-!
 # Abstract Step B: the functions `μ` and `t`
@@ -40,6 +45,8 @@ simply `Δ x ≠ 0`, which then implies `x ≠ 0` and `x ≠ 1`. A constructor f
 `Additive Kˣ →+ Ω` is `MilnorAlgDep.StepBData.ofAddMonoidHom`.
 -/
 
+@[expose] public section
+
 namespace MilnorAlgDep
 
 open Submodule
@@ -47,22 +54,25 @@ open Submodule
 /-- The hypotheses of the abstract Step B (blueprint Sections 6.3–6.5).
 
 `Δ : K → Ω` is a homomorphism from `Kˣ` to the `F`-vector space `Ω`, extended by `Δ 0 = 0`.
-An element `x` is *primitive* if `Δ x ≠ 0`. The fields `map_neg_one`, `eq_zero_iff_one_sub`,
-`one_sub_mem_span` and `exists_not_mem_span` are the hypotheses (H0)–(H3) of the module
+An element `x` is *primitive* if `Δ x ≠ 0`. The fields `Δ_neg_one`, `Δ_eq_zero_iff_one_sub`,
+`Δ_one_sub_mem_span` and `exists_Δ_notMem_span` are the hypotheses (H0)–(H3) of the module
 docstring; in the blueprint they come from Lemma 6.5 (`lem:K0`). -/
 structure StepBData (K F Ω : Type*) [Field K] [Field F] [AddCommGroup Ω] [Module F Ω] where
   /-- The homomorphism `Δ`, extended to `K` by `Δ 0 = 0`. -/
   Δ : K → Ω
-  map_zero : Δ 0 = 0
-  map_mul : ∀ x y, x ≠ 0 → y ≠ 0 → Δ (x * y) = Δ x + Δ y
-  /-- (H0) -/
-  map_neg_one : Δ (-1) = 0
+  /-- Normalisation of the irrelevant value at `0`. -/
+  Δ_zero : Δ 0 = 0
+  /-- `Δ` is a homomorphism `Kˣ → Ω`. -/
+  Δ_mul : ∀ x y, x ≠ 0 → y ≠ 0 → Δ (x * y) = Δ x + Δ y
+  /-- (H0): `Δ (-1) = 0`. -/
+  Δ_neg_one : Δ (-1) = 0
   /-- (H1): `x` is primitive if and only if `1 - x` is. -/
-  eq_zero_iff_one_sub : ∀ x, x ≠ 0 → x ≠ 1 → (Δ x = 0 ↔ Δ (1 - x) = 0)
-  /-- (H2): `Δ (1 - x)` is proportional to `Δ x`. -/
-  one_sub_mem_span : ∀ x, x ≠ 0 → x ≠ 1 → Δ x ≠ 0 → Δ (1 - x) ∈ F ∙ Δ x
-  /-- (H3): the lines `F ∙ Δ z` avoid any three given lines. -/
-  exists_not_mem_span : ∀ v₁ v₂ v₃ : Ω, ∃ z, Δ z ∉ F ∙ v₁ ∧ Δ z ∉ F ∙ v₂ ∧ Δ z ∉ F ∙ v₃
+  Δ_eq_zero_iff_one_sub : ∀ x, x ≠ 0 → x ≠ 1 → (Δ x = 0 ↔ Δ (1 - x) = 0)
+  /-- (H2): `Δ (1 - x)` is proportional to `Δ x` for primitive `x`. -/
+  Δ_one_sub_mem_span : ∀ x, x ≠ 0 → x ≠ 1 → Δ x ≠ 0 → Δ (1 - x) ∈ F ∙ Δ x
+  /-- (H3): for any three vectors `vᵢ` there is `z` with `Δ z ∉ F ∙ vᵢ`. In particular `z` is
+  primitive, and `F ∙ Δ z` is different from any of the `F ∙ vᵢ` which are lines. -/
+  exists_Δ_notMem_span : ∀ v₁ v₂ v₃ : Ω, ∃ z, Δ z ∉ F ∙ v₁ ∧ Δ z ∉ F ∙ v₂ ∧ Δ z ∉ F ∙ v₃
 
 namespace StepBData
 
@@ -73,11 +83,11 @@ variable (D : StepBData K F Ω) {x y z : K}
 
 @[simp]
 lemma Δ_one : D.Δ 1 = 0 := by
-  simpa using D.map_mul 1 1 one_ne_zero one_ne_zero
+  simpa using D.Δ_mul 1 1 one_ne_zero one_ne_zero
 
 lemma ne_zero_of_Δ_ne_zero (h : D.Δ x ≠ 0) : x ≠ 0 := by
   rintro rfl
-  exact h D.map_zero
+  exact h D.Δ_zero
 
 lemma ne_one_of_Δ_ne_zero (h : D.Δ x ≠ 0) : x ≠ 1 := by
   rintro rfl
@@ -87,32 +97,32 @@ lemma one_sub_ne_zero_of_Δ_ne_zero (h : D.Δ x ≠ 0) : 1 - x ≠ 0 :=
   sub_ne_zero.2 (D.ne_one_of_Δ_ne_zero h).symm
 
 lemma Δ_inv (hx : x ≠ 0) : D.Δ x⁻¹ = -D.Δ x := by
-  have := D.map_mul x x⁻¹ hx (inv_ne_zero hx)
+  have := D.Δ_mul x x⁻¹ hx (inv_ne_zero hx)
   rw [mul_inv_cancel₀ hx, Δ_one] at this
   exact eq_neg_of_add_eq_zero_right this.symm
 
 lemma Δ_div (hx : x ≠ 0) (hy : y ≠ 0) : D.Δ (x / y) = D.Δ x - D.Δ y := by
-  rw [div_eq_mul_inv, D.map_mul _ _ hx (inv_ne_zero hy), D.Δ_inv hy, sub_eq_add_neg]
+  rw [div_eq_mul_inv, D.Δ_mul _ _ hx (inv_ne_zero hy), D.Δ_inv hy, sub_eq_add_neg]
 
 @[simp]
 lemma Δ_neg (x : K) : D.Δ (-x) = D.Δ x := by
   rcases eq_or_ne x 0 with rfl | hx
   · simp
-  rw [neg_eq_neg_one_mul, D.map_mul _ _ (neg_ne_zero.2 one_ne_zero) hx, D.map_neg_one, zero_add]
+  rw [neg_eq_neg_one_mul, D.Δ_mul _ _ (neg_ne_zero.2 one_ne_zero) hx, D.Δ_neg_one, zero_add]
 
 lemma Δ_mul_of_Δ_eq_zero (hx0 : x ≠ 0) (hx : D.Δ x = 0) (hz0 : z ≠ 0) :
     D.Δ (x * z) = D.Δ z := by
-  rw [D.map_mul _ _ hx0 hz0, hx, zero_add]
+  rw [D.Δ_mul _ _ hx0 hz0, hx, zero_add]
 
 /-- (H1) for primitive elements: if `x` is primitive, so is `1 - x`. -/
 lemma Δ_one_sub_ne_zero (h : D.Δ x ≠ 0) : D.Δ (1 - x) ≠ 0 := fun h' ↦
-  h ((D.eq_zero_iff_one_sub x (D.ne_zero_of_Δ_ne_zero h) (D.ne_one_of_Δ_ne_zero h)).2 h')
+  h ((D.Δ_eq_zero_iff_one_sub x (D.ne_zero_of_Δ_ne_zero h) (D.ne_one_of_Δ_ne_zero h)).2 h')
 
 /-! ### The function `μ` -/
 
 lemma exists_smul_eq_Δ_one_sub (h : D.Δ x ≠ 0) : ∃ c : F, c • D.Δ x = D.Δ (1 - x) :=
   mem_span_singleton.1 <|
-    D.one_sub_mem_span x (D.ne_zero_of_Δ_ne_zero h) (D.ne_one_of_Δ_ne_zero h) h
+    D.Δ_one_sub_mem_span x (D.ne_zero_of_Δ_ne_zero h) (D.ne_one_of_Δ_ne_zero h) h
 
 open Classical in
 /-- The function `μ` of blueprint Lemma 6.5(b): for primitive `x`, `μ x` is the unique scalar
@@ -204,8 +214,6 @@ lemma t_one_sub (h : D.Δ x ≠ 0) : D.t (1 - x) = 1 - D.t x := by
 
 /-- Blueprint Lemma 6.6 (`lem:onevar`): `t (1 / x) = 1 / t x`. -/
 lemma t_inv (h : D.Δ x ≠ 0) : D.t x⁻¹ = (D.t x)⁻¹ := by
-  have h0 := D.μ_ne_zero h
-  have h1 := D.μ_sub_one_ne_zero h
   rw [t, t, D.μ_inv h, inv_div, show 1 - D.μ x - 1 = -D.μ x by ring, div_neg, ← neg_div,
     neg_sub]
 
@@ -277,14 +285,14 @@ variable (D)
 
 /-- There is a primitive element (from (H3) with three zero vectors). -/
 lemma exists_Δ_ne_zero : ∃ z, D.Δ z ≠ 0 := by
-  obtain ⟨z, hz, -, -⟩ := D.exists_not_mem_span 0 0 0
+  obtain ⟨z, hz, -, -⟩ := D.exists_Δ_notMem_span 0 0 0
   exact ⟨z, fun h ↦ hz (by rw [h]; exact zero_mem _)⟩
 
 /-- Any two primitive elements are transverse to a common third one
 (blueprint, after Lemma 6.5). -/
 lemma exists_transverse_transverse (hy : D.Δ y ≠ 0) (hz : D.Δ z ≠ 0) :
     ∃ w, D.Transverse y w ∧ D.Transverse z w := by
-  obtain ⟨w, hwy, hwz, -⟩ := D.exists_not_mem_span (D.Δ y) (D.Δ z) 0
+  obtain ⟨w, hwy, hwz, -⟩ := D.exists_Δ_notMem_span (D.Δ y) (D.Δ z) 0
   exact ⟨w, (D.transverse_iff).2 ⟨hy, hwy⟩, (D.transverse_iff).2 ⟨hz, hwz⟩⟩
 
 /-- There is a transverse pair. -/
@@ -298,7 +306,7 @@ lemma exists_transverse : ∃ x y, D.Transverse x y := by
 variable {D}
 
 lemma Transverse.Δ_mul (h : D.Transverse x y) : D.Δ (x * y) = D.Δ x + D.Δ y :=
-  D.map_mul _ _ (D.ne_zero_of_Δ_ne_zero h.Δ_ne_zero_left)
+  D.Δ_mul _ _ (D.ne_zero_of_Δ_ne_zero h.Δ_ne_zero_left)
     (D.ne_zero_of_Δ_ne_zero h.Δ_ne_zero_right)
 
 /-- Blueprint Lemma 6.7 (`lem:twovar`): if `x, y` are transverse then `x * y` is primitive. -/
@@ -326,7 +334,7 @@ theorem Transverse.t_mul (h : D.Transverse x y) : D.t (x * y) = D.t x * D.t y :=
   -- `Δ u = (1 - μ x) Δ x + μ y Δ y`, so `u` is primitive
   have hΔu : D.Δ u = (1 - D.μ x) • D.Δ x + D.μ y • D.Δ y := by
     have e : x - 1 = -(1 - x) := (neg_sub _ _).symm
-    rw [hu_def, D.Δ_div (mul_ne_zero hx0 h1y) hx1, D.map_mul _ _ hx0 h1y, e, Δ_neg,
+    rw [hu_def, D.Δ_div (mul_ne_zero hx0 h1y) hx1, D.Δ_mul _ _ hx0 h1y, e, Δ_neg,
       D.Δ_one_sub hx, D.Δ_one_sub hy, sub_smul, one_smul]
     abel
   have hu : D.Δ u ≠ 0 := by
@@ -338,9 +346,9 @@ theorem Transverse.t_mul (h : D.Transverse x y) : D.t (x * y) = D.t x * D.t y :=
     rw [hu_def]
     field_simp
     ring
-  have hΔ : (D.μ (x * y)) • D.Δ x + D.μ (x * y) • D.Δ y =
+  have hΔ : D.μ (x * y) • D.Δ x + D.μ (x * y) • D.Δ y =
       (D.μ x + D.μ u * (1 - D.μ x)) • D.Δ x + (D.μ u * D.μ y) • D.Δ y := by
-    rw [← smul_add, ← h.Δ_mul, ← D.Δ_one_sub hxy, key, D.map_mul _ _ h1x h1u, D.Δ_one_sub hx,
+    rw [← smul_add, ← h.Δ_mul, ← D.Δ_one_sub hxy, key, D.Δ_mul _ _ h1x h1u, D.Δ_one_sub hx,
       D.Δ_one_sub hu, hΔu]
     simp only [add_smul, mul_smul, smul_add]
     abel
