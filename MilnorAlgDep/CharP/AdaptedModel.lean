@@ -366,6 +366,87 @@ theorem eq_zero_of_forall_mem_pow_nsmul_W (hB : IsTranscendenceBasis l B)
 
 end W
 
+/-! ### Four vectors avoiding three lines (linear algebra for Lemma 6.5(c)) -/
+
+section FourVectors
+
+variable {F Ω : Type*} [Field F] [AddCommGroup Ω] [Module F Ω]
+
+-- TODO(move): linear algebra, next to `notMem_span_singleton_of_linearIndependent_pair`.
+/-- A line contains at most one of two linearly independent vectors. -/
+theorem notMem_span_singleton_of_mem_of_linearIndependent {u u' v : Ω}
+    (h : LinearIndependent F ![u, u']) (hu : u ∈ F ∙ v) : u' ∉ F ∙ v := by
+  intro hu'
+  obtain ⟨α, rfl⟩ := Submodule.mem_span_singleton.1 hu
+  have hα : α ≠ 0 := by
+    rintro rfl
+    simpa using h.ne_zero 0
+  apply notMem_span_singleton_of_linearIndependent_pair h
+  obtain ⟨β, rfl⟩ := Submodule.mem_span_singleton.1 hu'
+  exact Submodule.mem_span_singleton.2
+    ⟨β * α⁻¹, by rw [smul_smul, mul_assoc, inv_mul_cancel₀ hα, mul_one]⟩
+
+/-- If `e₀, e₁, e₂` are linearly independent, then any two of the four vectors
+`e₀, e₁, e₂, e₀ + e₁ + e₂` are linearly independent. -/
+theorem linearIndependent_pair_four {e : Fin 3 → Ω} (h : LinearIndependent F e) {i j : Fin 4}
+    (hij : i < j) :
+    LinearIndependent F ![![e 0, e 1, e 2, e 0 + e 1 + e 2] i,
+      ![e 0, e 1, e 2, e 0 + e 1 + e 2] j] := by
+  have hli : ∀ a b c : F, a • e 0 + b • e 1 + c • e 2 = 0 → a = 0 ∧ b = 0 ∧ c = 0 := by
+    intro a b c habc
+    have := Fintype.linearIndependent_iff.1 h ![a, b, c]
+      (by simpa [Fin.sum_univ_three] using habc)
+    exact ⟨this 0, this 1, this 2⟩
+  refine LinearIndependent.pair_iff.2 fun s t hst ↦ ?_
+  fin_cases i <;> fin_cases j <;> simp at hij <;>
+    simp only [Nat.succ_eq_add_one, Nat.reduceAdd, Fin.isValue, Fin.zero_eta, Fin.mk_one,
+      Fin.reduceFinMk, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.cons_val] at hst
+  · obtain ⟨h1, h2, -⟩ := hli s t 0 (by linear_combination (norm := module) hst)
+    exact ⟨h1, h2⟩
+  · obtain ⟨h1, -, h2⟩ := hli s 0 t (by linear_combination (norm := module) hst)
+    exact ⟨h1, h2⟩
+  · obtain ⟨h1, h2, -⟩ := hli (s + t) t t (by linear_combination (norm := module) hst)
+    exact ⟨by linear_combination h1 - h2, h2⟩
+  · obtain ⟨-, h1, h2⟩ := hli 0 s t (by linear_combination (norm := module) hst)
+    exact ⟨h1, h2⟩
+  · obtain ⟨h2, h1, -⟩ := hli t (s + t) t (by linear_combination (norm := module) hst)
+    exact ⟨by linear_combination h1 - h2, h2⟩
+  · obtain ⟨h2, -, h1⟩ := hli t t (s + t) (by linear_combination (norm := module) hst)
+    exact ⟨by linear_combination h1 - h2, h2⟩
+
+/-- Blueprint Lemma 6.5(c), linear algebra part: if `e₀, e₁, e₂` are linearly independent, then
+for any three vectors `vₖ` one of the four vectors `e₀, e₁, e₂, e₀ + e₁ + e₂` lies on none of the
+lines `F ∙ vₖ` (each line contains at most one of them). -/
+theorem exists_notMem_span_four {e : Fin 3 → Ω} (h : LinearIndependent F e) (v₁ v₂ v₃ : Ω) :
+    ∃ i : Fin 4, ![e 0, e 1, e 2, e 0 + e 1 + e 2] i ∉ F ∙ v₁ ∧
+      ![e 0, e 1, e 2, e 0 + e 1 + e 2] i ∉ F ∙ v₂ ∧
+      ![e 0, e 1, e 2, e 0 + e 1 + e 2] i ∉ F ∙ v₃ := by
+  set u : Fin 4 → Ω := ![e 0, e 1, e 2, e 0 + e 1 + e 2] with hu
+  by_contra hcon
+  push Not at hcon
+  -- each `u i` lies on one of the three lines, `F ∙ v_{c i}`
+  have hc : ∀ i, ∃ k : Fin 3, u i ∈ F ∙ (![v₁, v₂, v₃] k) := by
+    intro i
+    by_cases h1 : u i ∈ F ∙ v₁
+    · exact ⟨0, h1⟩
+    by_cases h2 : u i ∈ F ∙ v₂
+    · exact ⟨1, h2⟩
+    exact ⟨2, hcon i h1 h2⟩
+  choose c hc using hc
+  -- and distinct `u i` lie on distinct lines
+  have hinj : Function.Injective c := by
+    intro i j hij
+    by_contra hne
+    rcases lt_or_gt_of_ne hne with hlt | hlt
+    · exact notMem_span_singleton_of_mem_of_linearIndependent
+        (linearIndependent_pair_four h hlt) (hc i) (hij ▸ hc j)
+    · exact notMem_span_singleton_of_mem_of_linearIndependent
+        (linearIndependent_pair_four h hlt) (hc j) (hij ▸ hc i)
+  have := Fintype.card_le_of_injective c hinj
+  simp at this
+
+end FourVectors
+
 /-! ### The adapted model, `K₀` and `Δ` (Lemma 6.5) -/
 
 namespace CharPHyp
@@ -407,11 +488,35 @@ theorem hgtV_x (i : Fin 3) : hgtV p (H.B p) (H.ψK (H.x i)) = 0 :=
 
 variable [PerfectField K]
 
+/-- Blueprint Lemma 6.5(b), first assertion: if `x ∈ K₀ \ k` then `1 - x ∈ K₀` (by
+Proposition 6.1, `ψ(1 - x)` and `ψ(x)` have the same height). -/
+theorem ψK_one_sub_mem_W {x : K} (hx : x ∉ H.k) (h : H.ψK x ∈ W l p (H.B p)) :
+    H.ψK (1 - x) ∈ W l p (H.B p) := by
+  have hB := H.isTranscendenceBasis_B p
+  rw [mem_W_iff p hB] at h ⊢
+  rw [H.hgtV_one_sub p hB hx]
+  exact Or.inr (h.resolve_left (H.ψK_ne_zero hx))
+
 /-- Blueprint Lemma 6.5(a): `{0} ∪ ψ⁻¹(W)` is closed under addition (this uses
 Proposition 6.1 through Lemma 6.5(b)). -/
 theorem K₀_add_mem {x y : K} (hx : H.ψK x ∈ W l p (H.B p)) (hy : H.ψK y ∈ W l p (H.B p)) :
     H.ψK (x + y) ∈ W l p (H.B p) := by
-  sorry
+  rcases eq_or_ne y 0 with rfl | hy0
+  · rwa [add_zero]
+  rcases eq_or_ne x 0 with rfl | hx0
+  · rwa [zero_add]
+  rcases eq_or_ne (x + y) 0 with hxy | hxy
+  · rw [hxy, ψK_zero]
+    exact zero_mem _
+  -- `x + y = y (1 - s)` with `s = -x/y`
+  rw [H.ψK_add hy0 hxy]
+  refine add_mem hy ?_
+  by_cases hs : -x / y ∈ H.k
+  · rw [H.ψK_eq_zero_iff.2 (sub_mem (one_mem _) hs)]
+    exact zero_mem _
+  refine H.ψK_one_sub_mem_W p hs ?_
+  rw [H.ψK_div (neg_ne_zero.2 hx0) hy0, ψK_neg]
+  exact sub_mem hx hy
 
 /-- **Blueprint Lemma 6.5(a)**: the subfield `K₀ = {0} ∪ ψ⁻¹(W)` of `K`. (Since `ψK 0 = 0 ∈ W`,
 its carrier is `{x | ψK x ∈ W}`.) -/
@@ -493,27 +598,83 @@ theorem Δhom_neg_one : H.Δhom p (.ofMul (-1)) = 0 := by
 Proposition 6.1, `ψ(x)` and `ψ(1 - x)` have the same height). -/
 theorem Δhom_eq_zero_iff_one_sub (x : (H.K₀ p)ˣ) (hx : (1 : H.K₀ p) - x ≠ 0) :
     H.Δhom p (.ofMul x) = 0 ↔ H.Δhom p (.ofMul (Units.mk0 (1 - x) hx)) = 0 := by
-  sorry
+  have hB := H.isTranscendenceBasis_B p
+  have e : (((1 : H.K₀ p) - x : H.K₀ p) : K) = 1 - ((x : H.K₀ p) : K) := rfl
+  rw [Δhom_apply, Δhom_apply, Units.val_mk0, e]
+  set y : K := ((x : H.K₀ p) : K)
+  have hW : H.ψK y ∈ W l p (H.B p) := (H.mem_K₀_iff p).1 (x : H.K₀ p).2
+  by_cases hy : y ∈ H.k
+  · rw [H.ψK_eq_zero_iff.2 hy, H.ψK_eq_zero_iff.2 (sub_mem (one_mem _) hy)]
+  have h1 := dlogA_ne_zero_iff p hB hW (H.ψK_ne_zero hy)
+  have h2 := dlogA_ne_zero_iff p hB (H.ψK_one_sub_mem_W p hy hW)
+    (H.ψK_ne_zero (H.one_sub_notMem hy))
+  rw [H.hgtV_one_sub p hB hy] at h2
+  exact not_iff_not.1 (h1.trans h2.symm)
 
 /-- (H2), **Blueprint Lemma 6.5(b)**: for primitive `x`, `Δ(1 - x) ∈ F · Δ(x)` (both span
 `ω_A(Q_x)`, by Lemma 6.4(b) and Proposition 6.1). -/
 theorem Δhom_one_sub_mem_span (x : (H.K₀ p)ˣ) (hx : (1 : H.K₀ p) - x ≠ 0)
     (h : H.Δhom p (.ofMul x) ≠ 0) :
     H.Δhom p (.ofMul (Units.mk0 (1 - x) hx)) ∈ (H.F p) ∙ H.Δhom p (.ofMul x) := by
-  sorry
+  have hB := H.isTranscendenceBasis_B p
+  have e : (((1 : H.K₀ p) - x : H.K₀ p) : K) = 1 - ((x : H.K₀ p) : K) := rfl
+  rw [Δhom_apply] at h
+  rw [Δhom_apply, Δhom_apply, Units.val_mk0, e]
+  set y : K := ((x : H.K₀ p) : K)
+  have hW : H.ψK y ∈ W l p (H.B p) := (H.mem_K₀_iff p).1 (x : H.K₀ p).2
+  have hy : y ∉ H.k := fun hk ↦ h (by rw [H.ψK_eq_zero_iff.2 hk, dlogA_zero])
+  -- `ψ(x)` and `ψ(1 - x)` both have height `0` (Proposition 6.1)
+  have h0 := (dlogA_ne_zero_iff p hB hW (H.ψK_ne_zero hy)).1 h
+  have h1 : hgtV p (H.B p) (H.ψK (1 - y)) = 0 := by rw [H.hgtV_one_sub p hB hy, h0]
+  -- so `Δ(x)` and `Δ(1 - x)` both span `ω_A(Q_x)` (Lemma 6.4(b))
+  have hspan : (H.F p) ∙ dlogA p (H.B p) (H.ψK (1 - y)) =
+      (H.F p) ∙ dlogA p (H.B p) (H.ψK y) := by
+    rw [span_dlogA_eq_omega p hB h1, span_dlogA_eq_omega p hB h0]
+    exact omega_eq_of_samePoint p hB ((H.samePointV_one_sub hy).samePoint_vRep p)
+  rw [← hspan]
+  exact Submodule.mem_span_singleton_self _
 
 /-- **Blueprint Lemma 6.5(c)**: the `x i` are primitive and `Δ(x₀), Δ(x₁), Δ(x₂)` are linearly
 independent (`Δ(x i) = N_i⁻¹ • dlog a_i` with `a_i ∈ A`). -/
 theorem linearIndependent_Δhom_x :
     LinearIndependent (H.F p) fun i ↦ H.Δhom p (.ofMul (H.xK₀ p i)) := by
-  sorry
+  have hB := H.isTranscendenceBasis_B p
+  -- the representatives `a i = ρ (x i)` are distinct elements of the transcendence basis `A`
+  have hinj : Function.Injective fun i ↦ (H.ρ p (H.x i) : L) :=
+    ((vAlgIndep_iff_algebraicIndependent_vRep p).1 H.vAlgIndep_x).injective
+  let f : Fin 3 → H.trBasis p := fun i ↦ ⟨_, H.ρ_x_mem_trBasis p i⟩
+  have hf : Function.Injective f := fun i j hij ↦ hinj (congrArg Subtype.val hij)
+  have hmem (i : Fin 3) : (H.ρ p (H.x i) : L) ∈ H.F p := self_mem_model (H.B p) (f i)
+  have hne (i : Fin 3) : (⟨_, hmem i⟩ : H.F p) ≠ 0 :=
+    fun h0 ↦ Units.ne_zero _ (congrArg Subtype.val h0)
+  have hN (i : Fin 3) := natCast_model_ne_zero p (B := H.B p) (H.isVRep_ρ p (H.x i))
+  -- `Δ(x i) = (N i)⁻¹ (a i)⁻¹ • d (a i)`
+  let w : Fin 3 → (H.F p)ˣ := fun i ↦
+    Units.mk0 (((vRepNat p (H.ψK (H.x i)) : ℕ) : H.F p)⁻¹ * (⟨_, hmem i⟩ : H.F p)⁻¹)
+      (mul_ne_zero (inv_ne_zero (hN i)) (inv_ne_zero (hne i)))
+  have hfun : (fun i ↦ H.Δhom p (.ofMul (H.xK₀ p i))) =
+      w • fun i ↦ modelD l (H.B p) (H.B p (f i)) := by
+    ext i
+    rw [Δhom_apply, Pi.smul_apply', Units.smul_def, Units.val_mk0, mul_smul]
+    change dlogA p (H.B p) (H.ψK (H.x i)) = _
+    rw [dlogA_eq p (H.isVRep_ρ p (H.x i)) (hmem i), modelDLog_of_mem (hmem i)]
+    rfl
+  rw [hfun, LinearIndependent.units_smul_iff]
+  exact (linearIndependent_modelD hB.1).comp f hf
 
 /-- (H3), **Blueprint Lemma 6.5(c)**: for any three lines (or vectors) in `Ω_A` there is a
 primitive `z` (a monomial in the `x i`) such that `F · Δ(z)` is none of them. -/
 theorem exists_Δhom_notMem_span (v₁ v₂ v₃ : Ω[H.F p⁄l]) : ∃ z : (H.K₀ p)ˣ,
     H.Δhom p (.ofMul z) ∉ (H.F p) ∙ v₁ ∧ H.Δhom p (.ofMul z) ∉ (H.F p) ∙ v₂ ∧
       H.Δhom p (.ofMul z) ∉ (H.F p) ∙ v₃ := by
-  sorry
+  obtain ⟨i, hi⟩ := exists_notMem_span_four (H.linearIndependent_Δhom_x p) v₁ v₂ v₃
+  fin_cases i
+  · exact ⟨H.xK₀ p 0, hi⟩
+  · exact ⟨H.xK₀ p 1, hi⟩
+  · exact ⟨H.xK₀ p 2, hi⟩
+  · refine ⟨H.xK₀ p 0 * H.xK₀ p 1 * H.xK₀ p 2, ?_⟩
+    rw [ofMul_mul, ofMul_mul, map_add, map_add]
+    exact hi
 
 /-- The data of the abstract Step B (blueprint Sections 6.4, 6.5) for `Δ = dlog_A ∘ ψ`, with
 `K₀`, `F = L_A` and `Ω = Ω_A`. -/
@@ -539,7 +700,43 @@ theorem data_Δ_ne_zero_iff (x : H.K₀ p) :
 `Δ(1 - x) = μ(x) Δ(x)` lies in the point `Q_x`. -/
 theorem μ_mem_pointV {x : H.K₀ p} (hx : (H.data p).Δ x ≠ 0) :
     ((H.data p).μ x : L) ∈ pointV l (H.ψK x) := by
-  sorry
+  have hB := H.isTranscendenceBasis_B p
+  obtain ⟨hxk, -⟩ := (H.data_Δ_ne_zero_iff p x).1 hx
+  set y : K := (x : K)
+  have hW : H.ψK y ∈ W l p (H.B p) := (H.mem_K₀_iff p).1 x.2
+  have hW1 : H.ψK (1 - y) ∈ W l p (H.B p) := H.ψK_one_sub_mem_W p hxk hW
+  -- representatives `(N, a)` of `ψ(x)` and `(M, b)` of `ψ(1 - x)`, in `F`
+  set a := vRep p (H.ψK y)
+  set N := vRepNat p (H.ψK y)
+  set b := vRep p (H.ψK (1 - y))
+  set M := vRepNat p (H.ψK (1 - y))
+  have hva : IsVRep p (H.ψK y) N a := isVRep_vRep p _
+  have hvb : IsVRep p (H.ψK (1 - y)) M b := isVRep_vRep p _
+  have ha : (a : L) ∈ H.F p := vRep_mem_model p hW
+  have hb : (b : L) ∈ H.F p := vRep_mem_model p hW1
+  have hsp : SamePoint l (b : L) (a : L) := (H.samePointV_one_sub hxk).samePoint_vRep p
+  -- `b ≈ a` by Proposition 6.1, so `d b = c • d a` with `c` separable over `l(a)`
+  have hba : SepEquiv l (b : L) (a : L) :=
+    (levDiff_eq_zero_iff p hsp).1 (H.levDiffV_one_sub p hxk)
+  obtain ⟨c, hc, hca, hdb⟩ := exists_modelD_eq_smul_of_isSeparable hba.1 ha
+  have hN := natCast_model_ne_zero p (B := H.B p) hva
+  have hM := natCast_model_ne_zero p (B := H.B p) hvb
+  have ha0 : (⟨a, ha⟩ : H.F p) ≠ 0 := fun h0 ↦ Units.ne_zero _ (congrArg Subtype.val h0)
+  have hb0 : (⟨b, hb⟩ : H.F p) ≠ 0 := fun h0 ↦ Units.ne_zero _ (congrArg Subtype.val h0)
+  -- hence `Δ(1 - x) = (N a c / (M b)) • Δ(x)`
+  have hΔ : (H.data p).Δ (1 - x) =
+      ((N : H.F p) * ⟨a, ha⟩ * ⟨c, hc⟩ * ((M : H.F p) * ⟨b, hb⟩)⁻¹) • (H.data p).Δ x := by
+    rw [data_Δ, data_Δ]
+    change dlogA p (H.B p) (H.ψK (1 - y)) = _ • dlogA p (H.B p) (H.ψK y)
+    rw [dlogA_eq p hva ha, dlogA_eq p hvb hb, modelDLog_of_mem ha, modelDLog_of_mem hb, hdb]
+    simp only [smul_smul]
+    congr 1
+    field_simp
+  -- `N, M ∈ l`, `a, b ∈ Q_a` and `c ∈ L_{(a)} ⊆ Q_a`
+  rw [(H.data p).μ_eq_of_Δ_one_sub hx hΔ, hva.pointV_eq p]
+  push_cast
+  exact mul_mem (mul_mem (mul_mem (IntermediateField.natCast_mem _ N) (self_mem_point _))
+    (model_le_point _ hca)) (inv_mem (mul_mem (IntermediateField.natCast_mem _ M) hsp.mem_point))
 
 /-- **Blueprint Proposition 6.9** (`prop:tau`): the field embedding `τ : K₀ → F ⊆ L`, with
 `τ(x) = t(x) = μ(x)/(μ(x) - 1)` for primitive `x` (`τ_eq_μ_div`). -/
