@@ -91,13 +91,11 @@ Status: `todo`, `active`, `review`, `done`.
 | WP-K3 | Theorems B, C, D from Theorem A | WP-K2 | done |
 | WP-U | Uniqueness, Lemma 6.13 | WP0 | done |
 | WP-A0 | Theorem A in characteristic 0 | WP0, WP-B, WP-S | done |
-| WP-P1 | Levels and normalized triples (Section 3) | WP0, WP-S | active |
-| WP-P2 | Models (Section 4) | WP-P1 | todo |
-| WP-P3 | Quadrangle (Section 5) | WP-P2 | todo |
-| WP-P4 | Step A (6.1–6.2) | WP-P3 | todo |
-| WP-P5 | Adapted model (6.3) | WP-P2, WP-P4 | todo |
-| WP-P6 | Step C in characteristic p (6.6) | WP-P5, WP-B | todo |
-| WP-P7 | Reduction to perfect fields, assembly of Theorem A | WP-P6, WP-A0, WP-U | done |
+| WP-P1 | Section 3 proofs: `Standard/SepCrit`, `CharP/Frobenius`, `CharP/Model`, `CharP/Levels`, `CharP/Normalized` (interface for Sections 3-5 merged) | WP0, WP-S | active |
+| WP-P2 | Section 4 proofs: `CharP/Models` (Lemma 4.3, heights, lines, lax, propagation) | WP-P1 interface | active |
+| WP-P3 | `CharP/Trichotomy`, `CharP/Quadrangle` (Lemmas 4.6, 5.1) | WP-P1 interface | active |
+| WP-P4 | Section 6 skeleton in characteristic p (`CharP/StepA`, `AdaptedModel`, `StepC`, `Main`), then proofs | WP-P1 interface | active |
+| WP-P7 | Reduction to perfect fields, assembly of Theorem A | — | done |
 | WP-V2 | Verso companion text | all | todo |
 | WP-Z | Final audit: no `sorry`, `#print axioms`, statement review | all | todo |
 
