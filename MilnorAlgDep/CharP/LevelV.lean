@@ -3,6 +3,7 @@ module
 public import MilnorAlgDep.CharP.Models
 public import MilnorAlgDep.CharP.Normalized
 public import Mathlib.NumberTheory.Padics.PadicVal.Basic
+public import MilnorAlgDep.Uniqueness
 
 /-!
 # Levels of elements of `V`, and the setting of Section 6 in characteristic `p`
@@ -99,6 +100,116 @@ theorem isVRep_vRep (v : V l L) : IsVRep p v (vRepNat p v) (vRep p v) :=
 
 end Rep
 
+/-! ### Auxiliary lemmas: Frobenius on classes, the algebraic matroid -/
+
+section Aux
+
+-- TODO(move): `CharP/Frobenius.lean`.
+/-- The Frobenius twist on classes: `[Frob^j y] = p ^ j • [y]`. -/
+theorem cls_frobZ (p : ℕ) [Fact p.Prime] [CharP L p] [PerfectField L] (H : Subgroup Lˣ) (j : ℤ)
+    (y : Lˣ) : cls H (.ofMul (Units.map ((frobZ L p j : L ≃+* L) : L →* L) y)) =
+      ((p : ℚ) ^ j) • cls H (.ofMul y) := by
+  have hnat : ∀ (n : ℕ) (z : Lˣ), Units.map ((frobZ L p n : L ≃+* L) : L →* L) z = z ^ p ^ n := by
+    intro n z
+    ext
+    rw [Units.coe_map, Units.val_pow_eq_pow_val]
+    exact frobZ_natCast_apply p n (z : L)
+  have hp : (p : ℚ) ≠ 0 := Nat.cast_ne_zero.2 (Fact.out : p.Prime).ne_zero
+  obtain ⟨n, rfl | rfl⟩ := Int.eq_nat_or_neg j
+  · rw [hnat, cls_pow, zpow_natCast, ← Nat.cast_smul_eq_nsmul ℚ, Nat.cast_pow]
+  · set z := Units.map ((frobZ L p (-n) : L ≃+* L) : L →* L) y
+    have hz : Units.map ((frobZ L p n : L ≃+* L) : L →* L) z = y := by
+      ext
+      simp only [z, Units.coe_map, MonoidHom.coe_ofClass, frobZ_apply_frobZ_neg]
+    conv_rhs => rw [← hz, hnat, cls_pow]
+    rw [← Nat.cast_smul_eq_nsmul ℚ, smul_smul, zpow_neg, zpow_natCast, Nat.cast_pow,
+      inv_mul_cancel₀ (pow_ne_zero _ hp), one_smul]
+
+-- TODO(move): `CharP/Levels.lean`.
+/-- `b ^ A ≈ b` for `A` prime to the characteristic. -/
+theorem sepEquiv_zpow {A : ℤ} (hA : (A : L) ≠ 0) (b : L) : SepEquiv l (b ^ A) b := by
+  obtain ⟨n, rfl | rfl⟩ := Int.eq_nat_or_neg A
+  · rw [zpow_natCast]
+    exact sepEquiv_pow (by exact_mod_cast hA) b
+  · rw [zpow_neg, zpow_natCast]
+    have hn : (n : L) ≠ 0 := fun h ↦ hA (by push_cast; rw [h, neg_zero])
+    exact (sepEquiv_inv (b ^ n)).trans (sepEquiv_pow hn b)
+
+variable (l) in
+-- TODO(move): `Foundations/AlgIndep.lean`.
+/-- Algebraicity over `l(s)` is membership in the closure of `s` in the algebraic matroid. -/
+theorem isAlgebraic_adjoin_iff_mem_closure {s : Set L} {x : L} :
+    IsAlgebraic (adjoin l s) x ↔ x ∈ (AlgebraicIndependent.matroid l L).closure s := by
+  rw [mem_matroid_closure_iff, IntermediateField.isAlgebraic_adjoin_iff]
+
+/-- Constants are in every closure. -/
+theorem mem_closure_of_mem_range {s : Set L} {x : L} (hx : x ∈ (algebraMap l L).range) :
+    x ∈ (AlgebraicIndependent.matroid l L).closure s := by
+  obtain ⟨c, rfl⟩ := hx
+  exact (isAlgebraic_adjoin_iff_mem_closure l).1 (isAlgebraic_algebraMap (algebraMap l _ c))
+
+/-- `a^i b^j` lies in the closure of `{a, b}`. -/
+theorem zpow_mul_zpow_mem_closure (a b : Lˣ) (i j : ℤ) :
+    ((a : L) ^ i * (b : L) ^ j) ∈
+      (AlgebraicIndependent.matroid l L).closure {(a : L), (b : L)} := by
+  rw [← isAlgebraic_adjoin_iff_mem_closure l]
+  have ha : (a : L) ∈ l⟮(a : L), (b : L)⟯ := subset_adjoin _ _ (Set.mem_insert _ _)
+  have hb : (b : L) ∈ l⟮(a : L), (b : L)⟯ := subset_adjoin _ _ (Set.mem_insert_of_mem _ rfl)
+  exact isAlgebraic_algebraMap
+    (⟨_, mul_mem (zpow_mem ha i) (zpow_mem hb j)⟩ : l⟮(a : L), (b : L)⟯)
+
+/-- If an algebraically independent family `x` of `n` elements lies in the closure of the range
+of a family `y` of `n` elements, then `y` is algebraically independent. -/
+theorem algebraicIndependent_of_forall_mem_closure {n : ℕ} {x y : Fin n → L}
+    (hx : AlgebraicIndependent l x)
+    (h : ∀ i, x i ∈ (AlgebraicIndependent.matroid l L).closure (Set.range y)) :
+    AlgebraicIndependent l y := by
+  set M := AlgebraicIndependent.matroid l L
+  have hxI : M.Indep (Set.range x) := hx.to_subtype_range
+  have hsub : Set.range x ⊆ M.closure (Set.range y) := by
+    rintro _ ⟨i, rfl⟩
+    exact h i
+  have h1 : (Set.range x).encard = n := by
+    rw [hx.injective.encard_range, ENat.card_eq_coe_fintype_card, Fintype.card_fin]
+  have h2 : (Set.range x).encard ≤ M.eRk (Set.range y) := by
+    rw [← M.eRk_closure_eq]
+    exact hxI.encard_le_eRk_of_subset hsub
+  have h3 : M.eRk (Set.range y) ≤ (Set.range y).encard := M.eRk_le_encard _
+  have h4 : (Set.range y).encard ≤ n := by
+    rw [← Set.image_univ]
+    refine (Set.encard_image_le y _).trans ?_
+    rw [Set.encard_univ, ENat.card_eq_coe_fintype_card, Fintype.card_fin]
+  have hyI : M.Indep (Set.range y) :=
+    (M.indep_iff_eRk_eq_encard_of_finite (Set.finite_range y)).2 (le_antisymm h3 (by
+      rw [h1] at h2
+      exact h4.trans h2))
+  have hyinj : Function.Injective y := by
+    rw [← Set.injOn_univ]
+    refine Set.finite_univ.injOn_of_encard_image_eq ?_
+    rw [Set.image_univ, Set.encard_univ, ENat.card_eq_coe_fintype_card, Fintype.card_fin]
+    rw [h1] at h2
+    exact le_antisymm h4 (h2.trans h3)
+  exact (algebraicIndependent_subtype_range hyinj).1 hyI
+
+/-- An algebraically independent family of `n` elements does not lie in the closure of a set
+with fewer than `n` elements. -/
+theorem card_le_encard_of_forall_mem_closure {n : ℕ} {x : Fin n → L}
+    (hx : AlgebraicIndependent l x) {s : Set L}
+    (h : ∀ i, x i ∈ (AlgebraicIndependent.matroid l L).closure s) : (n : ℕ∞) ≤ s.encard := by
+  set M := AlgebraicIndependent.matroid l L
+  have hxI : M.Indep (Set.range x) := hx.to_subtype_range
+  have hsub : Set.range x ⊆ M.closure s := by
+    rintro _ ⟨i, rfl⟩
+    exact h i
+  have h1 : (Set.range x).encard = n := by
+    rw [hx.injective.encard_range, ENat.card_eq_coe_fintype_card, Fintype.card_fin]
+  rw [← h1]
+  refine (hxI.encard_le_eRk_of_subset hsub).trans ?_
+  rw [M.eRk_closure_eq]
+  exact M.eRk_le_encard s
+
+end Aux
+
 section SamePointV
 
 variable (l) in
@@ -169,13 +280,40 @@ theorem IsVRep.samePoint (hv : IsVRep p v N a) (hw : IsVRep p w M b) (h : SamePo
   ⟨hv.transcendental p h.1, hw.transcendental p h.2.1,
     hv.pointV_eq.symm.trans (h.2.2.trans hw.pointV_eq)⟩
 
+/-- If representatives lie in the same point, so do the elements (for `a` transcendental). -/
+theorem IsVRep.samePointV_of_samePoint (hv : IsVRep p v N a) (hw : IsVRep p w M b)
+    (h : SamePoint l (a : L) (b : L)) : SamePointV l v w := by
+  refine ⟨fun hv0 ↦ ?_, fun hw0 ↦ ?_, hv.pointV_eq.trans (h.2.2.trans hw.pointV_eq.symm)⟩
+  · obtain ⟨c, hc⟩ := hv.mem_range_of_eq_zero p hv0
+    exact h.1 (hc ▸ isAlgebraic_algebraMap c)
+  · obtain ⟨c, hc⟩ := hw.mem_range_of_eq_zero p hw0
+    exact h.2.1 (hc ▸ isAlgebraic_algebraMap c)
+
 variable [CharP L p]
+
+omit [IsRelAlgClosed l L] in
+/-- The denominator of a representative is invertible in `L`. -/
+theorem IsVRep.natCast_ne_zero (h : IsVRep p v N a) : (N : L) ≠ 0 := by
+  rw [Ne, CharP.cast_eq_zero_iff L p]
+  intro hpN
+  have hp1 : p = 1 := Nat.Coprime.eq_one_of_dvd h.coprime.symm hpN
+  subst hp1
+  have h1 := CharP.cast_eq_zero L 1
+  rw [Nat.cast_one] at h1
+  exact one_ne_zero h1
 
 /-- Two representatives (prime to `p`) of the same element are `≈`-equivalent; in particular
 they have the same level (blueprint line 406). -/
 theorem IsVRep.sepEquiv {a' : Lˣ} {N' : ℕ} (h : IsVRep p v N a) (h' : IsVRep p v N' a') :
     SepEquiv l (a : L) (a' : L) := by
-  sorry
+  obtain ⟨c, hc⟩ := V.rep_unique h.nsmul_eq h'.nsmul_eq
+  have hc0 : c ≠ 0 := by
+    rintro rfl
+    rw [map_zero, zero_mul] at hc
+    exact pow_ne_zero _ a.ne_zero hc
+  refine (sepEquiv_pow (h'.natCast_ne_zero p) (a : L)).symm.trans ?_
+  rw [hc]
+  exact (sepEquiv_algebraMap_mul hc0 _).trans (sepEquiv_pow (h.natCast_ne_zero p) (a' : L))
 
 variable [Fact p.Prime] [PerfectField L]
 
@@ -211,7 +349,15 @@ variable [IsRelAlgClosed l L] {u v w : V l L} {N M : ℕ} {a b : Lˣ}
 `v` and `(M, b)` of `w` prime to `p` (well-definedness of `lev(v)`). -/
 theorem levDiffV_eq (hv : IsVRep p v N a) (hw : IsVRep p w M b) :
     levDiffV p v w = levDiff l p (a : L) (b : L) := by
-  sorry
+  have hv' := isVRep_vRep p v
+  have hw' := isVRep_vRep p w
+  by_cases h : SamePointV l v w
+  · have h₁ := hv'.samePoint p hw' h
+    have h₂ := hv.samePoint p hw' h
+    rw [levDiffV, ← SepEquiv.levDiff_left p (hv.sepEquiv p hv') h₁,
+      SepEquiv.levDiff_right p (hw.sepEquiv p hw') h₂]
+  · rw [levDiffV, levDiff_of_not_samePoint p (fun h' ↦ h (hv'.samePointV_of_samePoint p hw' h')),
+      levDiff_of_not_samePoint p (fun h' ↦ h (hv.samePointV_of_samePoint p hw h'))]
 
 theorem levDiffV_self (hv : v ≠ 0) : levDiffV p v v = 0 :=
   levDiff_self p ((isVRep_vRep p v).transcendental p hv)
@@ -227,7 +373,50 @@ theorem levDiffV_add_levDiffV (h₁ : SamePointV l u v) (h₂ : SamePointV l v w
 `lev(p • v) = lev(v) + 1`, `lev(-v) = lev(v)` and `lev(N • v) = lev(v)` for `N` prime to `p`. -/
 theorem levDiffV_smul_left {q : ℚ} (hq : q ≠ 0) (h : SamePointV l v w) :
     levDiffV p (q • v) w = levDiffV p v w + padicValRat p q := by
-  sorry
+  have hp := (Fact.out : p.Prime)
+  obtain ⟨j, A, B, hA, hB, hqe⟩ := exists_eq_zpow_mul_div L hq
+  rw [ringExpChar.eq L p] at hqe
+  have hv := isVRep_vRep p v
+  have hw := isVRep_vRep p w
+  set M := vRepNat p v
+  set b := vRep p v
+  set c : Lˣ := Units.map ((frobZ L p j : L ≃+* L) : L →* L) (b ^ A) with hc
+  have hB0 : B ≠ 0 := by
+    rintro rfl
+    exact hB Nat.cast_zero
+  have hBcop : B.Coprime p := ((Nat.Prime.coprime_iff_not_dvd hp).2
+    fun hd ↦ hB ((CharP.cast_eq_zero_iff L p B).2 hd)).symm
+  have hrep : IsVRep p (q • v) (B * M) c := by
+    refine ⟨Nat.mul_pos (Nat.pos_of_ne_zero hB0) hv.pos,
+      Nat.coprime_mul_iff_left.2 ⟨hBcop, hv.coprime⟩, ?_⟩
+    rw [hc, cls_frobZ, cls_zpow, ← hv.nsmul_eq, hqe]
+    simp only [← Nat.cast_smul_eq_nsmul ℚ, ← Int.cast_smul_eq_zsmul ℚ, smul_smul]
+    congr 1
+    have hB0' : (B : ℚ) ≠ 0 := Nat.cast_ne_zero.2 hB0
+    push_cast
+    field_simp
+  have hcL : (c : L) = frobZ L p j ((b : L) ^ A) := by
+    rw [hc, Units.coe_map, Units.val_zpow_eq_zpow_val]
+    rfl
+  have hsp : SamePoint l (c : L) (vRep p w : L) := hrep.samePoint p hw (h.smul_left hq)
+  rw [hcL, samePoint_frobZ_left_iff] at hsp
+  rw [levDiffV_eq p hrep hw, levDiffV, hcL, levDiff_frobZ_left p hsp j,
+    SepEquiv.levDiff_left p (sepEquiv_zpow hA (b : L)) (hv.samePoint p hw h)]
+  have hpq : (p : ℚ) ≠ 0 := Nat.cast_ne_zero.2 hp.ne_zero
+  have hA0 : (A : ℚ) ≠ 0 := by
+    rintro h0
+    exact hA (by rw [Int.cast_eq_zero.1 h0, Int.cast_zero])
+  have hB0' : (B : ℚ) ≠ 0 := Nat.cast_ne_zero.2 hB0
+  have hApv : padicValRat p (A : ℚ) = 0 := by
+    have hnd : ¬ (p : ℤ) ∣ A := fun hd ↦ hA ((CharP.intCast_eq_zero_iff L p A).2 hd)
+    rw [padicValRat.of_int, padicValInt.eq_zero_of_not_dvd hnd, Nat.cast_zero]
+  have hBpv : padicValRat p (B : ℚ) = 0 := by
+    have hnd : ¬ p ∣ B := fun hd ↦ hB ((CharP.cast_eq_zero_iff L p B).2 hd)
+    rw [padicValRat.of_nat, multiplicity_eq_zero_of_not_dvd hnd, Nat.cast_zero]
+  rw [hqe, padicValRat.div (mul_ne_zero (zpow_ne_zero _ hpq) hA0) hB0',
+    padicValRat.mul (zpow_ne_zero _ hpq) hA0, padicValRat.zpow, padicValRat.self hp.one_lt,
+    hApv, hBpv]
+  ring
 
 theorem levDiffV_smul_right {q : ℚ} (hq : q ≠ 0) (h : SamePointV l v w) :
     levDiffV p v (q • w) = levDiffV p v w - padicValRat p q := by
@@ -274,7 +463,12 @@ variable [IsRelAlgClosed l L] {B : ι → L} {v w : V l L} {N : ℕ} {a : Lˣ}
 /-- The height of `v ≠ 0` is the height of any representative prime to `p`. -/
 theorem hgtV_eq (hB : IsTranscendenceBasis l B) (hv : IsVRep p v N a) (hv0 : v ≠ 0) :
     hgtV p B v = hgt l p B (a : L) := by
-  sorry
+  have h' := isVRep_vRep p v
+  have hs : SamePoint l (vRep p v : L) (a : L) := h'.samePoint p hv (samePointV_refl hv0)
+  have e := hgt_sub_hgt p hB hs
+  rw [(levDiff_eq_zero_iff p hs).2 (h'.sepEquiv p hv)] at e
+  rw [hgtV]
+  omega
 
 /-- `ht(v) - ht(w) = lev(v) - lev(w)` for `v, w` in the same point. -/
 theorem hgtV_sub_hgtV (hB : IsTranscendenceBasis l B) (h : SamePointV l v w) :
