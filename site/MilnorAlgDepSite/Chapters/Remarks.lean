@@ -99,15 +99,15 @@ _Hypotheses that are not needed._
   $`\la B, G \ra` requires and which the blueprint proves in Lemma 6.3, are consequences of the
   proof; only the inclusion half of propagation is used.
 * {cref "lem:symbols"}[] (a) does not need $`l` to be relatively algebraically closed
-  ({name}`symbol_ne_zero_of_algebraicIndependent`; the hypothesis is part of the frozen
-  statement).
-* {cref "thm:D"}[]: the hypothesis that the inverse of $`\varphi` is graded (`hφsymm` in
-  {name}`theoremD`) follows from the others, because the rational Milnor rings are direct sums
-  of their homogeneous parts ({name}`MilnorKQ.gradedAlgebra`), so a bijective graded
-  homomorphism maps each $`\Kr_n(K)` onto $`\Kr_n(L)`; the formal statement still has it.
+  ({name}`symbol_ne_zero_of_algebraicIndependent` does not assume it).
+* {cref "thm:D"}[]: the inverse of a graded isomorphism $`\varphi` is automatically graded,
+  because the rational Milnor rings are direct sums of their homogeneous parts
+  ({name}`MilnorKQ.gradedAlgebra`), so a bijective graded homomorphism maps each $`\Kr_n(K)`
+  onto $`\Kr_n(L)` ({name}`MilnorKQ.IsGraded.symm`); {name}`theoremD` only assumes that
+  $`\varphi` is graded.
 * The uniqueness statements need less than the blueprint assumes: {name}`theoremA_perfect_unique`
-  only needs $`\psi \neq 0`, and $`r' \neq 0` is not used in {name}`theoremB_unique` and
-  {name}`theoremC_unique`.
+  only needs $`\psi \neq 0`, and {name}`theoremB_unique` and {name}`theoremC_unique` do not
+  assume $`r' \neq 0`.
 * In characteristic $`0` the proof of {cref "thm:A"}[] needs no reduction to a perfect field
   $`K` ({name}`theoremA_perfect_of_charZero` holds for any field $`K`).
 * Step B needs no hypothesis beyond (H0)–(H3) ({ref "ss:stepB"}[Section 6.4]).

@@ -32,7 +32,8 @@ in the proofs of Theorems B, C and D.
 * `VOf.lift`: the `ℚ`-linear map `VOf H → W` induced by an additive map `Lˣ → W` vanishing on
   `H`.
 * `MilnorKQ.gradedAlgebra`: the instance `GradedAlgebra (grade H)`, i.e. `MilnorKQ H` is the
-  direct sum of the `grade H n` (`MilnorKQ.grade_isInternal`).
+  direct sum of the `grade H n` (`MilnorKQ.grade_isInternal`); consequently the inverse of a
+  graded algebra isomorphism is graded (`MilnorKQ.IsGraded.symm`).
 -/
 
 @[expose] public section
@@ -498,6 +499,52 @@ noncomputable instance gradedAlgebra : GradedAlgebra (grade H) :=
 /-- The grades form an internal direct sum decomposition of `MilnorKQ H`. -/
 theorem grade_isInternal : DirectSum.IsInternal (grade H) :=
   DirectSum.Decomposition.isInternal _
+
+variable {H} {H' : Subgroup Kˣ}
+
+/-- A graded homomorphism commutes with the decompositions into homogeneous components: the
+degree `n` component of `φ y` is `φ` of the degree `n` component of `y`. -/
+theorem IsGraded.decompose_apply {φ : MilnorKQ H →ₐ[ℚ] MilnorKQ H'} (hφ : IsGraded φ)
+    (y : MilnorKQ H) (n : ℕ) :
+    (DirectSum.decompose (grade H') (φ y) n : MilnorKQ H') =
+      φ (DirectSum.decompose (grade H) y n) := by
+  classical
+  induction y using DirectSum.Decomposition.inductionOn (grade H) with
+  | zero => simp
+  | @homogeneous i x =>
+    have hx : φ x ∈ grade H' i := hφ i (Submodule.mem_map_of_mem x.2)
+    rw [DirectSum.decompose_coe]
+    by_cases hin : i = n
+    · subst hin
+      rw [DirectSum.of_eq_same, DirectSum.decompose_of_mem_same _ hx]
+    · rw [DirectSum.of_eq_of_ne _ _ _ (Ne.symm hin), DirectSum.decompose_of_mem_ne _ hx hin,
+        ZeroMemClass.coe_zero, map_zero]
+  | add x y hx hy => rw [map_add, DirectSum.decompose_add, DirectSum.add_apply,
+      Submodule.coe_add, hx, hy, DirectSum.decompose_add, DirectSum.add_apply, Submodule.coe_add,
+      map_add]
+
+/-- The inverse of a graded isomorphism is graded: a bijective graded homomorphism maps each
+`𝒦_n` onto `𝒦_n`, because `MilnorKQ H` is the direct sum of the `grade H n`
+(`MilnorKQ.gradedAlgebra`). -/
+theorem IsGraded.symm {φ : MilnorKQ H ≃ₐ[ℚ] MilnorKQ H'} (hφ : IsGraded φ.toAlgHom) :
+    IsGraded φ.symm.toAlgHom := by
+  classical
+  rintro n _ ⟨x, hx, rfl⟩
+  set y := φ.symm x with hy
+  have hφy : φ.toAlgHom y = x := φ.apply_symm_apply x
+  -- the homogeneous components of `y` of degree `m ≠ n` vanish
+  have hcomp (m : ℕ) (hm : m ≠ n) : (DirectSum.decompose (grade H) y m : MilnorKQ H) = 0 := by
+    apply φ.injective
+    rw [map_zero]
+    change φ.toAlgHom _ = 0
+    rw [← hφ.decompose_apply, hφy, DirectSum.decompose_of_mem_ne _ hx (Ne.symm hm)]
+  have hyn : y = DirectSum.decompose (grade H) y n := by
+    conv_lhs => rw [← DirectSum.sum_support_decompose (grade H) y]
+    refine Finset.sum_eq_single n (fun m _ hm ↦ hcomp m hm) fun hn ↦ ?_
+    rw [DFinsupp.notMem_support_iff.1 hn, ZeroMemClass.coe_zero]
+  change y ∈ grade H n
+  rw [hyn]
+  exact SetLike.coe_mem _
 
 end GradedAlgebra
 

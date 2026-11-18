@@ -222,7 +222,7 @@ theorem toPerfectClosure_bijective [PerfectRing M p] [IsPerfectClosure (algebraM
       ← Nat.cast_smul_eq_nsmul ℚ, smul_smul, inv_mul_cancel₀ hne, one_smul]
 
 /-- The comparison map preserves and reflects algebraic independence. -/
-theorem vAlgIndep_toPerfectClosure_iff [PerfectRing M p] [IsPerfectClosure (algebraMap L M) p]
+theorem vAlgIndep_toPerfectClosure_iff [PerfectRing M p]
     {ι : Type*} (v : ι → V l L) :
     VAlgIndep (perfectClosureIn l M p) (fun i ↦ toPerfectClosure l M p (v i)) ↔
       VAlgIndep l v := by

@@ -498,10 +498,12 @@ _Statements._
 * The uniqueness clauses are separate theorems with fewer hypotheses than in the blueprint (see
   {ref "ss:statementA"}[Section 1.1]).
 * Some hypotheses of the frozen statements are not used by the proofs: `[ExpChar L p]` in
-  {name}`theoremA` (it documents $`p`), $`r' \neq 0` in
-  {name}`theoremB_unique` and {name}`theoremC_unique`,
-  `[IsRelAlgClosed l L]` in {name}`symbol_ne_zero_of_algebraicIndependent`, and
-  `hφsymm` in {name}`theoremD` is implied by the others (not formalized).
+  {name}`theoremA` (it documents $`p`).
+  Hypotheses that the proofs showed to be unnecessary were removed in the final pass: $`r' \neq 0`
+  in {name}`theoremB_unique` and {name}`theoremC_unique`, the relative algebraic closedness of
+  $`l` in {name}`symbol_ne_zero_of_algebraicIndependent`, and the gradedness of
+  $`\varphi^{-1}` in {name}`theoremD` (it follows from that of $`\varphi`:
+  {name}`MilnorKQ.IsGraded.symm`).
 
 # Status
 %%%

@@ -15,8 +15,8 @@ Both parts are proved with the tame symbol of `MilnorAlgDep.Milnor.Tame` for a v
 * (a) a valuation trivial on `M = l(a)` with `v(b) > 0`; then the relative tame symbol gives
   `T'_v {a, b} = -v(b) ⊗ [ā] ≠ 0`. (The blueprint takes for `M` the relative algebraic closure of
   `l(a)` in `L`; `l(a)` itself suffices, because the residue map is injective on every field on
-  which the valuation is trivial. The hypothesis that `l` is relatively algebraically closed is
-  not needed.)
+  which the valuation is trivial. So the hypothesis that `l` is relatively algebraically closed is
+  not needed, and `symbol_ne_zero_of_algebraicIndependent` does not assume it.)
 * (b) a valuation trivial on the prime field with `v(b) > 0`; then `T_v {c, b} = -v(b) ⊗ [c̄] ≠ 0`
   since `c̄` is not a root of unity.
 -/
@@ -27,10 +27,11 @@ namespace MilnorAlgDep
 
 open VOf MilnorKQ Tame IntermediateField
 
-/-- **Blueprint Lemma 7.2 (a).** If `l` is relatively algebraically closed in `L` and
-`a, b ∈ Lˣ` are algebraically independent over `l`, then `{a, b} ≠ 0` in `𝒦_2(L|l)`. -/
+/-- **Blueprint Lemma 7.2 (a).** If `a, b ∈ Lˣ` are algebraically independent over `l`, then
+`{a, b} ≠ 0` in `𝒦_2(L|l)`. (The blueprint assumes that `l` is relatively algebraically closed in
+`L`; this is not needed.) -/
 theorem symbol_ne_zero_of_algebraicIndependent {l L : Type*} [Field l] [Field L] [Algebra l L]
-    [IsRelAlgClosed l L] {a b : Lˣ} (h : AlgebraicIndependent l ![(a : L), (b : L)]) :
+    {a b : Lˣ} (h : AlgebraicIndependent l ![(a : L), (b : L)]) :
     symbol (constUnits l L) a b ≠ 0 := by
   obtain ⟨ha, hb⟩ := algebraicIndependent_pair_iff.1 h
   -- a valuation trivial on `M = l(a)` and positive at `b`

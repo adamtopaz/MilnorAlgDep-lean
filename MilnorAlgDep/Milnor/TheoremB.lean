@@ -66,19 +66,18 @@ theorem theoremB [PerfectField K] [PerfectField L] (k : Subfield K) (l : Subfiel
   exact ⟨τ, hτ, r, hr, eq_degScale_comp_map hφ τ _ r hψτ⟩
 
 /-- **Blueprint Theorem B, uniqueness.** If `r^deg ∘ τ_* = r'^deg ∘ τ'_*` for field embeddings
-`τ, τ' : K → L` with `τ⁻¹(l) = τ'⁻¹(l) = k ≠ K` and `r, r' ≠ 0`, then `τ' = Frob^j ∘ τ` and
+`τ, τ' : K → L` with `τ⁻¹(l) = τ'⁻¹(l) = k ≠ K` and `r ≠ 0`, then `τ' = Frob^j ∘ τ` and
 `r' = p^{-j} r` for some `j ∈ ℤ`, where `p = ringExpChar L` and `Frob = frobeniusEquiv L p`
-(so `τ' = τ`, `r' = r` in characteristic `0`). Only `L` needs to be perfect. -/
+(so `τ' = τ`, `r' = r` in characteristic `0`). Only `L` needs to be perfect, and `r' ≠ 0` is not
+assumed (it follows from `r' = p^{-j} r`). -/
 theorem theoremB_unique [PerfectField L] (k : Subfield K) (l : Subfield L)
     (hl : ∀ x : L, IsAlgebraic l x → x ∈ l) (hkK : ∃ x : K, x ∉ k)
     (τ τ' : K →+* L) (hτ : ∀ x : K, τ x ∈ l ↔ x ∈ k) (hτ' : ∀ x : K, τ' x ∈ l ↔ x ∈ k)
-    (r r' : ℚ) (hr : r ≠ 0) (hr' : r' ≠ 0)
+    (r r' : ℚ) (hr : r ≠ 0)
     (h : (degScale (constUnits l L) r).comp (map τ (constUnits_le_comap fun x hx ↦ (hτ x).2 hx)) =
       (degScale (constUnits l L) r').comp (map τ' (constUnits_le_comap fun x hx ↦ (hτ' x).2 hx))) :
     ∃ j : ℤ, τ' = ((frobeniusEquiv L (ringExpChar L) ^ j : L ≃+* L) : L →+* L).comp τ ∧
       r' = (ringExpChar L : ℚ) ^ (-j) * r := by
-  -- The hypothesis `r' ≠ 0` is not needed (it follows from the others).
-  have _ := hr'
   have : IsRelAlgClosed l L := IsRelAlgClosed.of_subfield hl
   set F := (degScale (constUnits l L) r).comp (map τ (constUnits_le_comap fun x hx ↦ (hτ x).2 hx))
   let ψ : Additive Kˣ →+ V l L := (degOne F).toAddMonoidHom.comp (cls _)

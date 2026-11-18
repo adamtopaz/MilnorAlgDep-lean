@@ -524,7 +524,7 @@ theorem exists_isNormalized (h : IsCollinearTriple l x y z) :
 omit [Fact p.Prime] [PerfectField L] [IsRelAlgClosed l L] in
 /-- The core of the "only if" part of **blueprint Lemma 3.5(b)**: if `(x, y, z)` and
 `(x ^ p ^ a, y ^ p ^ b, z ^ p ^ c)` are normalized and `min(a, b, c) = 0`, then `a = b = c = 0`. -/
-theorem eq_zero_of_isNormalized_pow_pow [PerfectField l] (h : IsNormalized l x y z) {a b c : ℕ}
+theorem eq_zero_of_isNormalized_pow_pow (h : IsNormalized l x y z) {a b c : ℕ}
     (h' : IsNormalized l (x ^ p ^ a) (y ^ p ^ b) (z ^ p ^ c)) (hmin : a = 0 ∨ b = 0 ∨ c = 0) :
     a = 0 ∧ b = 0 ∧ c = 0 := by
   have hB : AlgebraicIndependent l ![x, y] := h.indep₁₂

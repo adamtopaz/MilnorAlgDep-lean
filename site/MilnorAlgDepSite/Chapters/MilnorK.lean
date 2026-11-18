@@ -229,8 +229,8 @@ of unity.
 The blueprint takes for $`M` the relative algebraic closure of $`l(a)` in $`L`; the field $`l(a)`
 suffices, because the residue map is injective on every field on which the valuation is
 trivial.
-As a result, the hypothesis that $`l` is relatively algebraically closed is not used in (a); it
-is part of the frozen statement.
+As a result, (a) does not need $`l` to be relatively algebraically closed, and the formal
+statement does not assume it.
 
 {docstring MilnorAlgDep.symbol_ne_zero_of_algebraicIndependent}
 
@@ -263,8 +263,8 @@ $`1`, they agree:
 {docstring MilnorAlgDep.MilnorKQ.eq_degScale_comp_map}
 
 Uniqueness ({name}`theoremB_unique`) is the uniqueness in Theorem A, applied to
-$`\psi = r[\tau]`, which is non-zero because $`k \neq K` and $`\tau^{-1}(l) = k`.
-The hypothesis $`r' \neq 0` of the formal statement is not used. ∎
+$`\psi = r[\tau]`, which is non-zero because $`k \neq K` and $`\tau^{-1}(l) = k`;
+$`r' \neq 0` need not be assumed. ∎
 
 # Proof of Theorem C
 %%%
@@ -385,7 +385,11 @@ tag := "ss:proofD"
 
 We may replace $`K, L` by their perfect closures ({name}`MilnorKQ.perfectClosureEquiv`).
 Let $`\varphi` be an isomorphism.
-Its degree one part is bijective, because the inverse is graded too:
+Its inverse is graded too, since $`\Kr_*` is the direct sum of its homogeneous parts:
+
+{docstring MilnorAlgDep.MilnorKQ.IsGraded.symm}
+
+So the degree one part of $`\varphi` is bijective:
 
 {docstring MilnorAlgDep.MilnorKQ.degOne_bijective}
 

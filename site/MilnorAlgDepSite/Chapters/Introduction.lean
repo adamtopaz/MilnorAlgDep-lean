@@ -167,11 +167,9 @@ In particular $`K^i \cong L^i`.
 "If one of them has characteristic $`0`, two such elements suffice" is read as: both fields
 contain $`d` algebraically independent elements, where $`d = 2` if one of the characteristics is
 $`0` and $`d = 3` otherwise.
-An isomorphism of graded algebras is an algebra isomorphism `φ` such that `φ` and its inverse are
-graded (`hφ`, `hφsymm`).
-Since {name}`MilnorKQ.gradedAlgebra` shows that the Milnor ring is the direct sum of
-its graded pieces, `hφsymm` follows from `hφ`; this has not been formalized, and the hypothesis is
-part of the frozen statement.
+An isomorphism of graded algebras is an algebra isomorphism `φ` which is graded (`hφ`).
+Its inverse is then graded too ({name}`MilnorKQ.IsGraded.symm`), because the Milnor ring is the
+direct sum of its graded pieces ({name}`MilnorKQ.gradedAlgebra`).
 
 For transcendence degree at least $`5`, Theorem D and the analogue of Theorem B for
 isomorphisms were proved by {citet Bib.T}[]; the passage from $`K`-theory to fields there

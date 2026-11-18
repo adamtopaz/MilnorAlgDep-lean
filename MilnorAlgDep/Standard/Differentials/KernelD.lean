@@ -40,7 +40,7 @@ variable {l E : Type*} [Field l] [Field E] [Algebra l E]
 /-- A derivation killing an intermediate field `K` acts on `g(x)`, `g ∈ K[X]`, by
 `d (g(x)) = g'(x) • d x`. -/
 theorem derivation_aeval_of_forall_mem_eq_zero {V : Type*} [AddCommGroup V] [Module E V]
-    [Module l V] [IsScalarTower l E V] (K : IntermediateField l E) (d : Derivation l E V)
+    [Module l V] (K : IntermediateField l E) (d : Derivation l E V)
     (hK : ∀ m ∈ K, d m = 0) (x : E) (g : K[X]) :
     d (aeval x g) = aeval x (derivative g) • d x := by
   induction g using Polynomial.induction_on' with
