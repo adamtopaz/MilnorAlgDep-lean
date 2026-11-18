@@ -90,6 +90,7 @@ precompiled (shared libraries), so rendering stays fast.
    open Verso.Genre Manual
    open Verso.Genre.Manual.InlineLean
    open MilnorAlgDepSite
+   open MilnorAlgDep
 
    set_option pp.rawOnError true
 
@@ -119,12 +120,14 @@ line: it keeps diffs readable.
 The `MilnorAlgDep` library uses the Lean module system. Chapters are deliberately *not* modules:
 
 * A non-module file that imports a module sees everything, including docstrings, transitively.
-  So `import MilnorAlgDep` (once the root file imports all modules) gives every docstring.
+  So `import MilnorAlgDep` gives every docstring: the root file `MilnorAlgDep.lean` imports all
+  modules (the supervisor regenerates it with `scripts/mk-root.sh`).
 * A module would only see docstrings of modules it imports with `import all M`, one by one;
   `import all` is not transitive.
 
-Until the supervisor regenerates `MilnorAlgDep.lean`, a chapter must import the specific modules
-it shows (`import MilnorAlgDep.Standard.Eigenvalue`, marked as redundant in a comment).
+So a chapter needs no imports of individual `MilnorAlgDep` modules. The chapters also
+`open MilnorAlgDep`, so that `` {name}`theoremA` `` resolves and is displayed without the
+namespace; `{docstring}` blocks use full names.
 
 Never import Mathlib directly in a chapter: Mathlib warns about every non-module file that
 imports it. Add the Mathlib file to `Support/Mathlib.lean` (a module) instead. The files in
@@ -179,7 +182,7 @@ Let $`E \supset l` be fields, ...
 
 {docstring MilnorAlgDep.eigenvalue_mem_primeField}
 
-In Lean the prime field is `⊥`, so {name}`MilnorAlgDep.eigenvalue_mem_primeField` concludes ...
+In Lean the prime field is `⊥`, so {name}`eigenvalue_mem_primeField` concludes ...
 ```
 
 * `{docstring Name}` renders the signature and the docstring of a declaration, with hovers. The
