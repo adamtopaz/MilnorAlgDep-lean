@@ -371,13 +371,15 @@ end W
 namespace CharPHyp
 
 variable {K : Type*} [Field K] (H : CharPHyp K l L)
-variable (p : ℕ) [Fact p.Prime] [CharP L p] [PerfectField L] [IsRelAlgClosed l L]
+variable (p : ℕ) [Fact p.Prime] [CharP L p] [PerfectField L]
 
 /-- Blueprint Section 6.3: the representatives `ρ p (x i)` of `ψ(x i)` extend to a transcendence
 basis of `L / l`. -/
 theorem exists_trBasis : ∃ s : Set L, IsTranscendenceBasis l ((↑) : s → L) ∧
     ∀ i, (H.ρ p (H.x i) : L) ∈ s := by
-  sorry
+  have h := (vAlgIndep_iff_algebraicIndependent_vRep p).1 H.vAlgIndep_x
+  obtain ⟨t, hst, ht⟩ := exists_isTranscendenceBasis_superset h.to_subtype_range
+  exact ⟨t, ht, fun i ↦ hst ⟨i, rfl⟩⟩
 
 /-- Blueprint Section 6.3: the transcendence basis `A ⊇ {a₁, a₂, a₃}` of `L / l`, as a set. -/
 noncomputable def trBasis : Set L :=
@@ -396,6 +398,8 @@ theorem ρ_x_mem_trBasis (i : Fin 3) : (H.ρ p (H.x i) : L) ∈ H.trBasis p :=
 /-- Blueprint Section 6.3: the adapted model `F = L_A`. -/
 noncomputable abbrev F : IntermediateField l L :=
   model l (H.B p)
+
+variable [IsRelAlgClosed l L]
 
 /-- The `x i` have height `0` (their representatives belong to `A`). -/
 theorem hgtV_x (i : Fin 3) : hgtV p (H.B p) (H.ψK (H.x i)) = 0 :=
@@ -525,7 +529,11 @@ theorem data_Δ (x : H.K₀ p) : (H.data p).Δ x = dlogA p (H.B p) (H.ψK x) := 
 /-- Blueprint Section 6.3: `x ∈ K₀` is *primitive* (`Δ(x) ≠ 0`) iff `x ∉ k` and `ht ψ(x) = 0`. -/
 theorem data_Δ_ne_zero_iff (x : H.K₀ p) :
     (H.data p).Δ x ≠ 0 ↔ (x : K) ∉ H.k ∧ hgtV p (H.B p) (H.ψK x) = 0 := by
-  sorry
+  rw [data_Δ]
+  by_cases hx : (x : K) ∈ H.k
+  · simp [hx, H.ψK_eq_zero_iff.2 hx, dlogA_zero]
+  · rw [dlogA_ne_zero_iff p (H.isTranscendenceBasis_B p) x.2 (H.ψK_ne_zero hx)]
+    simp [hx]
 
 /-- **Blueprint Lemma 6.5(b)**: for primitive `x`, the scalar `μ(x) ∈ F` with
 `Δ(1 - x) = μ(x) Δ(x)` lies in the point `Q_x`. -/
