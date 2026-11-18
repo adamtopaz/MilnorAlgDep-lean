@@ -111,6 +111,63 @@ theorem modelD_pow_char (p : ℕ) [CharP L p] {B : ι → L} {y : L} (hy : y ∈
 
 end Defs
 
+section Transfer
+
+/-! ### Intermediate fields of an intermediate field
+
+For `M : IntermediateField l L` and `S ⊆ M`, the fields `l(S) ⊆ M` and `l(S) ⊆ L` are identified
+by `adjoinValEquiv`; algebraicity and separability of elements of `M` over them agree. -/
+
+variable (M : IntermediateField l L) (S : Set M)
+
+/-- The `l`-algebra isomorphism between `l(S) ⊆ M` and `l(S) ⊆ L`, for `S ⊆ M`. -/
+noncomputable def adjoinValEquiv : adjoin l S ≃ₐ[l] adjoin l (Subtype.val '' S) :=
+  (liftAlgEquiv (adjoin l S)).trans (equivOfEq (lift_adjoin (K := M) (S := S)))
+
+theorem coe_adjoinValEquiv (k : adjoin l S) : (adjoinValEquiv M S k : L) = ((k : M) : L) :=
+  rfl
+
+theorem algebraMap_comp_adjoinValEquiv :
+    (algebraMap (adjoin l (Subtype.val '' S)) L).comp (adjoinValEquiv M S : adjoin l S →+* _) =
+      (M.val : M →+* L).comp (algebraMap (adjoin l S) M) :=
+  rfl
+
+variable {M S}
+
+theorem isAlgebraic_adjoin_val_iff {y : M} :
+    IsAlgebraic (adjoin l (Subtype.val '' S)) (y : L) ↔ IsAlgebraic (adjoin l S) y :=
+  ⟨fun h ↦ h.of_ringHom_of_comp_eq (adjoinValEquiv M S) M.val (adjoinValEquiv M S).surjective
+      M.val.injective (algebraMap_comp_adjoinValEquiv M S),
+    fun h ↦ h.ringHom_of_comp_eq (adjoinValEquiv M S) M.val (adjoinValEquiv M S).injective
+      (algebraMap_comp_adjoinValEquiv M S)⟩
+
+theorem minpoly_adjoin_val {y : M} (hy : IsIntegral (adjoin l S) y) :
+    minpoly (adjoin l (Subtype.val '' S)) (y : L) =
+      (minpoly (adjoin l S) y).map (adjoinValEquiv M S : adjoin l S →+* _) := by
+  refine (minpoly.eq_of_irreducible_of_monic ?_ ?_ ((minpoly.monic hy).map _)).symm
+  · have : (minpoly (adjoin l S) y).map (adjoinValEquiv M S : adjoin l S →+* _) =
+        Polynomial.mapEquiv (adjoinValEquiv M S).toRingEquiv (minpoly (adjoin l S) y) := rfl
+    rw [this, MulEquiv.irreducible_iff]
+    exact minpoly.irreducible hy
+  · have := Polynomial.map_aeval_eq_aeval_map (algebraMap_comp_adjoinValEquiv M S)
+      (minpoly (adjoin l S) y) y
+    rw [minpoly.aeval, map_zero] at this
+    exact this.symm
+
+theorem isSeparable_adjoin_val_iff {y : M} :
+    IsSeparable (adjoin l (Subtype.val '' S)) (y : L) ↔ IsSeparable (adjoin l S) y := by
+  constructor
+  · intro h
+    have hint : IsIntegral (adjoin l S) y :=
+      (isAlgebraic_adjoin_val_iff.1 h.isIntegral.isAlgebraic).isIntegral
+    rw [IsSeparable, minpoly_adjoin_val hint, Polynomial.separable_map] at h
+    exact h
+  · intro h
+    rw [IsSeparable, minpoly_adjoin_val h.isIntegral, Polynomial.separable_map]
+    exact h
+
+end Transfer
+
 section Basis
 
 variable {B : ι → L}
@@ -138,7 +195,13 @@ proof of Lemma 4.3: if `y` is separable algebraic over an intermediate field `K 
 `y ∈ L_B`. (The case `j > 0` follows by applying `frobZ L p (-j)`.) -/
 theorem mem_model_of_isSeparable {K : IntermediateField l L} (hK : K ≤ model l B) {y : L}
     (hy : IsSeparable K y) : y ∈ model l B := by
-  sorry
+  set F := adjoin l (Set.range B)
+  set M := separableClosure F L
+  let i : K →ₐ[l] model l B := IntermediateField.inclusion hK
+  let : Algebra K M := (i.toRingHom : K →+* M).toAlgebra
+  have : IsScalarTower K M L := IsScalarTower.of_algebraMap_eq fun _ ↦ rfl
+  rw [mem_model_iff]
+  exact IsSeparable.of_algebra_isSeparable_of_isSeparable F (hy.tower_top M)
 
 variable (p : ℕ) [Fact p.Prime] [CharP L p]
 
@@ -146,7 +209,10 @@ variable (p : ℕ) [Fact p.Prime] [CharP L p]
 then `y ^ p ^ n ∈ L_B` for some `n`, i.e. `y ∈ Frob^{-n}(L_B)`. -/
 theorem exists_pow_pow_mem_model {y : L} (hy : IsAlgebraic (adjoin l (Set.range B)) y) :
     ∃ n : ℕ, y ^ p ^ n ∈ model l B := by
-  sorry
+  have : CharP (adjoin l (Set.range B)) p :=
+    (Algebra.charP_iff (adjoin l (Set.range B)) L p).mpr inferInstance
+  obtain ⟨n, hn⟩ := exists_isSeparable_pow_pow p hy
+  exact ⟨n, mem_model_iff.2 hn⟩
 
 end Basis
 
@@ -164,7 +230,18 @@ separable over `l(X, Z)`. -/
 theorem isSeparable_of_linearIndependent_modelD {x : κ → L} (hx : ∀ k, x k ∈ model l B)
     (hli : LinearIndependent (model l B) fun k ↦ modelD l B (x k)) {y : L} (hy : y ∈ model l B)
     (halg : IsAlgebraic (adjoin l (Set.range x)) y) : IsSeparable (adjoin l (Set.range x)) y := by
-  sorry
+  set x' : κ → model l B := fun k ↦ ⟨x k, hx k⟩
+  have himage : Subtype.val '' Set.range x' = Set.range x := by
+    rw [← Set.range_comp]
+    rfl
+  have hli' : LinearIndependent (model l B) fun k ↦ D l (model l B) (x' k) := by
+    simpa only [modelD_of_mem (hx _)] using hli
+  have halg' : IsAlgebraic (adjoin l (Set.range x')) (⟨y, hy⟩ : model l B) := by
+    rw [← isAlgebraic_adjoin_val_iff, himage]
+    exact halg
+  have := isSeparable_adjoin_of_linearIndependent_kaehler_D hli' halg'
+  rw [← isSeparable_adjoin_val_iff, himage] at this
+  exact this
 
 /-- The separability criterion `isSeparable_of_linearIndependent_modelD` for two elements: if
 `x, z, y ∈ L_B`, `d x, d z` are linearly independent and `y` is algebraic over `l(x, z)`, then `y`
@@ -172,7 +249,17 @@ is separable over `l(x, z)`. -/
 theorem isSeparable_of_linearIndependent_modelD_pair {x z y : L} (hx : x ∈ model l B)
     (hz : z ∈ model l B) (hli : LinearIndependent (model l B) ![modelD l B x, modelD l B z])
     (hy : y ∈ model l B) (halg : IsAlgebraic l⟮x, z⟯ y) : IsSeparable l⟮x, z⟯ y := by
-  sorry
+  have hrange : Set.range ![x, z] = {x, z} := Matrix.range_cons_cons_empty x z _
+  have hx' : ∀ k, ![x, z] k ∈ model l B := by
+    intro k
+    fin_cases k
+    exacts [hx, hz]
+  have hli' : LinearIndependent (model l B) fun k ↦ modelD l B (![x, z] k) := by
+    convert hli using 1
+    ext k
+    fin_cases k <;> rfl
+  have := isSeparable_of_linearIndependent_modelD hx' hli' hy (by rwa [hrange])
+  rwa [hrange] at this
 
 /-- **Blueprint Lemma 4.5 (Lax property)**, general form: elements of `L_B` whose differentials
 are linearly independent in `Ω_B` are algebraically independent over `l`. (Equivalently,
