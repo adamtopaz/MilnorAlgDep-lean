@@ -50,8 +50,16 @@ MilnorAlgDep/
     Delta.lean            Δ, Lemma 6.5, τ                     6.3.1, 6.5
     StepC.lean            Lemmas 6.10-6.12 (Γ = 0)            6.6.1
     Main.lean             Theorem A, char L = 0               6.7
-  CharP/
+  CharP/                  (in progress, contains sorry)
+    Frobenius.lean        Frob^j as frobZ                     2.2
+    Levels.lean           levels, Lemma 3.2                   3.1
+    Normalized.lean       normalized triples, Lemma 3.5       3.2
+    Model.lean            models, Lemma 4.2                   4
+    Models.lean           points in a model, Lemma 4.3        4
+    Trichotomy.lean       Lemma 4.6                           4
+    Quadrangle.lean       Lemma 5.1                           5
     Main.lean             Theorem A, char L > 0 (sorry)       3-6
+  Standard/SepCrit.lean   replaces Lemma 3.1                  3
   Reduction.lean          reduction to perfect K and L        6.1
   Reduction/
     ExtendPsi.lean        extension of ψ to K^i               6.1
@@ -73,8 +81,8 @@ MilnorAlgDep/
     TheoremD.lean         Theorem D                           7.4
 ```
 
-The positive characteristic part (levels, models, the quadrangle lemma, Steps A and C) will add
-further files under `CharP/`.
+The files under `CharP/` for Chapters 3–5 are being proved, and Steps A and C in positive
+characteristic will add further files there.
 Every file is a Lean module and starts with a docstring saying which part of the blueprint it
 formalizes; every declaration corresponding to a numbered statement has a docstring naming it.
 The root module `MilnorAlgDep` imports all files.
@@ -206,7 +214,7 @@ Placeholders refer to the positive characteristic part, which is in progress.
     {name}`algebraicIndependent_iff_linearIndependent_kaehler_D`
 *
   * other statements of Chapters 3–5
-  * placeholder
+  * placeholder (in progress in `CharP/`)
 *
   * Section 6.1
   * {name}`extendPsi`, {name}`theoremA_perfect_of_isPRadical`,
@@ -412,5 +420,7 @@ tag := "ss:formalStatus"
 %%%
 
 See {ref "ss:status"}[Section 1.5].
-The only `sorry` in the library is the proof of {name}`theoremA_core_charP` in
+The main theorems depend on one `sorry`, the proof of {name}`theoremA_core_charP` in
 `MilnorAlgDep/CharP/Main.lean`.
+The other files under `CharP/` contain further `sorry`s while they are being written; there are
+none outside `CharP/`.

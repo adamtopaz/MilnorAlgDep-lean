@@ -263,11 +263,13 @@ non-surjective homomorphisms), so it should be read as a detailed proposal for a
 Its characteristic $`0` part and its Section 7 are now machine-checked; the positive
 characteristic part is being formalized.
 
-The formalization is complete except for one declaration,
+The main theorems depend on exactly one unproved declaration,
 {name}`theoremA_core_charP`: Theorem A for perfect fields $`K` and $`L` with
 $`\chr L > 0`, whose proof is the subject of {ref "sec:levels"}[Chapters 3–5] and of the
 characteristic $`p` parts of {ref "sec:main"}[Chapter 6].
-Its proof is `sorry`; no other declaration contains one.
+Its proof is `sorry`.
+The files for that proof, under `MilnorAlgDep/CharP/`, are being written and still contain
+`sorry`s; outside `CharP/` there are none.
 In detail (November 2026):
 
 :::table +header

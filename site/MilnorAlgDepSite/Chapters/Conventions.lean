@@ -71,6 +71,7 @@ are the $`\Frob^j`, $`j \in \ZZ`.
 In characteristic $`0` it is the identity.
 So the group $`\Gamma` does not appear: statements quantify over $`j \in \ZZ`, and in
 characteristic $`0` all $`j` give the same map.
+The files for positive characteristic write {name}`frobZ` `L p j` for $`\Frob^j`.
 Two characteristic functions occur in the formal statements: `ringChar L` (which is $`0` in
 characteristic $`0`) in hypotheses (A3) and (A4), which distinguish characteristic $`0` from
 positive characteristic, and `ringExpChar L` (which is $`1` in characteristic $`0`) wherever the
