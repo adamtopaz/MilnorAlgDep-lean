@@ -192,6 +192,19 @@ theorem repNat_nsmul (v : VOf H) : repNat v • v = cls H (.ofMul (repUnit v)) :
 theorem cls_eq_zero_of_mem {a : Lˣ} (ha : a ∈ H) : cls H (.ofMul a) = 0 :=
   (cls_eq_zero_iff a).2 ⟨1, one_pos, by rwa [pow_one]⟩
 
+/-- `VOf H` is uniquely divisible: multiplication by a positive integer is injective. -/
+theorem nsmul_left_cancel {n : ℕ} (hn : n ≠ 0) {v w : VOf H} (h : n • v = n • w) : v = w := by
+  rw [← Nat.cast_smul_eq_nsmul ℚ, ← Nat.cast_smul_eq_nsmul ℚ] at h
+  have hn' : (n : ℚ) ≠ 0 := Nat.cast_ne_zero.2 hn
+  rw [← inv_smul_smul₀ hn' v, h, inv_smul_smul₀ hn']
+
+/-- If `N • v = [a]`, then `(q.den * N) • (q • v) = [a ^ q.num]` for every `q : ℚ`. -/
+theorem nsmul_smul_eq_cls {v : VOf H} {N : ℕ} {a : Lˣ} (h : N • v = cls H (.ofMul a)) (q : ℚ) :
+    (q.den * N) • (q • v) = cls H (.ofMul (a ^ q.num)) := by
+  rw [cls_zpow, ← h, ← Nat.cast_smul_eq_nsmul ℚ, ← Nat.cast_smul_eq_nsmul ℚ,
+    ← Int.cast_smul_eq_zsmul ℚ, smul_smul, smul_smul, Nat.cast_mul, mul_comm (q.den : ℚ),
+    mul_assoc, Rat.den_mul_eq_num, mul_comm]
+
 /-- Two `ℚ`-linear maps out of `VOf H` agreeing on all classes `[a]` are equal. -/
 theorem linearMap_ext {W : Type*} [AddCommGroup W] [Module ℚ W] {f g : VOf H →ₗ[ℚ] W}
     (h : ∀ a : Lˣ, f (cls H (.ofMul a)) = g (cls H (.ofMul a))) : f = g := by

@@ -59,23 +59,49 @@ theorem self_mem_point (a : L) : a ∈ point l a := by
 
 /-- A point is relatively algebraically closed in `L` (it is a flat). -/
 theorem point_isRelAlgClosed (a : L) : ∀ x : L, IsAlgebraic (point l a) x → x ∈ point l a := by
-  sorry
+  intro x hx
+  have h : x ∈ algebraicClosure (algebraicClosure l⟮a⟯ L) L := mem_algebraicClosure_iff.2 hx
+  rw [algebraicClosure.algebraicClosure_eq_bot, mem_bot] at h
+  obtain ⟨y, rfl⟩ := h
+  exact y.2
+
+/-- The point `Q_a` is the closure of `{a}` in the algebraic matroid of `L / l`. -/
+theorem coe_point (a : L) :
+    (point l a : Set L) = (AlgebraicIndependent.matroid l L).closure {a} := by
+  ext x
+  rw [SetLike.mem_coe, mem_point_iff, isAlgebraic_adjoin_simple_iff_mem_closure]
 
 /-- If `a` and `b` are algebraic over each other (over `l`), they define the same point. -/
 theorem point_eq_point_of_isAlgebraic {a b : L} (hab : IsAlgebraic l⟮a⟯ b)
     (hba : IsAlgebraic l⟮b⟯ a) : point l a = point l b := by
-  sorry
+  have h1 := isAlgebraic_adjoin_simple_iff_mem_closure.1 hab
+  have h2 := isAlgebraic_adjoin_simple_iff_mem_closure.1 hba
+  refine SetLike.coe_injective ?_
+  rw [coe_point, coe_point]
+  exact (Matroid.closure_subset_closure_of_subset_closure (Set.singleton_subset_iff.2 h2)).antisymm
+    (Matroid.closure_subset_closure_of_subset_closure (Set.singleton_subset_iff.2 h1))
 
 /-- Blueprint 2.1: for `a ∉ l`, an element `b` lies in `Q_a` if and only if `a` and `b` are
 algebraically dependent over `l`. -/
 theorem mem_point_iff_not_algebraicIndependent {a b : L} (ha : Transcendental l a) :
     b ∈ point l a ↔ ¬ AlgebraicIndependent l ![a, b] := by
-  sorry
+  rw [mem_point_iff, algebraicIndependent_pair_iff]
+  constructor
+  · rintro hb ⟨_, hb'⟩
+    exact hb' hb
+  · intro h
+    by_contra hb
+    exact h ⟨ha, hb⟩
 
 /-- Blueprint 2.1: for `a, b ∉ l`, `Q_a = Q_b` if and only if `b ∈ Q_a`. -/
 theorem point_eq_point_iff_mem {a b : L} (ha : Transcendental l a) (hb : Transcendental l b) :
     point l a = point l b ↔ b ∈ point l a := by
-  sorry
+  refine ⟨fun h ↦ by rw [h]; exact self_mem_point b, fun hmem ↦ ?_⟩
+  have hdep : ¬ AlgebraicIndependent l ![b, a] := by
+    rw [← algebraicIndependent_pair_comm]
+    exact (mem_point_iff_not_algebraicIndependent ha).1 hmem
+  have hamem : a ∈ point l b := (mem_point_iff_not_algebraicIndependent hb).2 hdep
+  exact point_eq_point_of_isAlgebraic (mem_point_iff.1 hmem) (mem_point_iff.1 hamem)
 
 /-- Blueprint 2.1: for `a, b ∉ l`, `Q_a = Q_b` if and only if `a` and `b` are algebraically
 dependent over `l`. -/
@@ -92,7 +118,13 @@ theorem point_eq_of_mem {a b : L} (ha : Transcendental l a) (hb : Transcendental
 /-- Blueprint 2.1: two distinct points intersect in `l`. -/
 theorem point_inf_point_eq_bot [IsRelAlgClosed l L] {a b : L} (ha : Transcendental l a)
     (hb : Transcendental l b) (h : point l a ≠ point l b) : point l a ⊓ point l b = ⊥ := by
-  sorry
+  refine eq_bot_iff.2 fun x hx ↦ ?_
+  rw [mem_bot]
+  by_contra hx'
+  have htr : Transcendental l x := IsRelAlgClosed.transcendental fun h ↦ hx' h
+  have h1 := point_eq_of_mem ha htr hx.1
+  have h2 := point_eq_of_mem hb htr hx.2
+  exact h (h1.symm.trans h2)
 
 end point
 
@@ -110,14 +142,26 @@ noncomputable def pointV (v : V l L) : IntermediateField l L :=
 `Q_v` does not depend on the choice of representative. -/
 theorem pointV_eq_point {v : V l L} {N : ℕ} {a : Lˣ} (hN : 0 < N)
     (h : N • v = cls (constUnits l L) (.ofMul a)) : pointV l v = point l (a : L) := by
-  sorry
+  have hr := repNat_nsmul v
+  refine point_eq_point_of_isAlgebraic ?_ ?_
+  · refine V.isAlgebraic_adjoin_of_zsmul_cls_eq (repNat_pos v) (N := N) ?_
+    rw [natCast_zsmul, natCast_zsmul, ← h, ← hr, smul_smul, smul_smul, mul_comm]
+  · refine V.isAlgebraic_adjoin_of_zsmul_cls_eq hN (N := repNat v) ?_
+    rw [natCast_zsmul, natCast_zsmul, ← h, ← hr, smul_smul, smul_smul, mul_comm]
 
 theorem pointV_cls (a : Lˣ) : pointV l (cls (constUnits l L) (.ofMul a)) = point l (a : L) :=
   pointV_eq_point one_pos (one_nsmul _)
 
 /-- `Q_{q • v} = Q_v` for `q ≠ 0`. -/
 theorem pointV_smul {v : V l L} {q : ℚ} (hq : q ≠ 0) : pointV l (q • v) = pointV l v := by
-  sorry
+  rw [pointV_eq_point (Nat.mul_pos q.den_pos (repNat_pos v)) (nsmul_smul_eq_cls (repNat_nsmul v) q),
+    pointV]
+  have hnum : q.num ≠ 0 := Rat.num_ne_zero.2 hq
+  refine point_eq_point_of_isAlgebraic ?_ ?_
+  · refine V.isAlgebraic_adjoin_of_zsmul_cls_eq (Int.natAbs_pos.2 hnum) (N := q.num.sign) ?_
+    rw [cls_zpow, smul_smul, Int.sign_mul_self_eq_natAbs]
+  · refine V.isAlgebraic_adjoin_of_zsmul_cls_eq one_pos (N := q.num) ?_
+    rw [Nat.cast_one, one_smul, cls_zpow]
 
 theorem pointV_neg (v : V l L) : pointV l (-v) = pointV l v := by
   rw [← neg_one_smul ℚ v, pointV_smul (by norm_num)]
@@ -126,7 +170,25 @@ theorem pointV_neg (v : V l L) : pointV l (-v) = pointV l v := by
 `Q_v = Q_w`. -/
 theorem vAlgIndep_pair_iff [IsRelAlgClosed l L] {v w : V l L} (hv : v ≠ 0) (hw : w ≠ 0) :
     VAlgIndep l ![v, w] ↔ pointV l v ≠ pointV l w := by
-  sorry
+  have ha : Transcendental l (repUnit v : L) := IsRelAlgClosed.transcendental
+    (V.not_mem_range_of_nsmul_eq_cls hv (repNat_pos v) (repNat_nsmul v))
+  have hb : Transcendental l (repUnit w : L) := IsRelAlgClosed.transcendental
+    (V.not_mem_range_of_nsmul_eq_cls hw (repNat_pos w) (repNat_nsmul w))
+  have hN : ∀ i, 0 < ![repNat v, repNat w] i := by
+    intro i
+    fin_cases i
+    exacts [repNat_pos v, repNat_pos w]
+  have hrep : ∀ i, ![repNat v, repNat w] i • ![v, w] i =
+      cls (constUnits l L) (.ofMul (![repUnit v, repUnit w] i)) := by
+    intro i
+    fin_cases i
+    exacts [repNat_nsmul v, repNat_nsmul w]
+  have hfun : (fun i ↦ ((![repUnit v, repUnit w] i : Lˣ) : L)) =
+      ![(repUnit v : L), (repUnit w : L)] := by
+    ext i
+    fin_cases i <;> rfl
+  rw [VAlgIndep.iff_of_nsmul_eq_cls hN hrep, hfun, pointV, pointV, Ne,
+    point_eq_point_iff_not_algebraicIndependent ha hb, not_not]
 
 end pointV
 
@@ -140,20 +202,57 @@ noncomputable def pointGroup (Q : IntermediateField l L) : Submodule ℚ (V l L)
 theorem mem_pointGroup_iff {Q : IntermediateField l L} {v : V l L} :
     v ∈ pointGroup Q ↔ ∃ (N : ℕ) (a : Lˣ), 0 < N ∧ (a : L) ∈ Q ∧
       N • v = cls (constUnits l L) (.ofMul a) := by
-  sorry
+  constructor
+  · intro hv
+    induction hv using Submodule.span_induction with
+    | mem x hx =>
+      obtain ⟨a, ha, rfl⟩ := hx
+      exact ⟨1, a, one_pos, ha, one_nsmul _⟩
+    | zero => exact ⟨1, 1, one_pos, by simp, by simp⟩
+    | add x y _ _ hx hy =>
+      obtain ⟨N, a, hN, ha, hxa⟩ := hx
+      obtain ⟨M, b, hM, hb, hyb⟩ := hy
+      refine ⟨N * M, a ^ M * b ^ N, Nat.mul_pos hN hM, ?_, ?_⟩
+      · push_cast
+        exact mul_mem (pow_mem ha M) (pow_mem hb N)
+      · rw [smul_add, cls_mul, cls_pow, cls_pow, ← hxa, ← hyb, smul_smul, smul_smul, mul_comm M N]
+    | smul q x _ hx =>
+      obtain ⟨N, a, hN, ha, hxa⟩ := hx
+      refine ⟨q.den * N, a ^ q.num, Nat.mul_pos q.den_pos hN, ?_, nsmul_smul_eq_cls hxa q⟩
+      rw [Units.val_zpow_eq_zpow_val]
+      exact zpow_mem ha _
+  · rintro ⟨N, a, hN, ha, h⟩
+    have hv : v = (N : ℚ)⁻¹ • cls (constUnits l L) (.ofMul a) := by
+      rw [← h, ← Nat.cast_smul_eq_nsmul ℚ, inv_smul_smul₀ (Nat.cast_ne_zero.2 hN.ne')]
+    rw [hv]
+    exact Submodule.smul_mem _ _ (Submodule.subset_span ⟨a, ha, rfl⟩)
 
 /-- Blueprint (V3): for a point `Q = Q_b` (`b ∉ l`), `G_Q = {v | v = 0 or Q_v = Q}`. -/
 theorem mem_pointGroup_point_iff [IsRelAlgClosed l L] {b : L} (hb : Transcendental l b)
     {v : V l L} : v ∈ pointGroup (point l b) ↔ v = 0 ∨ pointV l v = point l b := by
-  sorry
+  constructor
+  · rintro hmem
+    obtain ⟨N, a, hN, ha, h⟩ := mem_pointGroup_iff.1 hmem
+    by_cases hv : v = 0
+    · exact Or.inl hv
+    refine Or.inr ?_
+    have htr : Transcendental l (a : L) :=
+      IsRelAlgClosed.transcendental (V.not_mem_range_of_nsmul_eq_cls hv hN h)
+    rw [pointV_eq_point hN h, point_eq_of_mem hb htr ha]
+  · rintro (rfl | h)
+    · exact Submodule.zero_mem _
+    · refine mem_pointGroup_iff.2 ⟨repNat v, repUnit v, repNat_pos v, ?_, repNat_nsmul v⟩
+      rw [← h]
+      exact self_mem_point _
 
 /-- Blueprint (V3): for `v ≠ 0`, `G_{Q_v} = {w | w = 0 or Q_w = Q_v}`. -/
 theorem mem_pointGroup_pointV_iff [IsRelAlgClosed l L] {v w : V l L} (hv : v ≠ 0) :
-    w ∈ pointGroup (pointV l v) ↔ w = 0 ∨ pointV l w = pointV l v := by
-  sorry
+    w ∈ pointGroup (pointV l v) ↔ w = 0 ∨ pointV l w = pointV l v :=
+  mem_pointGroup_point_iff (IsRelAlgClosed.transcendental
+    (V.not_mem_range_of_nsmul_eq_cls hv (repNat_pos v) (repNat_nsmul v)))
 
-theorem mem_pointGroup_pointV (v : V l L) : v ∈ pointGroup (pointV l v) := by
-  sorry
+theorem mem_pointGroup_pointV (v : V l L) : v ∈ pointGroup (pointV l v) :=
+  mem_pointGroup_iff.2 ⟨repNat v, repUnit v, repNat_pos v, self_mem_point _, repNat_nsmul v⟩
 
 end pointGroup
 
