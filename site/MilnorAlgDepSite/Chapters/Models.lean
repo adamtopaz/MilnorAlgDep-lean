@@ -26,7 +26,7 @@ height of an element, $`\hgt(y) = \lev(y) - \lambda_A(Q_y)`.
 tag := "ss:models"
 %%%
 
-:::defn "4.1" (title := "Models") (tag := "defn:model")
+:::defn "4.1" (title := "Models") (tag := "def:model")
 Let $`A` be a transcendence basis of $`L|l`.
 The _model_ attached to $`A` is the field
 $$`L_A = \{ y \in L : y \text{ is separable algebraic over } l(A) \},`
@@ -94,7 +94,7 @@ There is a unique level $`\lambda_A(P) \in \Lambda(P)` such that for $`y \in P \
 * *(c)* the line $`L_A\, dy \subset \Omega_A` is the same for all $`y` as in (b).
 :::
 
-:::defn "4.4" (title := "Model level, height, line") (tag := "defn:height")
+:::defn "4.4" (title := "Model level, height, line") (tag := "def:height")
 For a point $`P` we call $`\lambda_A(P)` the _model level_ of $`P`, an element $`y \in P` with
 $`\lev(y) = \lambda_A(P)` a _model generator_ of $`P`, and
 $$`\omega_A(P) = L_A\, dy \subset \Omega_A \qquad (y \text{ a model generator of } P)`

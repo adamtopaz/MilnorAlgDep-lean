@@ -44,7 +44,9 @@ elements, as explained in {cref "ss:elementwise"}[].
 Second, Lemma 3.1, which describes separability through the partial derivatives of an irreducible
 polynomial relation, is not formalized; a criterion in terms of differentials replaces it
 ({cref "ss:sepcrit"}[]).
-No multivariate polynomial occurs in the formal proofs of Chapters 3–5.
+The irreducible polynomial relations among two or three elements, which the blueprint uses
+throughout Chapters 3 and 4, do not occur in the formal proofs; polynomials in several variables
+only enter through the standard facts of {ref "sec:conv"}[Chapter 2].
 
 # The element-wise formulation
 %%%
@@ -208,7 +210,7 @@ Then its minimal polynomial $`f = \sum_i c_i X^i \in F[X]` has $`f' = 0`.
 
 In the applications $`E` is a model, the field $`L_B` of elements of $`L` separable algebraic
 over $`l(B)` for a family $`B`, with $`\Omega_B = \Omega_{L_B|l}`
-({cref "defn:model"}[]); for $`B` algebraically independent the $`dB_i` form a basis of $`\Omega_B`
+({cref "def:model"}[]); for $`B` algebraically independent the $`dB_i` form a basis of $`\Omega_B`
 by (S2).
 The proofs of this chapter use the models of one or two elements, for instance the field of
 "elements separable algebraic over $`l(x, y)`" in the blueprint's proof of {cref "lem:normalized"}[],
