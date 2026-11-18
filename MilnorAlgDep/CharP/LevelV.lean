@@ -208,6 +208,39 @@ theorem card_le_encard_of_forall_mem_closure {n : ℕ} {x : Fin n → L}
   rw [M.eRk_closure_eq]
   exact M.eRk_le_encard s
 
+theorem range_pair {α : Type*} (a b : α) : Set.range ![a, b] = {a, b} := by
+  rw [Matrix.range_cons, Matrix.range_cons, Matrix.range_empty, Set.union_empty,
+    Set.singleton_union]
+
+/-- If `a, b` are algebraically independent and `c` is not in the closure of `{a, b}`, then
+`a, b, c` are algebraically independent. -/
+theorem algebraicIndependent_triple_of_notMem_closure {a b c : L}
+    (hab : AlgebraicIndependent l ![a, b])
+    (hc : c ∉ (AlgebraicIndependent.matroid l L).closure {a, b}) :
+    AlgebraicIndependent l ![a, b, c] := by
+  set M := AlgebraicIndependent.matroid l L
+  have hI : M.Indep {a, b} := by
+    have := hab.to_subtype_range
+    rwa [range_pair] at this
+  have hcab : c ∉ ({a, b} : Set L) := fun h ↦ hc (M.subset_closure _ (Set.subset_univ _) h)
+  have hI' : M.Indep (insert c {a, b}) :=
+    (hI.insert_indep_iff_of_notMem hcab).2 ⟨Set.mem_univ c, hc⟩
+  have hca : c ≠ a := fun h ↦ hcab (h ▸ Set.mem_insert c _)
+  have hcb : c ≠ b := fun h ↦ hcab (h ▸ Set.mem_insert_of_mem _ rfl)
+  have hab' : a ≠ b := fun h ↦ by
+    have := hab.injective (a₁ := 0) (a₂ := 1) (by simpa using h)
+    exact absurd this (by decide)
+  have hinj : Function.Injective ![a, b, c] := by
+    intro i j hij
+    fin_cases i <;> fin_cases j <;> simp_all [eq_comm]
+  have hrange : Set.range ![a, b, c] = insert c {a, b} := by
+    rw [Matrix.range_cons, Matrix.range_cons, Matrix.range_cons, Matrix.range_empty,
+      Set.union_empty, Set.singleton_union, Set.singleton_union, Set.pair_comm b c,
+      Set.insert_comm]
+  refine (algebraicIndependent_subtype_range hinj).1 ?_
+  rw [hrange]
+  exact hI'
+
 end Aux
 
 section SamePointV
@@ -327,6 +360,25 @@ theorem vAlgIndep_iff_algebraicIndependent_vRep {v : ι → V l L} :
     VAlgIndep l v ↔ AlgebraicIndependent l fun i ↦ (vRep p (v i) : L) :=
   VAlgIndep.iff_of_nsmul_eq_cls (fun i ↦ (isVRep_vRep p (v i)).pos)
     (fun i ↦ (isVRep_vRep p (v i)).nsmul_eq)
+
+omit [IsRelAlgClosed l L] in
+theorem vAlgIndep_pair_iff_vRep :
+    VAlgIndep l ![v, w] ↔ AlgebraicIndependent l ![(vRep p v : L), (vRep p w : L)] := by
+  rw [vAlgIndep_iff_algebraicIndependent_vRep p]
+  have e : (fun i ↦ (vRep p (![v, w] i) : L)) = ![(vRep p v : L), (vRep p w : L)] := by
+    ext i
+    fin_cases i <;> rfl
+  rw [e]
+
+omit [IsRelAlgClosed l L] in
+theorem vAlgIndep_triple_iff_vRep {u : V l L} : VAlgIndep l ![u, v, w] ↔
+    AlgebraicIndependent l ![(vRep p u : L), (vRep p v : L), (vRep p w : L)] := by
+  rw [vAlgIndep_iff_algebraicIndependent_vRep p]
+  have e : (fun i ↦ (vRep p (![u, v, w] i) : L)) =
+      ![(vRep p u : L), (vRep p v : L), (vRep p w : L)] := by
+    ext i
+    fin_cases i <;> rfl
+  rw [e]
 
 end RepLemmas
 
@@ -508,26 +560,123 @@ theorem hgtV_pow_nsmul (hB : IsTranscendenceBasis l B) (hv : v ≠ 0) (j : ℕ) 
 
 end HgtV
 
-/-! ### Two lemmas on algebraic independence in `V` -/
+/-! ### Algebraic independence and closure in `V` -/
 
 section VAlgIndep
 
+-- TODO(move): these are Foundations lemmas (`Foundations/AlgIndep.lean`, `Foundations/Points`).
+
+/-- Representatives of an integer combination `m • v + n • w` lie in the closure (in the algebraic
+matroid) of representatives of `v` and `w`. -/
+theorem mem_closure_of_eq_zsmul_add_zsmul {u v w : V l L} {N₁ N₂ K : ℕ} {a b c : Lˣ}
+    (hN₁ : 0 < N₁) (ha : N₁ • v = cls (constUnits l L) (.ofMul a)) (hN₂ : 0 < N₂)
+    (hb : N₂ • w = cls (constUnits l L) (.ofMul b)) (hc : K • u = cls (constUnits l L) (.ofMul c))
+    (m n : ℤ) (huvw : u = m • v + n • w) :
+    (c : L) ∈ (AlgebraicIndependent.matroid l L).closure {(a : L), (b : L)} := by
+  set M := AlgebraicIndependent.matroid l L
+  set e : Lˣ := a ^ (m * N₂) * b ^ (n * N₁)
+  have key : ((N₁ * N₂ : ℕ) : ℤ) • cls (constUnits l L) (.ofMul c) =
+      (K : ℤ) • cls (constUnits l L) (.ofMul e) := by
+    rw [← hc, cls_mul, cls_zpow, cls_zpow, ← ha, ← hb, huvw]
+    simp only [← Nat.cast_smul_eq_nsmul ℚ, ← Int.cast_smul_eq_zsmul ℚ, smul_add, smul_smul]
+    push_cast
+    congr 1 <;> congr 1 <;> ring
+  have hce := V.isAlgebraic_adjoin_of_zsmul_cls_eq (Nat.mul_pos hN₁ hN₂) key
+  rw [isAlgebraic_adjoin_simple_iff_mem_closure] at hce
+  refine M.closure_subset_closure_of_subset_closure ?_ hce
+  rw [Set.singleton_subset_iff]
+  have := zpow_mul_zpow_mem_closure (l := l) a b (m * N₂) (n * N₁)
+  simpa only [e, Units.val_mul, Units.val_zpow_eq_zpow_val] using this
+
 variable [IsRelAlgClosed l L]
 
--- TODO(move): these are Foundations lemmas (`Foundations/AlgIndep.lean`).
+/-- If `w ∈ G_{Q_v}`, then representatives of `w` lie in the closure of representatives of
+`v`. -/
+theorem mem_closure_of_mem_pointGroup {v w : V l L} (hv : v ≠ 0) {N K : ℕ} {a b : Lˣ}
+    (hN : 0 < N) (ha : N • v = cls (constUnits l L) (.ofMul a)) (hK : 0 < K)
+    (hb : K • w = cls (constUnits l L) (.ofMul b)) (hw : w ∈ pointGroup (pointV l v)) :
+    (b : L) ∈ (AlgebraicIndependent.matroid l L).closure {(a : L)} := by
+  rcases (mem_pointGroup_pointV_iff hv).1 hw with rfl | hpt
+  · rw [smul_zero, eq_comm, V.cls_eq_zero_iff'] at hb
+    exact mem_closure_of_mem_range hb
+  · rw [← coe_point, ← pointV_eq_point hN ha, ← hpt, pointV_eq_point hK hb]
+    exact self_mem_point _
 
+/-- If `v, w` are non-zero and in different points, then `v + w` is non-zero and lies in neither
+of the two points (blueprint line 413). -/
+theorem pointV_add_ne {v w : V l L} (hv : v ≠ 0) (hw : w ≠ 0) (hvw : pointV l v ≠ pointV l w) :
+    v + w ≠ 0 ∧ pointV l (v + w) ≠ pointV l v ∧ pointV l (v + w) ≠ pointV l w := by
+  have hw' : w ∉ pointGroup (pointV l v) := fun h ↦ by
+    rcases (mem_pointGroup_pointV_iff hv).1 h with h | h
+    · exact hw h
+    · exact hvw h.symm
+  have hv' : v ∉ pointGroup (pointV l w) := fun h ↦ by
+    rcases (mem_pointGroup_pointV_iff hw).1 h with h | h
+    · exact hv h
+    · exact hvw h
+  refine ⟨fun h0 ↦ hw' ?_, fun he ↦ hw' ?_, fun he ↦ hv' ?_⟩
+  · rw [eq_neg_of_add_eq_zero_right h0]
+    exact neg_mem (mem_pointGroup_pointV v)
+  · have hs : v + w ≠ 0 := fun h0 ↦ hw' (by
+      rw [eq_neg_of_add_eq_zero_right h0]
+      exact neg_mem (mem_pointGroup_pointV v))
+    have := sub_mem ((mem_pointGroup_pointV_iff hv).2 (Or.inr he)) (mem_pointGroup_pointV v)
+    rwa [add_sub_cancel_left] at this
+  · have hs : v + w ≠ 0 := fun h0 ↦ hw' (by
+      rw [eq_neg_of_add_eq_zero_right h0]
+      exact neg_mem (mem_pointGroup_pointV v))
+    have := sub_mem ((mem_pointGroup_pointV_iff hw).2 (Or.inr he)) (mem_pointGroup_pointV w)
+    rwa [add_sub_cancel_right] at this
+
+omit [IsRelAlgClosed l L] in
+theorem vAlgIndep_iff_algebraicIndependent_repUnit {v : ι → V l L} :
+    VAlgIndep l v ↔ AlgebraicIndependent l fun i ↦ (repUnit (v i) : L) :=
+  VAlgIndep.iff_of_nsmul_eq_cls (fun i ↦ repNat_pos (v i)) (fun i ↦ repNat_nsmul (v i))
+
+omit [IsRelAlgClosed l L] in
 /-- A unimodular change of variables preserves algebraic independence of three elements of `V`:
 if `u, v, w` are algebraically independent, so are `u + v + w, v + w, w` (used in the proof of
 Proposition 6.1, with `ψ(s s' z), ψ(-s' z), ψ(z)`). -/
 theorem VAlgIndep.add_add₃ {u v w : V l L} (h : VAlgIndep l ![u, v, w]) :
     VAlgIndep l ![u + v + w, v + w, w] := by
-  sorry
+  rw [vAlgIndep_iff_algebraicIndependent_repUnit] at h ⊢
+  refine algebraicIndependent_of_forall_mem_closure h fun i ↦ ?_
+  set M := AlgebraicIndependent.matroid l L
+  have hr : ∀ j, (repUnit (![u + v + w, v + w, w] j) : L) ∈
+      M.closure (Set.range fun j ↦ (repUnit (![u + v + w, v + w, w] j) : L)) :=
+    fun j ↦ M.subset_closure _ (Set.subset_univ _) ⟨j, rfl⟩
+  have hsub : ∀ j k : Fin 3, ({(repUnit (![u + v + w, v + w, w] j) : L),
+      (repUnit (![u + v + w, v + w, w] k) : L)} : Set L) ⊆
+      M.closure (Set.range fun j ↦ (repUnit (![u + v + w, v + w, w] j) : L)) := by
+    intro j k
+    rw [Set.insert_subset_iff, Set.singleton_subset_iff]
+    exact ⟨hr j, hr k⟩
+  fin_cases i
+  · refine M.closure_subset_closure_of_subset_closure (hsub 0 1) ?_
+    exact mem_closure_of_eq_zsmul_add_zsmul (repNat_pos _) (repNat_nsmul _) (repNat_pos _)
+      (repNat_nsmul _) (repNat_nsmul u) 1 (-1) (by simp; abel)
+  · refine M.closure_subset_closure_of_subset_closure (hsub 1 2) ?_
+    exact mem_closure_of_eq_zsmul_add_zsmul (repNat_pos _) (repNat_nsmul _) (repNat_pos _)
+      (repNat_nsmul _) (repNat_nsmul v) 1 (-1) (by simp)
+  · exact hr 2
 
 /-- If `v, w` are algebraically independent and `v'` lies in `G_{Q_v}`, then `v, w + v'` are
 algebraically independent (used in the proof of Proposition 6.1). -/
 theorem VAlgIndep.add_of_mem_pointGroup {v w v' : V l L} (h : VAlgIndep l ![v, w])
     (hv' : v' ∈ pointGroup (pointV l v)) : VAlgIndep l ![v, w + v'] := by
-  sorry
+  have hv : v ≠ 0 := h.ne_zero 0
+  have hw : w ≠ 0 := h.ne_zero 1
+  have hpt := (vAlgIndep_pair_iff hv hw).1 h
+  have hw' : w ∉ pointGroup (pointV l v) := fun hm ↦ by
+    rcases (mem_pointGroup_pointV_iff hv).1 hm with h0 | h0
+    · exact hw h0
+    · exact hpt h0.symm
+  have hsum : w + v' ∉ pointGroup (pointV l v) := fun hm ↦ hw' (by
+    have := sub_mem hm hv'
+    rwa [add_sub_cancel_right] at this)
+  have hs0 : w + v' ≠ 0 := fun h0 ↦ hsum (by rw [h0]; exact zero_mem _)
+  rw [vAlgIndep_pair_iff hv hs0]
+  exact fun he ↦ hsum ((mem_pointGroup_pointV_iff hv).2 (Or.inr he.symm))
 
 end VAlgIndep
 
@@ -707,13 +856,86 @@ theorem pointV_ψK_one_sub_neg_div {x y : K} (hxy : x / y ∉ H.k) :
 
 variable (p : ℕ) [Fact p.Prime] [CharP L p] [PerfectField L]
 
+/-- Consequence of `eq:sum`, in general: `Q_{x+y}` lies on the line `⟨Q_x, Q_y⟩`, i.e. the
+representative of `ψ(x + y)` is algebraic over `l(ρ x, ρ y)`. (If `x / y ∈ k`, then
+`ψ(x + y) = ψ(y)`.) This is how `eq:sum` is used in the proof of Lemma 6.3. -/
+theorem isAlgebraic_ρ_add {x y : K} (hx : x ≠ 0) (hy : y ≠ 0) (hxy : x + y ≠ 0) :
+    IsAlgebraic l⟮(H.ρ p x : L), (H.ρ p y : L)⟯ (H.ρ p (x + y) : L) := by
+  rw [isAlgebraic_adjoin_iff_mem_closure]
+  set M := AlgebraicIndependent.matroid l L
+  have hrx := H.isVRep_ρ p x
+  have hry := H.isVRep_ρ p y
+  have hy_mem : (H.ρ p y : L) ∈ M.closure {(H.ρ p x : L), (H.ρ p y : L)} :=
+    M.subset_closure _ (Set.subset_univ _) (Set.mem_insert_of_mem _ rfl)
+  by_cases hk : x / y ∈ H.k
+  · have h1 : 1 + x / y ∈ H.k := add_mem (one_mem _) hk
+    have e : x + y = (1 + x / y) * y := by
+      rw [add_mul, one_mul, div_mul_cancel₀ x hy, add_comm]
+    have h10 : 1 + x / y ≠ 0 := by
+      rintro h0
+      rw [h0, zero_mul] at e
+      exact hxy e
+    have hψ : H.ψK (x + y) = H.ψK y := by rw [e, H.ψK_mul_of_mem h1 h10]
+    rw [show H.ρ p (x + y) = H.ρ p y by rw [ρ, ρ, hψ]]
+    exact hy_mem
+  · obtain ⟨hz0, hzpt⟩ := H.pointV_ψK_one_sub_neg_div hk
+    have hq0 : H.ψK (x / y) ≠ 0 := H.ψK_ne_zero hk
+    have hrq := isVRep_vRep p (H.ψK (x / y))
+    have hrz := isVRep_vRep p (H.ψK (1 - -x / y))
+    have h1 : (vRep p (H.ψK (x / y)) : L) ∈ M.closure {(H.ρ p x : L), (H.ρ p y : L)} :=
+      mem_closure_of_eq_zsmul_add_zsmul hrx.pos hrx.nsmul_eq hry.pos hry.nsmul_eq
+        hrq.nsmul_eq 1 (-1) (by rw [H.ψK_div hx hy, one_smul, neg_one_smul, sub_eq_add_neg])
+    have h2 : (vRep p (H.ψK (1 - -x / y)) : L) ∈ M.closure {(vRep p (H.ψK (x / y)) : L)} :=
+      mem_closure_of_mem_pointGroup hq0 hrq.pos hrq.nsmul_eq hrz.pos hrz.nsmul_eq
+        ((mem_pointGroup_pointV_iff hq0).2 (Or.inr hzpt))
+    have h2' : (vRep p (H.ψK (1 - -x / y)) : L) ∈ M.closure {(H.ρ p x : L), (H.ρ p y : L)} :=
+      M.closure_subset_closure_of_subset_closure (Set.singleton_subset_iff.2 h1) h2
+    have h3 : (H.ρ p (x + y) : L) ∈
+        M.closure {(H.ρ p y : L), (vRep p (H.ψK (1 - -x / y)) : L)} :=
+      mem_closure_of_eq_zsmul_add_zsmul hry.pos hry.nsmul_eq hrz.pos hrz.nsmul_eq
+        (H.isVRep_ρ p (x + y)).nsmul_eq 1 1 (by rw [H.ψK_add hy hxy, one_smul, one_smul])
+    refine M.closure_subset_closure_of_subset_closure ?_ h3
+    rw [Set.insert_subset_iff, Set.singleton_subset_iff]
+    exact ⟨hy_mem, h2'⟩
+
 /-- Consequence of `eq:sum` (blueprint lines 412-413): if `x, y` are `ψ`-independent, then
 `Q_x, Q_y, Q_{x+y}` are three distinct collinear points; in terms of the chosen representatives,
 `(ρ x, ρ y, ρ (x + y))` is a collinear triple. In particular `ψ(x + y) ≠ 0`
 (`add_notMem_of_vAlgIndep`). -/
 theorem isCollinearTriple_add {x y : K} (h : VAlgIndep l ![H.ψK x, H.ψK y]) :
     IsCollinearTriple l (H.ρ p x : L) (H.ρ p y : L) (H.ρ p (x + y) : L) := by
-  sorry
+  have hx0 : H.ψK x ≠ 0 := h.ne_zero 0
+  have hy0 : H.ψK y ≠ 0 := h.ne_zero 1
+  have hx : x ≠ 0 := fun h0 ↦ hx0 (by rw [h0, ψK_zero])
+  have hy : y ≠ 0 := fun h0 ↦ hy0 (by rw [h0, ψK_zero])
+  have hpt : pointV l (H.ψK x) ≠ pointV l (H.ψK y) := (vAlgIndep_pair_iff hx0 hy0).1 h
+  -- `ψ(x/y) = ψ(x) - ψ(y)` lies in neither `Q_x` nor `Q_y`, and similarly for `ψ(y/x)`
+  obtain ⟨hd0, -, hdy⟩ := pointV_add_ne hx0 (neg_ne_zero.2 hy0) (by rwa [pointV_neg])
+  rw [pointV_neg] at hdy
+  obtain ⟨hd0', -, hdx'⟩ := pointV_add_ne hy0 (neg_ne_zero.2 hx0)
+    (by rw [pointV_neg]; exact hpt.symm)
+  rw [pointV_neg] at hdx'
+  have hxyk : x / y ∉ H.k := fun hk ↦ hd0 (by
+    rw [← sub_eq_add_neg, ← H.ψK_div hx hy]
+    exact H.ψK_eq_zero_iff.2 hk)
+  have hyxk : y / x ∉ H.k := fun hk ↦ hd0' (by
+    rw [← sub_eq_add_neg, ← H.ψK_div hy hx]
+    exact H.ψK_eq_zero_iff.2 hk)
+  have hxy : x + y ≠ 0 := fun h0 ↦ hpt (by rw [eq_neg_of_add_eq_zero_right h0, ψK_neg])
+  have hyx : y + x ≠ 0 := by rwa [add_comm]
+  -- `ψ(x + y) = ψ(y) + z` with `z ∈ G_{Q_{x/y}}`, hence `Q_{x+y} ≠ Q_y`
+  obtain ⟨hz0, hzpt⟩ := H.pointV_ψK_one_sub_neg_div hxyk
+  obtain ⟨hs0, hs1, -⟩ := pointV_add_ne hy0 hz0
+    (by rw [hzpt, H.ψK_div hx hy, sub_eq_add_neg]; exact hdy.symm)
+  rw [← H.ψK_add hy hxy] at hs0 hs1
+  -- symmetrically `Q_{x+y} ≠ Q_x`
+  obtain ⟨hz0', hzpt'⟩ := H.pointV_ψK_one_sub_neg_div hyxk
+  obtain ⟨-, hs1', -⟩ := pointV_add_ne hx0 hz0'
+    (by rw [hzpt', H.ψK_div hy hx, sub_eq_add_neg]; exact hdx'.symm)
+  rw [← H.ψK_add hx hyx, add_comm y x] at hs1'
+  refine ⟨(vAlgIndep_pair_iff_vRep p).1 h, ?_, ?_, H.isAlgebraic_ρ_add p hx hy hxy⟩
+  · exact (vAlgIndep_pair_iff_vRep p).1 ((vAlgIndep_pair_iff hx0 hs0).2 hs1'.symm)
+  · exact (vAlgIndep_pair_iff_vRep p).1 ((vAlgIndep_pair_iff hy0 hs0).2 hs1.symm)
 
 include p in
 theorem add_notMem_of_vAlgIndep {x y : K} (h : VAlgIndep l ![H.ψK x, H.ψK y]) :
@@ -724,41 +946,100 @@ theorem add_notMem_of_vAlgIndep {x y : K} (h : VAlgIndep l ![H.ψK x, H.ψK y]) 
   obtain ⟨c, hc⟩ := (H.isVRep_ρ p (x + y)).mem_range_of_eq_zero p h0
   exact h3 (hc ▸ isAlgebraic_algebraMap c)
 
-/-- Consequence of `eq:sum`, in general: `Q_{x+y}` lies on the line `⟨Q_x, Q_y⟩`, i.e. the
-representative of `ψ(x + y)` is algebraic over `l(ρ x, ρ y)`. (If `x / y ∈ k`, then
-`ψ(x + y) = ψ(y)`.) This is how `eq:sum` is used in the proof of Lemma 6.3. -/
-theorem isAlgebraic_ρ_add {x y : K} (hx : x ≠ 0) (hy : y ≠ 0) (hxy : x + y ≠ 0) :
-    IsAlgebraic l⟮(H.ρ p x : L), (H.ρ p y : L)⟯ (H.ρ p (x + y) : L) := by
-  sorry
-
-end Sum
-
 /-! ### `ψ`-independence -/
 
-section Indep
-
-variable [IsRelAlgClosed l L]
-
+include p in
 /-- If `u, w, z` are `ψ`-independent, then so are `u + w` and `z` (as `Q_{u+w}` lies on
 `⟨Q_u, Q_w⟩`, which does not contain `Q_z`). Used in the proof of Lemma 6.3. -/
 theorem vAlgIndep_add_of_vAlgIndep₃ {u w z : K} (h : VAlgIndep l ![H.ψK u, H.ψK w, H.ψK z]) :
     VAlgIndep l ![H.ψK (u + w), H.ψK z] := by
-  sorry
+  set M := AlgebraicIndependent.matroid l L
+  have huw : VAlgIndep l ![H.ψK u, H.ψK w] := by
+    have := h.comp ![0, 1] (by decide)
+    convert this using 1
+    ext i
+    fin_cases i <;> rfl
+  have hu : u ≠ 0 := fun h0 ↦ huw.ne_zero 0 (by simp [h0])
+  have hw : w ≠ 0 := fun h0 ↦ huw.ne_zero 1 (by simp [h0])
+  have huw0 : u + w ≠ 0 := H.ne_zero_of_notMem (H.add_notMem_of_vAlgIndep p huw)
+  rw [vAlgIndep_triple_iff_vRep p] at h
+  have h' : AlgebraicIndependent l ![(H.ρ p u : L), (H.ρ p (u + w) : L), (H.ρ p z : L)] := by
+    refine algebraicIndependent_of_forall_mem_closure h fun i ↦ ?_
+    have hr : ∀ j, ![(H.ρ p u : L), (H.ρ p (u + w) : L), (H.ρ p z : L)] j ∈
+        M.closure (Set.range ![(H.ρ p u : L), (H.ρ p (u + w) : L), (H.ρ p z : L)]) :=
+      fun j ↦ M.subset_closure _ (Set.subset_univ _) ⟨j, rfl⟩
+    fin_cases i
+    · exact hr 0
+    · have hw' := H.isAlgebraic_ρ_add p huw0 (neg_ne_zero.2 hu) (by rwa [add_neg_cancel_comm])
+      rw [isAlgebraic_adjoin_iff_mem_closure, ρ_neg, add_neg_cancel_comm] at hw'
+      refine M.closure_subset_closure_of_subset_closure ?_ hw'
+      rw [Set.insert_subset_iff, Set.singleton_subset_iff]
+      exact ⟨hr 1, hr 0⟩
+    · exact hr 2
+  rw [vAlgIndep_pair_iff_vRep p]
+  have := h'.comp ![1, 2] (by decide)
+  convert this using 1
+  ext i
+  fin_cases i <;> rfl
 
+include p in
+omit [IsRelAlgClosed l L] in
 /-- Blueprint, proof of Proposition 6.1 (line 470): for `ψ`-independent `s, s'`, one of the
 elements `x i` of (A3) is `ψ`-independent of both: `s, s', x i` are `ψ`-independent. -/
 theorem exists_vAlgIndep₃ {s s' : K} (h : VAlgIndep l ![H.ψK s, H.ψK s']) :
     ∃ i, VAlgIndep l ![H.ψK s, H.ψK s', H.ψK (H.x i)] := by
-  sorry
+  set M := AlgebraicIndependent.matroid l L
+  have hab := (vAlgIndep_pair_iff_vRep p).1 h
+  have hx3 := (vAlgIndep_iff_algebraicIndependent_vRep p).1 H.vAlgIndep_x
+  by_contra hcon
+  have hmem : ∀ i, (vRep p (H.ψK (H.x i)) : L) ∈
+      M.closure {(vRep p (H.ψK s) : L), (vRep p (H.ψK s') : L)} := by
+    intro i
+    by_contra hni
+    exact hcon ⟨i, (vAlgIndep_triple_iff_vRep p).2
+      (algebraicIndependent_triple_of_notMem_closure hab hni)⟩
+  have h3 := card_le_encard_of_forall_mem_closure hx3 hmem
+  have h2 : ({(vRep p (H.ψK s) : L), (vRep p (H.ψK s') : L)} : Set L).encard ≤ 2 := by
+    refine (Set.encard_insert_le _ _).trans ?_
+    rw [Set.encard_singleton]
+    rfl
+  have := h3.trans h2
+  norm_num at this
 
+omit [PerfectField L] in
 /-- For any `s, t ∉ k` there is `r` (one of the `x i`) which is `ψ`-independent of `s` and of
 `t` ("two elements with the same point are compared with a third one", proof of
 Proposition 6.1). -/
 theorem exists_vAlgIndep_pair {s t : K} (hs : s ∉ H.k) (ht : t ∉ H.k) :
     ∃ r : K, VAlgIndep l ![H.ψK s, H.ψK r] ∧ VAlgIndep l ![H.ψK t, H.ψK r] := by
-  sorry
+  have hx0 : ∀ i, H.ψK (H.x i) ≠ 0 := fun i ↦ H.ψK_ne_zero (H.x_notMem i)
+  have hdist : ∀ i j : Fin 3, i ≠ j →
+      pointV l (H.ψK (H.x i)) ≠ pointV l (H.ψK (H.x j)) := by
+    intro i j hij
+    have h2 := H.vAlgIndep_x.comp ![i, j] (fun a b hab ↦ by
+      fin_cases a <;> fin_cases b <;> simp_all [eq_comm])
+    have e : (fun k ↦ H.ψK (H.x k)) ∘ ![i, j] = ![H.ψK (H.x i), H.ψK (H.x j)] := by
+      ext k
+      fin_cases k <;> rfl
+    rw [e, vAlgIndep_pair_iff (hx0 i) (hx0 j)] at h2
+    exact h2
+  have key : ∃ i, pointV l (H.ψK s) ≠ pointV l (H.ψK (H.x i)) ∧
+      pointV l (H.ψK t) ≠ pointV l (H.ψK (H.x i)) := by
+    by_contra hcon
+    have hc : ∀ i, pointV l (H.ψK s) = pointV l (H.ψK (H.x i)) ∨
+        pointV l (H.ψK t) = pointV l (H.ψK (H.x i)) := fun i ↦ by
+      by_contra hi
+      exact hcon ⟨i, not_or.1 hi⟩
+    rcases hc 0 with h0 | h0 <;> rcases hc 1 with h1 | h1 <;> rcases hc 2 with h2 | h2 <;>
+      first
+      | exact hdist 0 1 (by decide) (h0.symm.trans h1)
+      | exact hdist 0 2 (by decide) (h0.symm.trans h2)
+      | exact hdist 1 2 (by decide) (h1.symm.trans h2)
+  obtain ⟨i, hi₁, hi₂⟩ := key
+  exact ⟨H.x i, (vAlgIndep_pair_iff (H.ψK_ne_zero hs) (hx0 i)).2 hi₁,
+    (vAlgIndep_pair_iff (H.ψK_ne_zero ht) (hx0 i)).2 hi₂⟩
 
-end Indep
+end Sum
 
 end CharPHyp
 
