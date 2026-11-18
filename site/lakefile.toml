@@ -1,0 +1,31 @@
+# Verso companion text for MilnorAlgDep. See `README.md` in this directory.
+#
+# This is a separate Lake package so that `lake build` at the repository root never builds
+# Verso. It requires the root package by path and shares the root's dependency checkout
+# (`packagesDir`), so Mathlib and its build cache are never downloaded twice. The revisions of
+# the shared packages in `lake-manifest.json` must equal those in `../lake-manifest.json`;
+# `check-deps.py` verifies this and `build.sh` runs it before any `lake` command.
+name = "MilnorAlgDepSite"
+defaultTargets = ["MilnorAlgDepSite"]
+packagesDir = "../.lake/packages"
+
+[leanOptions]
+pp.unicode.fun = true
+relaxedAutoImplicit = false
+autoImplicit = false
+maxSynthPendingDepth = 3
+
+# Keep this requirement first: on `lake update`, packages required by both (Mathlib's
+# dependencies `plausible` and `Cli` are also Verso's) take their revisions from the manifest of
+# the first requirement that has them, i.e. from `../lake-manifest.json`.
+[[require]]
+name = "MilnorAlgDep"
+path = ".."
+
+[[require]]
+name = "verso"
+git = "https://github.com/leanprover/verso"
+rev = "v4.36.0"
+
+[[lean_lib]]
+name = "MilnorAlgDepSite"
