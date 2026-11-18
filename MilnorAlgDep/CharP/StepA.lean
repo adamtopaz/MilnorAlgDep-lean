@@ -97,6 +97,135 @@ theorem levelTriple_swap_fst (p : ℕ) [Fact p.Prime] [CharP L p] [PerfectField 
     levDiff_self p h.transcendental₂]
   ring
 
+-- TODO(move): `Mathlib`-style linear algebra.
+/-- If `e₁, e₂` are linearly independent, so are `α e₁ + β e₂` and `γ e₁ + δ e₂` when
+`α δ - β γ ≠ 0`. -/
+theorem linearIndependent_pair_smul_add {R M : Type*} [Field R] [AddCommGroup M] [Module R M]
+    {e₁ e₂ : M} (h : LinearIndependent R ![e₁, e₂]) {α β γ δ : R}
+    (hdet : α * δ - β * γ ≠ 0) : LinearIndependent R ![α • e₁ + β • e₂, γ • e₁ + δ • e₂] := by
+  rw [LinearIndependent.pair_iff]
+  intro s t hst
+  obtain ⟨h₁, h₂⟩ := LinearIndependent.pair_iff.1 h (s * α + t * γ) (s * β + t * δ) (by
+    rw [← hst]
+    simp only [add_smul, mul_smul, smul_add]
+    abel)
+  have hs : s * (α * δ - β * γ) = 0 := by linear_combination δ * h₁ - γ * h₂
+  have ht : t * (α * δ - β * γ) = 0 := by linear_combination α * h₂ - β * h₁
+  exact ⟨(mul_eq_zero.1 hs).resolve_right hdet, (mul_eq_zero.1 ht).resolve_right hdet⟩
+
+-- TODO(move): `CharP/Model.lean`.
+theorem modelD_pow_pow_of_pos (p : ℕ) [CharP L p] {ι : Type*} {B : ι → L} {y : L}
+    (hy : y ∈ model l B) {m : ℕ} (hm : 0 < m) : modelD l B (y ^ p ^ m) = 0 := by
+  obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_lt hm
+  rw [show y ^ p ^ (0 + k + 1) = (y ^ p ^ k) ^ p by rw [zero_add, pow_succ, pow_mul]]
+  exact modelD_pow_char p (pow_mem hy _)
+
+-- TODO(move): `CharP/Levels.lean`.
+/-- If `s ≈ t`, `s ∈ L_B` and `d s ≠ 0`, then `d t = c • d s` with `c ≠ 0`. -/
+theorem SepEquiv.exists_modelD_eq_smul {ι : Type*} {B : ι → L} {s t : L} (h : SepEquiv l s t)
+    (hs : s ∈ model l B) (hds : modelD l B s ≠ 0) :
+    ∃ c : model l B, c ≠ 0 ∧ modelD l B t = c • modelD l B s := by
+  have hspan := h.span_modelD_eq hs
+  have hmem : modelD l B t ∈ (model l B) ∙ modelD l B s := by
+    rw [hspan]
+    exact Submodule.mem_span_singleton_self _
+  obtain ⟨c, hc⟩ := Submodule.mem_span_singleton.1 hmem
+  refine ⟨c, fun hc0 ↦ hds ?_, hc.symm⟩
+  rw [hc0, zero_smul] at hc
+  have : (model l B) ∙ modelD l B s = ⊥ := by
+    rw [hspan, ← hc, Submodule.span_singleton_eq_bot.2 rfl]
+  exact Submodule.span_singleton_eq_bot.1 this
+
+/-- Normality criterion in coordinates (blueprint, proof of Lemma 6.2): in the model `L_B` of an
+algebraically independent pair `B = (b₁, b₂)`, if the differentials of `X, Y, Z ∈ L_B` have
+pairwise non-proportional coordinates and `Z` is algebraic over `l(X, Y)`, then `(X, Y, Z)` is
+normalized. -/
+theorem isNormalized_of_coords [PerfectField l] {b₁ b₂ X Y Z : L}
+    (hB : AlgebraicIndependent l ![b₁, b₂]) (hX : X ∈ model l ![b₁, b₂])
+    (hY : Y ∈ model l ![b₁, b₂]) (hZ : Z ∈ model l ![b₁, b₂])
+    {α₁ α₂ β₁ β₂ γ₁ γ₂ : model l ![b₁, b₂]}
+    (hdX : modelD l ![b₁, b₂] X = α₁ • modelD l ![b₁, b₂] b₁ + α₂ • modelD l ![b₁, b₂] b₂)
+    (hdY : modelD l ![b₁, b₂] Y = β₁ • modelD l ![b₁, b₂] b₁ + β₂ • modelD l ![b₁, b₂] b₂)
+    (hdZ : modelD l ![b₁, b₂] Z = γ₁ • modelD l ![b₁, b₂] b₁ + γ₂ • modelD l ![b₁, b₂] b₂)
+    (hXY : α₁ * β₂ - α₂ * β₁ ≠ 0) (hXZ : α₁ * γ₂ - α₂ * γ₁ ≠ 0) (hYZ : β₁ * γ₂ - β₂ * γ₁ ≠ 0)
+    (halg : IsAlgebraic l⟮X, Y⟯ Z) : IsNormalized l X Y Z := by
+  have hli : LinearIndependent (model l ![b₁, b₂])
+      ![modelD l ![b₁, b₂] b₁, modelD l ![b₁, b₂] b₂] := by
+    have := linearIndependent_modelD hB
+    convert this using 1
+    ext i
+    fin_cases i <;> rfl
+  refine isNormalized_of_linearIndependent_modelD hX hY hZ ?_ ?_ ?_ halg
+  · rw [hdX, hdY]
+    exact linearIndependent_pair_smul_add hli hXY
+  · rw [hdX, hdZ]
+    exact linearIndependent_pair_smul_add hli hXZ
+  · rw [hdY, hdZ]
+    exact linearIndependent_pair_smul_add hli hYZ
+
+/-- `d b₁ ≠ 0` in the model of an algebraically independent pair `(b₁, b₂)`. -/
+theorem modelD_ne_zero_left {b₁ b₂ : L} (hB : AlgebraicIndependent l ![b₁, b₂]) :
+    modelD l ![b₁, b₂] b₁ ≠ 0 :=
+  (linearIndependent_modelD hB).ne_zero 0
+
+theorem modelD_ne_zero_right {b₁ b₂ : L} (hB : AlgebraicIndependent l ![b₁, b₂]) :
+    modelD l ![b₁, b₂] b₂ ≠ 0 :=
+  (linearIndependent_modelD hB).ne_zero 1
+
+/-- Frobenius twists of an algebraically independent pair are algebraically independent. -/
+theorem algebraicIndependent_frobZ_pair (p : ℕ) [Fact p.Prime] [CharP L p] [PerfectField L]
+    [IsRelAlgClosed l L] {a y : L} (h : AlgebraicIndependent l ![a, y]) (i j : ℤ) :
+    AlgebraicIndependent l ![frobZ L p i a, frobZ L p j y] := by
+  have ha : Transcendental l a := h.transcendental 0
+  have hy : Transcendental l y := h.transcendental 1
+  by_contra hcon
+  have hsp : SamePoint l (frobZ L p i a) (frobZ L p j y) :=
+    samePoint_iff_not_algebraicIndependent.2 ⟨(transcendental_frobZ_iff p i).2 ha,
+      (transcendental_frobZ_iff p j).2 hy, hcon⟩
+  rw [samePoint_frobZ_left_iff, samePoint_frobZ_right_iff] at hsp
+  exact (samePoint_iff_not_algebraicIndependent.1 hsp).2.2 h
+
+section RepAux
+
+variable (p : ℕ) [Fact p.Prime] [CharP L p] [PerfectField L]
+
+-- TODO(move): `CharP/LevelV.lean`.
+omit [Fact p.Prime] [CharP L p] [PerfectField L] in
+theorem IsVRep.pow {v : V l L} {N : ℕ} {a : Lˣ} (h : IsVRep p v N a) {M K : ℕ} (hM : 0 < M)
+    (hMc : M.Coprime p) (hK : K = M * N) : IsVRep p v K (a ^ M) := by
+  subst hK
+  exact ⟨Nat.mul_pos hM h.pos, Nat.coprime_mul_iff_left.2 ⟨hMc, h.coprime⟩,
+    by rw [mul_smul, h.nsmul_eq, cls_pow]⟩
+
+/-- Three elements of `V` have representatives with a common denominator. -/
+theorem exists_isVRep₃ (v₁ v₂ v₃ : V l L) : ∃ (N : ℕ) (a₁ a₂ a₃ : Lˣ),
+    IsVRep p v₁ N a₁ ∧ IsVRep p v₂ N a₂ ∧ IsVRep p v₃ N a₃ := by
+  have h₁ := isVRep_vRep p v₁
+  have h₂ := isVRep_vRep p v₂
+  have h₃ := isVRep_vRep p v₃
+  refine ⟨vRepNat p v₁ * vRepNat p v₂ * vRepNat p v₃, _, _, _,
+    h₁.pow p (Nat.mul_pos h₂.pos h₃.pos) (Nat.coprime_mul_iff_left.2 ⟨h₂.coprime, h₃.coprime⟩)
+      (by ring),
+    h₂.pow p (Nat.mul_pos h₁.pos h₃.pos) (Nat.coprime_mul_iff_left.2 ⟨h₁.coprime, h₃.coprime⟩)
+      (by ring),
+    h₃.pow p (Nat.mul_pos h₁.pos h₂.pos) (Nat.coprime_mul_iff_left.2 ⟨h₁.coprime, h₂.coprime⟩)
+      (by ring)⟩
+
+variable [IsRelAlgClosed l L]
+
+omit [Fact p.Prime] [CharP L p] [PerfectField L] [IsRelAlgClosed l L] in
+theorem IsVRep.algebraicIndependent_pair {v w : V l L} {N M : ℕ} {a b : Lˣ}
+    (hv : IsVRep p v N a) (hw : IsVRep p w M b) (h : VAlgIndep l ![v, w]) :
+    AlgebraicIndependent l ![(a : L), (b : L)] := by
+  have := (VAlgIndep.iff_of_nsmul_eq_cls (N := ![N, M]) (a := ![a, b])
+    (fun i ↦ by fin_cases i <;> simp [hv.pos, hw.pos])
+    (fun i ↦ by fin_cases i <;> simp [hv.nsmul_eq, hw.nsmul_eq])).1 h
+  convert this using 1
+  ext i
+  fin_cases i <;> rfl
+
+end RepAux
+
 end Aux
 
 /-- Blueprint equation `eq:nohom`: if `K` is perfect of positive characteristic, every
@@ -160,41 +289,33 @@ theorem samePointV_one_sub {s : K} (hs : s ∉ H.k) :
 theorem n_one_sub {s : K} (hs : s ∉ H.k) : H.n p (1 - s) = -H.n p s := by
   rw [n, n, sub_sub_cancel, levDiffV_swap p (H.samePointV_one_sub hs)]
 
+omit [PerfectField L] in
+theorem samePointV_one_sub_sub {s : K} (hs : s ∉ H.k) :
+    SamePointV l (H.ψK (1 - s) - H.ψK s) (H.ψK s) := by
+  have hs0 := H.ne_zero_of_notMem hs
+  have h1s := H.ne_zero_of_notMem (H.one_sub_notMem hs)
+  have e₁ : H.ψK (1 - s⁻¹) = H.ψK (1 - s) - H.ψK s := by
+    rw [show 1 - s⁻¹ = -((1 - s) / s) by field_simp; ring, ψK_neg, H.ψK_div h1s hs0]
+  rw [← e₁]
+  have hi := H.samePointV_one_sub (H.inv_notMem hs)
+  rw [ψK_inv] at hi
+  exact ⟨hi.1, H.ψK_ne_zero hs, hi.2.2.trans (pointV_neg _)⟩
+
 /-- Blueprint Section 6.2: `n(1/s) = lev(ψ(1 - s) - ψ(s)) - lev ψ(s)`. -/
 theorem n_inv {s : K} (hs : s ∉ H.k) :
     H.n p s⁻¹ = levDiffV p (H.ψK (1 - s) - H.ψK s) (H.ψK s) := by
-  sorry
+  have hs0 := H.ne_zero_of_notMem hs
+  have h1s := H.ne_zero_of_notMem (H.one_sub_notMem hs)
+  have e₁ : H.ψK (1 - s⁻¹) = H.ψK (1 - s) - H.ψK s := by
+    rw [show 1 - s⁻¹ = -((1 - s) / s) by field_simp; ring, ψK_neg, H.ψK_div h1s hs0]
+  rw [n, e₁, ψK_inv, ← neg_one_smul ℚ (H.ψK s),
+    levDiffV_smul_right p (by norm_num) (H.samePointV_one_sub_sub hs), padicValRat.neg,
+    padicValRat.one, sub_zero]
 
 /-- `c(w, u) = -c(u, w)` (blueprint line 438). -/
 theorem c_swap {u w : K} (h : VAlgIndep l ![H.ψK u, H.ψK w]) : H.c p w u = -H.c p u w := by
   rw [c, c, add_comm w u]
   exact levelTriple_swap_fst p (H.isCollinearTriple_add p h)
-
-/-! ### Lemma 6.2 (gauge) -/
-
-/-- **Blueprint Lemma 6.2** (gauge), first case: if `n(s) > 0` for `s = -u/w`, then
-`c(u, w) = -n(s)`. -/
-theorem c_eq_neg_n_of_pos {u w : K} (h : VAlgIndep l ![H.ψK u, H.ψK w])
-    (hn : 0 < H.n p (-u / w)) : H.c p u w = -H.n p (-u / w) := by
-  sorry
-
-/-- **Blueprint Lemma 6.2** (gauge), second case: if `n(s) < 0` for `s = -u/w`, then
-`c(u, w) = 0`. -/
-theorem c_eq_zero_of_n_neg {u w : K} (h : VAlgIndep l ![H.ψK u, H.ψK w])
-    (hn : H.n p (-u / w) < 0) : H.c p u w = 0 := by
-  sorry
-
-/-- **Blueprint Lemma 6.2** (gauge), exhaustiveness: if `n(s) = 0` then `n(1/s) ≥ 0` (because
-`e / a` is separable over `l(a)`, blueprint line 459). -/
-theorem n_inv_nonneg_of_n_eq_zero {s : K} (hs : s ∉ H.k) (hn : H.n p s = 0) :
-    0 ≤ H.n p s⁻¹ := by
-  sorry
-
-/-- **Blueprint Lemma 6.2** (gauge), third case: if `n(s) = n(1/s) = 0` for `s = -u/w`, then
-`c(u, w) = 0`. -/
-theorem c_eq_zero_of_n_eq_zero {u w : K} (h : VAlgIndep l ![H.ψK u, H.ψK w])
-    (hn : H.n p (-u / w) = 0) (hn' : H.n p (-u / w)⁻¹ = 0) : H.c p u w = 0 := by
-  sorry
 
 omit [PerfectField L] [IsRelAlgClosed l L] in
 /-- For `ψ`-independent `u, w`, `s = -u/w ∉ k` (otherwise `ψ(u) = ψ(w)`). -/
@@ -207,6 +328,253 @@ theorem notMem_neg_div {u w : K} (h : VAlgIndep l ![H.ψK u, H.ψK w]) : -u / w 
     have : u = -((-u / w) * w) := by field_simp
     rw [this, ψK_neg, H.ψK_mul_of_mem hk hs0]
   exact absurd (h.injective (a₁ := 0) (a₂ := 1) (by simpa using e)) (by decide)
+
+/-! ### Lemma 6.2 (gauge) -/
+
+/-- The common setting of the proof of Lemma 6.2 (blueprint lines 443-445): for `ψ`-independent
+`u, w` and `s = -u/w`, representatives with a common `N`: `N ψ(s) = [a]`, `N ψ(w) = [y]`,
+`N ψ(1 - s) = [e]`, so that `N ψ(u) = [a y]` and `N ψ(u + w) = [y e]`; `a, y` are algebraically
+independent, `e` lies in the point of `a`, `n(s) = lev(e) - lev(a)`, and `c(u, w)` can be computed
+from any normalized triple in the points `Q_u, Q_w, Q_{u+w}`. -/
+theorem gauge_setup {u w : K} (h : VAlgIndep l ![H.ψK u, H.ψK w]) :
+    ∃ (N : ℕ) (a y e : Lˣ), IsVRep p (H.ψK (-u / w)) N a ∧ IsVRep p (H.ψK (1 - -u / w)) N e ∧
+      AlgebraicIndependent l ![(a : L), (y : L)] ∧ SamePoint l (e : L) (a : L) ∧
+      Transcendental l ((a * y : Lˣ) : L) ∧ Transcendental l ((y * e : Lˣ) : L) ∧
+      H.n p (-u / w) = levDiff l p (e : L) (a : L) ∧
+      (∀ X Y Z : L, SamePoint l X ((a * y : Lˣ) : L) → SamePoint l Y (y : L) →
+        SamePoint l Z ((y * e : Lˣ) : L) → IsAlgebraic l⟮X, Y⟯ Z) ∧
+      (∀ X Y Z : L, IsNormalized l X Y Z → SamePoint l X ((a * y : Lˣ) : L) →
+        SamePoint l Y (y : L) → SamePoint l Z ((y * e : Lˣ) : L) →
+        H.c p u w = levDiff l p Y (y : L) - levDiff l p X ((a * y : Lˣ) : L)) := by
+  have hs : -u / w ∉ H.k := H.notMem_neg_div h
+  have hu0 : H.ψK u ≠ 0 := h.ne_zero 0
+  have hw0 : H.ψK w ≠ 0 := h.ne_zero 1
+  have hu : u ≠ 0 := fun h0 ↦ hu0 (by rw [h0, ψK_zero])
+  have hw : w ≠ 0 := fun h0 ↦ hw0 (by rw [h0, ψK_zero])
+  have hs0 : -u / w ≠ 0 := H.ne_zero_of_notMem hs
+  have h1s : 1 - -u / w ∉ H.k := H.one_sub_notMem hs
+  obtain ⟨N, a, y, e, ha, hy, he⟩ := exists_isVRep₃ p (H.ψK (-u / w)) (H.ψK w) (H.ψK (1 - -u / w))
+  have hψu : H.ψK u = H.ψK (-u / w) + H.ψK w := by
+    have : u = -((-u / w) * w) := by field_simp
+    conv_lhs => rw [this]
+    rw [ψK_neg, H.ψK_mul hs0 hw]
+  have hψuw : H.ψK (u + w) = H.ψK w + H.ψK (1 - -u / w) := by
+    have e' : u + w = w * (1 - -u / w) := by field_simp; ring
+    rw [e', H.ψK_mul hw (H.ne_zero_of_notMem h1s)]
+  have hru : IsVRep p (H.ψK u) N (a * y) :=
+    ⟨ha.pos, ha.coprime, by rw [hψu, smul_add, ha.nsmul_eq, hy.nsmul_eq, cls_mul]⟩
+  have hruw : IsVRep p (H.ψK (u + w)) N (y * e) :=
+    ⟨ha.pos, ha.coprime, by rw [hψuw, smul_add, hy.nsmul_eq, he.nsmul_eq, cls_mul]⟩
+  -- `s` and `w` are `ψ`-independent
+  have hsw : VAlgIndep l ![H.ψK (-u / w), H.ψK w] := by
+    have hψs : H.ψK (-u / w) = H.ψK u + -H.ψK w := by rw [hψu]; abel
+    obtain ⟨hne, -, hpt'⟩ := pointV_add_ne hu0 (neg_ne_zero.2 hw0)
+      (by rw [pointV_neg]; exact (vAlgIndep_pair_iff hu0 hw0).1 h)
+    rw [pointV_neg, ← hψs] at hpt'
+    rw [← hψs] at hne
+    exact (vAlgIndep_pair_iff hne hw0).2 hpt'
+  have hay : AlgebraicIndependent l ![(a : L), (y : L)] := ha.algebraicIndependent_pair p hy hsw
+  have hea : SamePoint l (e : L) (a : L) := he.samePoint p ha (H.samePointV_one_sub hs)
+  have hcol := H.isCollinearTriple_add p h
+  have huw0 : H.ψK (u + w) ≠ 0 := H.ψK_ne_zero (H.add_notMem_of_vAlgIndep p h)
+  have hsu : SamePoint l ((a * y : Lˣ) : L) (H.ρ p u : L) :=
+    hru.samePoint p (H.isVRep_ρ p u) (samePointV_refl hu0)
+  have hsw' : SamePoint l (y : L) (H.ρ p w : L) :=
+    hy.samePoint p (H.isVRep_ρ p w) (samePointV_refl hw0)
+  have hsuw : SamePoint l ((y * e : Lˣ) : L) (H.ρ p (u + w) : L) :=
+    hruw.samePoint p (H.isVRep_ρ p (u + w)) (samePointV_refl huw0)
+  refine ⟨N, a, y, e, ha, he, hay, hea, hsu.transcendental_left, hsuw.transcendental_left,
+    levDiffV_eq p he ha, fun X Y Z hX hY hZ ↦ ?_, fun X Y Z hXYZ hX hY hZ ↦ ?_⟩
+  · exact (hcol.of_samePoint (hX.trans hsu) (hY.trans hsw') (hZ.trans hsuw)).isAlgebraic
+  · rw [c, levelTriple_eq_of_isNormalized p hXYZ (hX.trans hsu) (hY.trans hsw') (hZ.trans hsuw),
+      SepEquiv.levDiff_right p ((H.isVRep_ρ p w).sepEquiv p hy) hY,
+      SepEquiv.levDiff_right p ((H.isVRep_ρ p u).sepEquiv p hru) hX]
+
+omit [PerfectField L] [IsRelAlgClosed l L] in
+theorem mk_ne_zero {E : IntermediateField l L} {x : L} (hx : x ∈ E) (h0 : x ≠ 0) :
+    (⟨x, hx⟩ : E) ≠ 0 :=
+  fun h ↦ h0 (congrArg Subtype.val h)
+
+/-- **Blueprint Lemma 6.2** (gauge), first case: if `n(s) > 0` for `s = -u/w`, then
+`c(u, w) = -n(s)`. The triple `(A y^{p^i}, y, y e)` with `A = Frob^i(a)`, `i = n(s)`, is
+normalized. -/
+theorem c_eq_neg_n_of_pos {u w : K} (h : VAlgIndep l ![H.ψK u, H.ψK w])
+    (hn : 0 < H.n p (-u / w)) : H.c p u w = -H.n p (-u / w) := by
+  have : PerfectField l := IsRelAlgClosed.perfectField l L
+  obtain ⟨N, a, y, e, -, -, hay, hea, hay_tr, hye_tr, hn_eq, halg, hc⟩ := H.gauge_setup p h
+  obtain ⟨m, hm⟩ : ∃ m : ℕ, H.n p (-u / w) = m := ⟨_, (Int.toNat_of_nonneg hn.le).symm⟩
+  have hm0 : 0 < m := by omega
+  rw [hm] at hn_eq ⊢
+  have hy_tr : Transcendental l (y : L) := hay.transcendental 1
+  obtain ⟨A, hA⟩ : ∃ A, A = frobZ L p m (a : L) := ⟨_, rfl⟩
+  have hsep : SepEquiv l (e : L) A := by rw [hA]; exact (levDiff_eq_iff p hea).1 hn_eq.symm
+  have hB : AlgebraicIndependent l ![A, (y : L)] := by
+    have := algebraicIndependent_frobZ_pair p hay m 0
+    rwa [frobZ_zero_apply, ← hA] at this
+  have hAm : A ∈ model l ![A, (y : L)] := self_mem_model _ 0
+  have hym : (y : L) ∈ model l ![A, (y : L)] := self_mem_model _ 1
+  have hem : (e : L) ∈ model l ![A, (y : L)] := hsep.symm.mem_model hAm
+  obtain ⟨c, hc0, hdc⟩ := hsep.symm.exists_modelD_eq_smul hAm (modelD_ne_zero_left hB)
+  have hX : A * (y : L) ^ p ^ m = frobZ L p m ((a * y : Lˣ) : L) := by
+    rw [Units.val_mul, map_mul, ← hA, frobZ_natCast_apply p m (y : L)]
+  have hsX : SamePoint l (A * (y : L) ^ p ^ m) ((a * y : Lˣ) : L) := by
+    rw [hX, samePoint_frobZ_left_iff]
+    exact samePoint_refl hay_tr
+  have hyp0 : (y : L) ^ p ^ m ≠ 0 := pow_ne_zero _ y.ne_zero
+  have hnorm : IsNormalized l (A * (y : L) ^ p ^ m) (y : L) ((y * e : Lˣ) : L) := by
+    refine isNormalized_of_coords hB (mul_mem hAm (pow_mem hym _)) hym
+      (by rw [Units.val_mul]; exact mul_mem hym hem) (α₁ := ⟨_, pow_mem hym (p ^ m)⟩) (α₂ := 0)
+      (β₁ := 0) (β₂ := 1) (γ₁ := ⟨y, hym⟩ * c) (γ₂ := ⟨e, hem⟩) ?_ ?_ ?_ ?_ ?_ ?_
+      (halg _ _ _ hsX (samePoint_refl hy_tr) (samePoint_refl hye_tr))
+    · rw [modelD_mul hAm (pow_mem hym _), modelD_pow_pow_of_pos p hym hm0, smul_zero, zero_add,
+        zero_smul, add_zero]
+    · rw [zero_smul, one_smul, zero_add]
+    · rw [Units.val_mul, modelD_mul hym hem, hdc, smul_smul]
+    · rw [mul_one, mul_zero, sub_zero]
+      exact mk_ne_zero _ hyp0
+    · rw [zero_mul, sub_zero]
+      exact mul_ne_zero (mk_ne_zero _ hyp0) (mk_ne_zero _ e.ne_zero)
+    · rw [zero_mul, one_mul, zero_sub, neg_ne_zero]
+      exact mul_ne_zero (mk_ne_zero _ y.ne_zero) hc0
+  rw [hc _ _ _ hnorm hsX (samePoint_refl hy_tr) (samePoint_refl hye_tr), levDiff_self p hy_tr, hX,
+    levDiff_frobZ_left p (samePoint_refl hay_tr), levDiff_self p hay_tr]
+  ring
+
+/-- **Blueprint Lemma 6.2** (gauge), second case: if `n(s) < 0` for `s = -u/w`, then
+`c(u, w) = 0`. With `j = -n(s)`, `α = Frob^{-j}(a)` and `η = Frob^{-j}(y)`, the triple
+`(α η, η, η^{p^j} e)` is normalized. -/
+theorem c_eq_zero_of_n_neg {u w : K} (h : VAlgIndep l ![H.ψK u, H.ψK w])
+    (hn : H.n p (-u / w) < 0) : H.c p u w = 0 := by
+  have : PerfectField l := IsRelAlgClosed.perfectField l L
+  obtain ⟨N, a, y, e, -, -, hay, hea, hay_tr, hye_tr, hn_eq, halg, hc⟩ := H.gauge_setup p h
+  obtain ⟨m, hm⟩ : ∃ m : ℕ, H.n p (-u / w) = -(m : ℤ) := ⟨(-H.n p (-u / w)).toNat, by omega⟩
+  have hm0 : 0 < m := by omega
+  rw [hm] at hn_eq
+  have hy_tr : Transcendental l (y : L) := hay.transcendental 1
+  obtain ⟨α, hα⟩ : ∃ α, α = frobZ L p (-(m : ℤ)) (a : L) := ⟨_, rfl⟩
+  obtain ⟨η, hη⟩ : ∃ η, η = frobZ L p (-(m : ℤ)) (y : L) := ⟨_, rfl⟩
+  have hsep : SepEquiv l (e : L) α := by rw [hα]; exact (levDiff_eq_iff p hea).1 hn_eq.symm
+  have hB : AlgebraicIndependent l ![α, η] := by
+    rw [hα, hη]
+    exact algebraicIndependent_frobZ_pair p hay _ _
+  have hαm : α ∈ model l ![α, η] := self_mem_model _ 0
+  have hηm : η ∈ model l ![α, η] := self_mem_model _ 1
+  have hem : (e : L) ∈ model l ![α, η] := hsep.symm.mem_model hαm
+  obtain ⟨c, hc0, hdc⟩ := hsep.symm.exists_modelD_eq_smul hαm (modelD_ne_zero_left hB)
+  have hηy : η ^ p ^ m = (y : L) := by rw [hη]; exact frobZ_neg_natCast_pow p m (y : L)
+  have hη0 : η ≠ 0 := fun h0 ↦ y.ne_zero (by
+    rw [← hηy, h0, zero_pow (pow_ne_zero _ (Fact.out : p.Prime).ne_zero)])
+  have hα0 : α ≠ 0 := fun h0 ↦ a.ne_zero (by
+    rw [← frobZ_neg_natCast_pow p m (a : L), ← hα, h0,
+      zero_pow (pow_ne_zero _ (Fact.out : p.Prime).ne_zero)])
+  have hX : α * η = frobZ L p (-(m : ℤ)) ((a * y : Lˣ) : L) := by
+    rw [Units.val_mul, map_mul, hα, hη]
+  have hZ : η ^ p ^ m * (e : L) = ((y * e : Lˣ) : L) := by rw [hηy, Units.val_mul]
+  have hsX : SamePoint l (α * η) ((a * y : Lˣ) : L) := by
+    rw [hX, samePoint_frobZ_left_iff]
+    exact samePoint_refl hay_tr
+  have hsY : SamePoint l η (y : L) := by
+    rw [hη, samePoint_frobZ_left_iff]
+    exact samePoint_refl hy_tr
+  have hsZ : SamePoint l (η ^ p ^ m * (e : L)) ((y * e : Lˣ) : L) := by
+    rw [hZ]
+    exact samePoint_refl hye_tr
+  have hηp0 : η ^ p ^ m ≠ 0 := pow_ne_zero _ hη0
+  have hnorm : IsNormalized l (α * η) η (η ^ p ^ m * (e : L)) := by
+    refine isNormalized_of_coords hB (mul_mem hαm hηm) hηm (mul_mem (pow_mem hηm _) hem)
+      (α₁ := ⟨η, hηm⟩) (α₂ := ⟨α, hαm⟩) (β₁ := 0) (β₂ := 1)
+      (γ₁ := ⟨η ^ p ^ m, pow_mem hηm _⟩ * c) (γ₂ := 0) ?_ ?_ ?_ ?_ ?_ ?_ (halg _ _ _ hsX hsY hsZ)
+    · rw [modelD_mul hαm hηm, add_comm]
+    · rw [zero_smul, one_smul, zero_add]
+    · rw [modelD_mul (pow_mem hηm _) hem, modelD_pow_pow_of_pos p hηm hm0, smul_zero, add_zero,
+        hdc, smul_smul, zero_smul, add_zero]
+    · rw [mul_one, mul_zero, sub_zero]
+      exact mk_ne_zero _ hη0
+    · rw [mul_zero, zero_sub, neg_ne_zero]
+      exact mul_ne_zero (mk_ne_zero _ hα0) (mul_ne_zero (mk_ne_zero _ hηp0) hc0)
+    · rw [zero_mul, one_mul, zero_sub, neg_ne_zero]
+      exact mul_ne_zero (mk_ne_zero _ hηp0) hc0
+  rw [hc _ _ _ hnorm hsX hsY hsZ, hX, hη, levDiff_frobZ_left p (samePoint_refl hay_tr),
+    levDiff_frobZ_left p (samePoint_refl hy_tr), levDiff_self p hay_tr, levDiff_self p hy_tr]
+  ring
+
+/-- **Blueprint Lemma 6.2** (gauge), exhaustiveness: if `n(s) = 0` then `n(1/s) ≥ 0` (because
+`e / a` is separable over `l(a)`, blueprint line 459). -/
+theorem n_inv_nonneg_of_n_eq_zero {s : K} (hs : s ∉ H.k) (hn : H.n p s = 0) :
+    0 ≤ H.n p s⁻¹ := by
+  obtain ⟨N, a, e, -, ha, he, -⟩ := exists_isVRep₃ p (H.ψK s) (H.ψK (1 - s)) 0
+  have hea : SamePoint l (e : L) (a : L) := he.samePoint p ha (H.samePointV_one_sub hs)
+  have hsep : SepEquiv l (e : L) (a : L) := by
+    rw [← levDiff_eq_zero_iff p hea, ← levDiffV_eq p he ha]
+    exact hn
+  have hg : IsVRep p (H.ψK (1 - s) - H.ψK s) N (e * a⁻¹) :=
+    ⟨he.pos, he.coprime, by rw [smul_sub, he.nsmul_eq, ha.nsmul_eq, cls_mul, cls_inv,
+      sub_eq_add_neg]⟩
+  have hga : SamePoint l ((e * a⁻¹ : Lˣ) : L) (a : L) :=
+    hg.samePoint p ha (H.samePointV_one_sub_sub hs)
+  rw [H.n_inv p hs, levDiffV_eq p hg ha, levDiff_nonneg_iff p hga]
+  have h1 : (e : L) ∈ separableClosure l⟮(a : L)⟯ L := mem_separableClosure_iff.2 hsep.1
+  have h2 : (a : L)⁻¹ ∈ separableClosure l⟮(a : L)⟯ L :=
+    mem_separableClosure_iff.2 (isSeparable_algebraMap
+      (⟨(a : L)⁻¹, inv_mem (mem_adjoin_simple_self l (a : L))⟩ : l⟮(a : L)⟯))
+  rw [Units.val_mul, Units.val_inv_eq_inv_val, ← mem_separableClosure_iff]
+  exact mul_mem h1 h2
+
+/-- **Blueprint Lemma 6.2** (gauge), third case: if `n(s) = n(1/s) = 0` for `s = -u/w`, then
+`c(u, w) = 0`: the triple `(a y, y, y e)` is normalized (as `d(e/a) ≠ 0`). -/
+theorem c_eq_zero_of_n_eq_zero {u w : K} (h : VAlgIndep l ![H.ψK u, H.ψK w])
+    (hn : H.n p (-u / w) = 0) (hn' : H.n p (-u / w)⁻¹ = 0) : H.c p u w = 0 := by
+  have : PerfectField l := IsRelAlgClosed.perfectField l L
+  obtain ⟨N, a, y, e, ha, he, hay, hea, hay_tr, hye_tr, hn_eq, halg, hc⟩ := H.gauge_setup p h
+  have hs := H.notMem_neg_div h
+  rw [hn] at hn_eq
+  have hy_tr : Transcendental l (y : L) := hay.transcendental 1
+  have hsep : SepEquiv l (e : L) (a : L) := (levDiff_eq_zero_iff p hea).1 hn_eq.symm
+  -- `g = e / a ≈ a`
+  have hg : IsVRep p (H.ψK (1 - -u / w) - H.ψK (-u / w)) N (e * a⁻¹) :=
+    ⟨he.pos, he.coprime, by rw [smul_sub, he.nsmul_eq, ha.nsmul_eq, cls_mul, cls_inv,
+      sub_eq_add_neg]⟩
+  have hga : SamePoint l ((e * a⁻¹ : Lˣ) : L) (a : L) :=
+    hg.samePoint p ha (H.samePointV_one_sub_sub hs)
+  have hsepg : SepEquiv l ((e * a⁻¹ : Lˣ) : L) (a : L) := by
+    rw [← levDiff_eq_zero_iff p hga, ← levDiffV_eq p hg ha, ← H.n_inv p hs]
+    exact hn'
+  have ham : (a : L) ∈ model l ![(a : L), (y : L)] := self_mem_model _ 0
+  have hym : (y : L) ∈ model l ![(a : L), (y : L)] := self_mem_model _ 1
+  have hem : (e : L) ∈ model l ![(a : L), (y : L)] := hsep.symm.mem_model ham
+  have hgm : ((e * a⁻¹ : Lˣ) : L) ∈ model l ![(a : L), (y : L)] := hsepg.symm.mem_model ham
+  obtain ⟨c, hc0, hdc⟩ := hsep.symm.exists_modelD_eq_smul ham (modelD_ne_zero_left hay)
+  obtain ⟨c', hc'0, hdc'⟩ := hsepg.symm.exists_modelD_eq_smul ham (modelD_ne_zero_left hay)
+  -- `e = g a`, hence `c = g + a c'`
+  have hE : (⟨e, hem⟩ : model l ![(a : L), (y : L)]) = ⟨_, hgm⟩ * ⟨a, ham⟩ := by
+    apply Subtype.ext
+    simp
+  have hcc : c = ⟨_, hgm⟩ + ⟨a, ham⟩ * c' := by
+    have he_eq : (e : L) = ((e * a⁻¹ : Lˣ) : L) * (a : L) := by simp
+    have key := modelD_mul hgm ham
+    rw [← he_eq, hdc, hdc', smul_smul, ← add_smul] at key
+    exact smul_left_injective _ (modelD_ne_zero_left hay) key
+  have hnorm : IsNormalized l ((a * y : Lˣ) : L) (y : L) ((y * e : Lˣ) : L) := by
+    refine isNormalized_of_coords hay (by rw [Units.val_mul]; exact mul_mem ham hym) hym
+      (by rw [Units.val_mul]; exact mul_mem hym hem) (α₁ := ⟨y, hym⟩) (α₂ := ⟨a, ham⟩)
+      (β₁ := 0) (β₂ := 1) (γ₁ := ⟨y, hym⟩ * c) (γ₂ := ⟨e, hem⟩) ?_ ?_ ?_ ?_ ?_ ?_
+      (halg _ _ _ (samePoint_refl hay_tr) (samePoint_refl hy_tr) (samePoint_refl hye_tr))
+    · rw [Units.val_mul, modelD_mul ham hym, add_comm]
+    · rw [zero_smul, one_smul, zero_add]
+    · rw [Units.val_mul, modelD_mul hym hem, hdc, smul_smul]
+    · rw [mul_one, mul_zero, sub_zero]
+      exact mk_ne_zero _ y.ne_zero
+    · have : (⟨y, hym⟩ : model l ![(a : L), (y : L)]) * ⟨e, hem⟩ - ⟨a, ham⟩ * (⟨y, hym⟩ * c) =
+          -(⟨y, hym⟩ * ⟨a, ham⟩ * ⟨a, ham⟩ * c') := by
+        rw [hcc, hE]
+        ring
+      rw [this, neg_ne_zero]
+      exact mul_ne_zero (mul_ne_zero (mul_ne_zero (mk_ne_zero _ y.ne_zero)
+        (mk_ne_zero _ a.ne_zero)) (mk_ne_zero _ a.ne_zero)) hc'0
+    · rw [zero_mul, one_mul, zero_sub, neg_ne_zero]
+      exact mul_ne_zero (mk_ne_zero _ y.ne_zero) hc0
+  rw [hc _ _ _ hnorm (samePoint_refl hay_tr) (samePoint_refl hy_tr) (samePoint_refl hye_tr),
+    levDiff_self p hay_tr, levDiff_self p hy_tr, sub_zero]
 
 /-- **Blueprint Lemma 6.2 (The gauge of a sum)**: for `ψ`-independent `u, w`,
 `c(u, w) = ν(-u/w)`; in particular `c(u, w)` only depends on `-u/w`. -/
