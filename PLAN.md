@@ -103,8 +103,8 @@ Status: `todo`, `active`, `review`, `done`.
 | WP-P6a | `CharP/StepCFields` (eigenvalue lemma in a model, `eq:Epower`, norm argument; 5 `sorry`) | WP-P4 | done |
 | WP-P6b | `CharP/StepC` (`eq:roots`, Lemmas 6.10, 6.11, Prop 6.12; 15 `sorry`) | WP-P4 | done |
 | WP-P7 | Reduction to perfect fields, assembly of Theorem A | — | done |
-| WP-V2 | Verso companion text (a: char 0 + K-theory, b: Sections 3-5 done; c: Section 6 in char p) | all | active |
-| WP-Z | Final pass: cleanup and strengthening (Z1), independent statement audit (Z2) | all | active |
+| WP-V2 | Verso companion text (a: char 0 + K-theory, b: Sections 3-5 done; c: Section 6 in char p) | all | done |
+| WP-Z | Final pass: cleanup and strengthening (Z1), independent statement audit (Z2) | all | done |
 
 ### Stub files and wiring (supervisor)
 
@@ -153,3 +153,11 @@ The statements in these stub files are frozen too.
 - Final pass (supervisor decision): unused hypotheses may be dropped from frozen statements
   (`hφsymm` in `theoremD`, `hr'` in `theoremB_unique`/`theoremC_unique`, `IsRelAlgClosed` in
   Lemma 7.2(a)); nothing else about the frozen statements changes.
+- 2026-11-18: Final pass merged. WP-Z1: unused hypotheses dropped (`[PerfectField K]` in
+  `theoremB`/`theoremC`, `hr'` in the two uniqueness clauses, `hφsymm` in `theoremD`,
+  `IsRelAlgClosed` in Lemma 7.2(a)); `theoremA_unique`; `Converse.lean` (converse of Theorem A,
+  non-vacuity, including the explicit field `Frac ℚ[X, Y]`); helper lemmas moved; docstrings fixed.
+  WP-Z2: independent audit, no problem found (kernel replay of every module, dependency walk,
+  faithfulness of each statement, non-vacuity). WP-Z3: `Milnor/Comparison/` relates `MilnorKQ` to
+  `ℚ ⊗ K^M_*` and to the quotient by the ideal of `l^×`. The companion text covers the whole
+  blueprint. **The project is complete.**

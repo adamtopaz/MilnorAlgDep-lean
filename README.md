@@ -28,10 +28,16 @@ All statements are in the namespace `MilnorAlgDep`:
 | Theorem B (relative) | `theoremB`, `theoremB_unique` | `MilnorAlgDep/Milnor/TheoremB.lean` |
 | Theorem C (absolute) | `theoremC`, `theoremC_unique` | `MilnorAlgDep/Milnor/TheoremC.lean` |
 | Theorem D (isomorphisms) | `theoremD` | `MilnorAlgDep/Milnor/TheoremD.lean` |
+| `ℚ ⊗ K^M_*(L) ≅ 𝒦_*(L)`, and `𝒦_*(L\|l)` as a quotient of `𝒦_*(L)` | `MilnorK.ratEquiv`, `MilnorKQ.relQuotEquiv` | `MilnorAlgDep/Milnor/Comparison/` |
 
 The encodings (the group `V l L`, algebraic independence `VAlgIndep`, the rational Milnor ring
 `MilnorKQ`, perfect closures) are explained in the module docstrings of these files and in the
-companion text.
+companion text. The rational Milnor rings are defined by generators and relations; the last row
+of the table relates them to the blueprint's definitions.
+
+The blueprint is an unrefereed draft. The formalization found no error in it; the places where
+the formal proofs differ from the blueprint's (mostly simplifications) are listed in Chapter 9 of
+the companion text.
 
 ## Building
 
