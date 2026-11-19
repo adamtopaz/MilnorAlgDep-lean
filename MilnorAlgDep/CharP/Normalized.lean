@@ -712,7 +712,7 @@ theorem levelTriple_eq_of_isNormalized {x' y' z' : L} (h : IsNormalized l x' y' 
 
 /-- Swapping the first two points of a collinear triple negates the first entry of the level
 triple relative to the given elements: if `(a, Frob^j b, *)` is normalized, then so is
-`(b, Frob^{-j} a, *)`. (This is "`c(w, u) = -c(u, w)`", blueprint line 438.) -/
+`(b, Frob^{-j} a, *)`. (This is "`c(w, u) = -c(u, w)`", blueprint line 434.) -/
 theorem levelTriple_swap_fst {a b d : L} (h : IsCollinearTriple l a b d) :
     (levelTriple l p b a d).1 = -(levelTriple l p a b d).1 := by
   set j := (levelTriple l p a b d).1

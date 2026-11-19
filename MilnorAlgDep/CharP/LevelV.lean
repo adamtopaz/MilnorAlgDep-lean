@@ -366,7 +366,7 @@ section HgtV
 
 variable (p : ℕ) [Fact p.Prime] [CharP L p] [PerfectField L]
 
-/-- Blueprint Section 6.3 (line 509): the height `ht(v) = ht_B(lev v) ∈ ℤ` of `v ∈ V_{L|l}` with
+/-- Blueprint Section 6.3 (line 502): the height `ht(v) = ht_B(lev v) ∈ ℤ` of `v ∈ V_{L|l}` with
 respect to a transcendence basis `B` of `L / l`, i.e. the height `hgt l p B a` of the chosen
 representative `a` of `v`; it does not depend on the representative (`hgtV_eq`). Meaningful for
 `v ≠ 0` and `B` a transcendence basis. -/
@@ -390,8 +390,8 @@ theorem hgtV_sub_hgtV (hB : IsTranscendenceBasis l B) (h : SamePointV l v w) :
     hgtV p B v - hgtV p B w = levDiffV p v w :=
   hgt_sub_hgt p hB (h.samePoint_vRep p)
 
-/-- `ht(q • v) = ht(v) + v_p(q)`; in particular `ht(p • v) = ht(v) + 1` (blueprint lines 525
-and 618). -/
+/-- `ht(q • v) = ht(v) + v_p(q)`; in particular `ht(p • v) = ht(v) + 1` (blueprint lines 517
+and 636). -/
 theorem hgtV_smul (hB : IsTranscendenceBasis l B) (hv : v ≠ 0) {q : ℚ} (hq : q ≠ 0) :
     hgtV p B (q • v) = hgtV p B v + padicValRat p q := by
   have h := samePointV_refl (l := l) hv
@@ -510,7 +510,7 @@ theorem ψK_neg (x : K) : H.ψK (-x) = H.ψK x := by
   · simp
   rw [neg_eq_neg_one_mul, H.ψK_mul (neg_ne_zero.2 one_ne_zero) hx, ψK_neg_one, zero_add]
 
-/-- `ψ(c x) = ψ(x)` for `c ∈ kˣ` (blueprint line 403). -/
+/-- `ψ(c x) = ψ(x)` for `c ∈ kˣ` (blueprint line 404). -/
 theorem ψK_mul_of_mem {c x : K} (hc : c ∈ H.k) (hc0 : c ≠ 0) : H.ψK (c * x) = H.ψK x := by
   rcases eq_or_ne x 0 with rfl | hx
   · simp
@@ -641,7 +641,7 @@ theorem isAlgebraic_ρ_add {x y : K} (hx : x ≠ 0) (hy : y ≠ 0) (hxy : x + y 
     rw [Set.insert_subset_iff, Set.singleton_subset_iff]
     exact ⟨hy_mem, h2'⟩
 
-/-- Consequence of `eq:sum` (blueprint lines 412-413): if `x, y` are `ψ`-independent, then
+/-- Consequence of `eq:sum` (blueprint line 413): if `x, y` are `ψ`-independent, then
 `Q_x, Q_y, Q_{x+y}` are three distinct collinear points; in terms of the chosen representatives,
 `(ρ x, ρ y, ρ (x + y))` is a collinear triple. In particular `ψ(x + y) ≠ 0`
 (`add_notMem_of_vAlgIndep`). -/
@@ -727,7 +727,7 @@ theorem vAlgIndep_add_of_vAlgIndep₃ {u w z : K} (h : VAlgIndep l ![H.ψK u, H.
 
 include p in
 omit [IsRelAlgClosed l L] in
-/-- Blueprint, proof of Proposition 6.1 (line 470): for `ψ`-independent `s, s'`, one of the
+/-- Blueprint, proof of Proposition 6.1 (line 483): for `ψ`-independent `s, s'`, one of the
 elements `x i` of (A3) is `ψ`-independent of both: `s, s', x i` are `ψ`-independent. -/
 theorem exists_vAlgIndep₃ {s s' : K} (h : VAlgIndep l ![H.ψK s, H.ψK s']) :
     ∃ i, VAlgIndep l ![H.ψK s, H.ψK s', H.ψK (H.x i)] := by

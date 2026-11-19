@@ -832,7 +832,7 @@ theorem isSeparable_ρ_of_primitive {x : H.K₀ p} (hx : (H.data p).Δ x ≠ 0) 
       rw [H.hgt_τ_eq_zero p hx]
       exact (H.hgtV_of_primitive p hx).symm)).2
 
-/-- Blueprint, proof of Proposition 6.12 (lines 718-725), for one `j`: let `u` be primitive,
+/-- Blueprint, proof of Proposition 6.12 (lines 707-714), for one `j`: let `u` be primitive,
 `s = τ(u)`, `(N, a)` the representative of `ψ(u)` and `E = l(s, a)`. If
 `ψ(u) - r [τ(u)] = p^j • w` with `w ∈ W`, then `(a s^{-N r})^M = c y^{p^j}` with `M` prime to
 `p`, `c ∈ lˣ` and `y ∈ E` (by `eq:Epower`, as `p^j • (N • w) = [a s^{-N r}]`). -/

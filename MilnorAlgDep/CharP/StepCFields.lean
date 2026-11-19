@@ -205,7 +205,7 @@ theorem mem_of_pow_pow_mem {B : ι → L} {s : L} (hs : s ∈ model l B) (hds : 
     refine ih (mem_of_pow_mem_of_modelD_ne_zero p hs hds hsE hE hsep (pow_mem hz _) ?_)
     rwa [← pow_mul, ← pow_succ]
 
-/-- Blueprint, proof of Proposition 6.12 (lines 723-725): let `E` be as in `mem_of_pow_pow_mem`.
+/-- Blueprint, proof of Proposition 6.12 (lines 713-714): let `E` be as in `mem_of_pow_pow_mem`.
 If `v ∈ W` and `p^j • v = [b]` with `b ∈ E`, then `b^M = c • y^{p^j}` for some `M` prime to `p`,
 `c ∈ lˣ` and `y ∈ E`. (If `v ≠ 0`, take a representative `(M, g)` of `v` with `g ∈ L_B`; then
 `b^M = c g^{p^j}` and `g ∈ E` by `eq:Epower`. If `v = 0`, `b ∈ l`.) -/
@@ -235,7 +235,7 @@ theorem exists_pow_eq_mul_pow_pow {B : ι → L} {s : L} (hs : s ∈ model l B)
   exact mul_mem (inv_mem (IntermediateField.algebraMap_mem E c)) (pow_mem hb N)
 
 omit [Fact p.Prime] [CharP L p] [PerfectField L] [IsRelAlgClosed l L] in
-/-- Blueprint, proof of Proposition 6.12 (lines 726-728), the norm argument: let `s` be
+/-- Blueprint, proof of Proposition 6.12 (lines 714-716), the norm argument: let `s` be
 transcendental over `l`, `a ≠ 0` algebraic over `l(s)`, `E = l(s, a)`, and `e j` integers such
 that for every `j`, `(a s^{-e_j})^{M_j} ∈ lˣ · E^{p^j}` for some `M_j` prime to `p`. Then there
 are `M ≥ 1` (namely `[E : l(s)]`) and `ε` with `ε ≡ M e_j (mod p^j)` for all `j`. (Take norms to
@@ -298,7 +298,7 @@ theorem exists_dvd_sub_of_forall_pow_eq {s a : L} (hs : Transcendental l s) (ha0
   linear_combination this
 
 omit [CharP L p] [PerfectField L] [IsRelAlgClosed l L] in
-/-- Blueprint, proof of Proposition 6.12 (lines 729-731), arithmetic: if `ε ≡ M r_j (mod p^j)`
+/-- Blueprint, proof of Proposition 6.12 (lines 716-718), arithmetic: if `ε ≡ M r_j (mod p^j)`
 for all `j`, with `M ≥ 1`, write `M = p^β n'` with `p ∤ n'`; then `p^β ∣ ε`, say `ε = p^β m'`, and
 `n' r_j ≡ m' (mod p^{j-β})` for all `j ≥ β`. -/
 theorem exists_dvd_sub_of_dvd {M : ℕ} (hM : 0 < M) {ε : ℤ} {r : ℕ → ℤ}

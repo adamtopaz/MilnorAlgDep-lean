@@ -214,7 +214,7 @@ theorem n_inv {s : K} (hs : s ∉ H.k) :
     levDiffV_smul_right p (by norm_num) (H.samePointV_one_sub_sub hs), padicValRat.neg,
     padicValRat.one, sub_zero]
 
-/-- `c(w, u) = -c(u, w)` (blueprint line 438). -/
+/-- `c(w, u) = -c(u, w)` (blueprint line 434). -/
 theorem c_swap {u w : K} (h : VAlgIndep l ![H.ψK u, H.ψK w]) : H.c p w u = -H.c p u w := by
   rw [c, c, add_comm w u]
   exact levelTriple_swap_fst p (H.isCollinearTriple_add p h)
