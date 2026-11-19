@@ -26,6 +26,9 @@ Note that an algebraically independent family consists of non-zero elements
   `w i`, `y i` is algebraic over `l(y i)`, resp. `l(w i)`, then `y` is algebraically independent.
 * `V.isAlgebraic_adjoin_of_zsmul_cls_eq`: if `M • [a] = N • [b]` with `M ≥ 1`, then `a` is
   algebraic over `l(b)`.
+* `algebraicIndependent_of_forall_mem_closure`, `algebraicIndependent_triple_of_notMem_closure`
+  and related facts on the algebraic matroid; `mem_closure_of_eq_zsmul_add_zsmul`,
+  `VAlgIndep.add_add₃`: closure and algebraic independence in `V` (used in Step A).
 -/
 
 @[expose] public section

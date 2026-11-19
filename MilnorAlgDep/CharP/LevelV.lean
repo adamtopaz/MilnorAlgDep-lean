@@ -46,9 +46,9 @@ the chosen representative of `ψ(x)`. The blueprint writes `Q_x` for `pointV l (
 ## `ψ`-independence
 
 Bookkeeping lemmas on algebraic independence in `V` used in Step A (Lemma 6.3 and
-Proposition 6.1): `VAlgIndep.add_add₃`, `VAlgIndep.add_of_mem_pointGroup`,
-`CharPHyp.vAlgIndep_add_of_vAlgIndep₃`, `CharPHyp.exists_vAlgIndep₃`,
-`CharPHyp.exists_vAlgIndep_pair`.
+Proposition 6.1): `CharPHyp.vAlgIndep_add_of_vAlgIndep₃`, `CharPHyp.exists_vAlgIndep₃`,
+`CharPHyp.exists_vAlgIndep_pair` (the general facts `VAlgIndep.add_add₃`,
+`VAlgIndep.add_of_mem_pointGroup` are in `MilnorAlgDep.Foundations`).
 -/
 
 @[expose] public section

@@ -46,68 +46,6 @@ variable {l L : Type*} [Field l] [Field L] [Algebra l L]
 
 section Aux
 
--- TODO(move): `CharP/Normalized.lean`.
-/-- Swapping the first two points of a collinear triple negates the first entry of the level
-triple relative to the given elements: if `(a, Frob^j b, *)` is normalized, then so is
-`(b, Frob^{-j} a, *)`. (This is "`c(w, u) = -c(u, w)`", blueprint line 438.) -/
-theorem levelTriple_swap_fst (p : ℕ) [Fact p.Prime] [CharP L p] [PerfectField L]
-    [IsRelAlgClosed l L] {a b d : L} (h : IsCollinearTriple l a b d) :
-    (levelTriple l p b a d).1 = -(levelTriple l p a b d).1 := by
-  set j := (levelTriple l p a b d).1
-  set k := (levelTriple l p a b d).2
-  have hn : IsNormalized l (frobZ L p j b) a (frobZ L p k d) :=
-    (isNormalized_levelTriple p h).swap₁₂
-  have hn' : IsNormalized l b (frobZ L p (-j) a) (frobZ L p (-j + k) d) := by
-    have := (IsNormalized.frobZ_iff p (-j)).2 hn
-    rwa [frobZ_neg_apply_frobZ, ← frobZ_add_apply] at this
-  have ha : SamePoint l (frobZ L p (-j) a) a :=
-    (samePoint_frobZ_left_iff p (-j)).2 (samePoint_refl h.transcendental₁)
-  have hd : SamePoint l (frobZ L p (-j + k) d) d :=
-    (samePoint_frobZ_left_iff p (-j + k)).2 (samePoint_refl h.transcendental₃)
-  rw [levelTriple_eq_of_isNormalized p hn' (samePoint_refl h.transcendental₂) ha hd,
-    levDiff_frobZ_left p (samePoint_refl h.transcendental₁), levDiff_self p h.transcendental₁,
-    levDiff_self p h.transcendental₂]
-  ring
-
--- TODO(move): `Mathlib`-style linear algebra.
-/-- If `e₁, e₂` are linearly independent, so are `α e₁ + β e₂` and `γ e₁ + δ e₂` when
-`α δ - β γ ≠ 0`. -/
-theorem linearIndependent_pair_smul_add {R M : Type*} [Field R] [AddCommGroup M] [Module R M]
-    {e₁ e₂ : M} (h : LinearIndependent R ![e₁, e₂]) {α β γ δ : R}
-    (hdet : α * δ - β * γ ≠ 0) : LinearIndependent R ![α • e₁ + β • e₂, γ • e₁ + δ • e₂] := by
-  rw [LinearIndependent.pair_iff]
-  intro s t hst
-  obtain ⟨h₁, h₂⟩ := LinearIndependent.pair_iff.1 h (s * α + t * γ) (s * β + t * δ) (by
-    rw [← hst]
-    simp only [add_smul, mul_smul, smul_add]
-    abel)
-  have hs : s * (α * δ - β * γ) = 0 := by linear_combination δ * h₁ - γ * h₂
-  have ht : t * (α * δ - β * γ) = 0 := by linear_combination α * h₂ - β * h₁
-  exact ⟨(mul_eq_zero.1 hs).resolve_right hdet, (mul_eq_zero.1 ht).resolve_right hdet⟩
-
--- TODO(move): `CharP/Model.lean`.
-theorem modelD_pow_pow_of_pos (p : ℕ) [CharP L p] {ι : Type*} {B : ι → L} {y : L}
-    (hy : y ∈ model l B) {m : ℕ} (hm : 0 < m) : modelD l B (y ^ p ^ m) = 0 := by
-  obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_lt hm
-  rw [show y ^ p ^ (0 + k + 1) = (y ^ p ^ k) ^ p by rw [zero_add, pow_succ, pow_mul]]
-  exact modelD_pow_char p (pow_mem hy _)
-
--- TODO(move): `CharP/Levels.lean`.
-/-- If `s ≈ t`, `s ∈ L_B` and `d s ≠ 0`, then `d t = c • d s` with `c ≠ 0`. -/
-theorem SepEquiv.exists_modelD_eq_smul {ι : Type*} {B : ι → L} {s t : L} (h : SepEquiv l s t)
-    (hs : s ∈ model l B) (hds : modelD l B s ≠ 0) :
-    ∃ c : model l B, c ≠ 0 ∧ modelD l B t = c • modelD l B s := by
-  have hspan := h.span_modelD_eq hs
-  have hmem : modelD l B t ∈ (model l B) ∙ modelD l B s := by
-    rw [hspan]
-    exact Submodule.mem_span_singleton_self _
-  obtain ⟨c, hc⟩ := Submodule.mem_span_singleton.1 hmem
-  refine ⟨c, fun hc0 ↦ hds ?_, hc.symm⟩
-  rw [hc0, zero_smul] at hc
-  have : (model l B) ∙ modelD l B s = ⊥ := by
-    rw [hspan, ← hc, Submodule.span_singleton_eq_bot.2 rfl]
-  exact Submodule.span_singleton_eq_bot.1 this
-
 /-- Normality criterion in coordinates (blueprint, proof of Lemma 6.2): in the model `L_B` of an
 algebraically independent pair `B = (b₁, b₂)`, if the differentials of `X, Y, Z ∈ L_B` have
 pairwise non-proportional coordinates and `Z` is algebraic over `l(X, Y)`, then `(X, Y, Z)` is

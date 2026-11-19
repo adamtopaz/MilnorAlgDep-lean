@@ -275,4 +275,85 @@ theorem algebraicIndependent_of_linearIndependent_modelD {x : κ → L} (hx : �
 
 end Differentials
 
+section ModelField
+
+/-! ### The model as a field in its own right; (S2) in a model
+
+The results of `MilnorAlgDep.Standard.Differentials` ((S2), (S3)) apply to `E = L_B` with the
+family `B` viewed in `L_B`. -/
+
+variable {B : ι → L}
+
+/-- `B`, viewed in `L_B`, is algebraically independent over `l` (hypothesis of (S2), (S3) for the
+model `E = L_B`, blueprint Lemma 4.2(a)). -/
+theorem algebraicIndependent_restrictFamily_model (hB : AlgebraicIndependent l B) :
+    AlgebraicIndependent l (restrictFamily (model l B) B (self_mem_model B)) :=
+  algebraicIndependent_restrictFamily _ _ hB
+
+/-- `L_B` is separable algebraic over `l(B)` (hypothesis of (S2), (S3) for the model `E = L_B`,
+blueprint Lemma 4.2(a)). -/
+theorem isSeparable_adjoin_restrictFamily_model (B : ι → L) :
+    Algebra.IsSeparable (adjoin l (Set.range (restrictFamily (model l B) B (self_mem_model B))))
+      (model l B) :=
+  isSeparable_adjoin_restrictFamily_separableClosure B
+
+/-- The `i`-th coordinate of `d (B i)` with respect to the basis `(d B j)ⱼ` of `Ω_B` is `1`. -/
+theorem modelBasis_coord_self (hB : AlgebraicIndependent l B) (i : ι) :
+    (modelBasis hB).coord i (modelD l B (B i)) = 1 := by
+  rw [← modelBasis_apply hB i, Module.Basis.coord_apply, Module.Basis.repr_self,
+    Finsupp.single_eq_same]
+
+/-- The `i`-th coordinate of `d (B j)`, `j ≠ i`, with respect to the basis `(d B k)ₖ` of `Ω_B` is
+`0`. -/
+theorem modelBasis_coord_of_ne (hB : AlgebraicIndependent l B) {i j : ι} (h : j ≠ i) :
+    (modelBasis hB).coord i (modelD l B (B j)) = 0 := by
+  rw [← modelBasis_apply hB j, Module.Basis.coord_apply, Module.Basis.repr_self,
+    Finsupp.single_eq_of_ne' h]
+
+/-- **Blueprint Lemma 2.1 (S2)** in a model: if `y` is separable algebraic over `l(x)` for a family
+`x` of elements of `L_B`, then `y ∈ L_B` and `d y` lies in the `L_B`-span of the `d xₖ` in
+`Ω_B`. -/
+theorem modelD_mem_span_of_isSeparable {x : κ → L} (hx : ∀ k, x k ∈ model l B) {y : L}
+    (hy : IsSeparable (adjoin l (Set.range x)) y) :
+    y ∈ model l B ∧
+      modelD l B y ∈ Submodule.span (model l B) (Set.range fun k ↦ modelD l B (x k)) := by
+  have hKE : adjoin l (Set.range x) ≤ model l B :=
+    adjoin_le_iff.mpr (by rintro _ ⟨k, rfl⟩; exact hx k)
+  have hyE : y ∈ model l B := mem_model_of_isSeparable hKE hy
+  refine ⟨hyE, ?_⟩
+  have himage : Subtype.val '' Set.range (restrictFamily (model l B) x hx) = Set.range x := by
+    rw [← Set.range_comp]
+    rfl
+  have hy' : IsSeparable (adjoin l (Set.range (restrictFamily (model l B) x hx)))
+      (⟨y, hyE⟩ : model l B) := by
+    rw [← isSeparable_adjoin_val_iff, himage]
+    exact hy
+  have hfun : (fun k ↦ modelD l B (x k)) = fun k ↦ D l (model l B) (restrictFamily _ x hx k) :=
+    funext fun k ↦ modelD_of_mem (hx k)
+  rw [modelD_of_mem hyE, hfun]
+  exact kaehler_D_mem_span_range_of_isSeparable _ hy'
+
+/-- **Blueprint Lemma 2.1 (S2)** in a model, for two elements: if `y, z ∈ L_B` and `x` is
+separable algebraic over `l(y, z)`, then `x ∈ L_B` and `d x ∈ L_B d y + L_B d z`. -/
+theorem modelD_mem_sup_of_isSeparable {y z x : L} (hy : y ∈ model l B) (hz : z ∈ model l B)
+    (hx : IsSeparable l⟮y, z⟯ x) :
+    x ∈ model l B ∧ modelD l B x ∈ (model l B ∙ modelD l B y) ⊔ (model l B ∙ modelD l B z) := by
+  have hyz : ∀ k, ![y, z] k ∈ model l B := by
+    intro k
+    fin_cases k
+    exacts [hy, hz]
+  have hrange : Set.range ![y, z] = {y, z} := Matrix.range_cons_cons_empty y z _
+  obtain ⟨hxB, hspan⟩ := modelD_mem_span_of_isSeparable hyz (by rw [hrange]; exact hx)
+  refine ⟨hxB, ?_⟩
+  have hfun : (fun k ↦ modelD l B (![y, z] k)) = modelD l B ∘ ![y, z] := rfl
+  rwa [hfun, Set.range_comp, hrange, Set.image_pair, Submodule.span_insert] at hspan
+
+theorem modelD_pow_pow_of_pos (p : ℕ) [CharP L p] {ι : Type*} {B : ι → L} {y : L}
+    (hy : y ∈ model l B) {m : ℕ} (hm : 0 < m) : modelD l B (y ^ p ^ m) = 0 := by
+  obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_lt hm
+  rw [show y ^ p ^ (0 + k + 1) = (y ^ p ^ k) ^ p by rw [zero_add, pow_succ, pow_mul]]
+  exact modelD_pow_char p (pow_mem hy _)
+
+end ModelField
+
 end MilnorAlgDep

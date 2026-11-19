@@ -245,33 +245,4 @@ theorem vAlgIndep_toPerfectClosure_iff {ι : Type*} (v : ι → V l L) :
 
 end V
 
-section Frobenius
-
-/-- The Frobenius twist on classes: `[Frob^j y] = p ^ j • [y]`, where `p` is the characteristic
-exponent of the perfect field `L`. -/
-theorem cls_frobeniusEquiv_zpow [PerfectField L] (H : Subgroup Lˣ) (j : ℤ) (y : Lˣ) :
-    cls H (.ofMul (Units.map
-        (((frobeniusEquiv L (ringExpChar L) ^ j : L ≃+* L) : L →+* L) : L →* L) y)) =
-      ((ringExpChar L : ℚ) ^ j) • cls H (.ofMul y) := by
-  set p := ringExpChar L
-  set σ := frobeniusEquiv L p
-  have hnat : ∀ (n : ℕ) (z : Lˣ),
-      Units.map (((σ ^ n : L ≃+* L) : L →+* L) : L →* L) z = z ^ p ^ n := by
-    intro n z
-    ext
-    rw [Units.coe_map, Units.val_pow_eq_pow_val, ← iterateFrobeniusEquiv_eq_pow]
-    rfl
-  have hp : (p : ℚ) ≠ 0 := Nat.cast_ne_zero.2 (expChar_ne_zero L p)
-  obtain ⟨n, rfl | rfl⟩ := Int.eq_nat_or_neg j
-  · rw [zpow_natCast, hnat, cls_pow, zpow_natCast, ← Nat.cast_smul_eq_nsmul ℚ, Nat.cast_pow]
-  · set z := Units.map (((σ ^ (-(n : ℤ)) : L ≃+* L) : L →+* L) : L →* L) y
-    have hz : Units.map (((σ ^ n : L ≃+* L) : L →+* L) : L →* L) z = y := by
-      ext
-      simp [z, zpow_neg]
-    conv_rhs => rw [← hz, hnat, cls_pow]
-    rw [← Nat.cast_smul_eq_nsmul ℚ, smul_smul, zpow_neg, zpow_natCast, Nat.cast_pow,
-      inv_mul_cancel₀ (pow_ne_zero _ hp), one_smul]
-
-end Frobenius
-
 end MilnorAlgDep

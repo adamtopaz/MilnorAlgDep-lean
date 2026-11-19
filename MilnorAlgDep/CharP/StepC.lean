@@ -64,20 +64,8 @@ section Aux
 
 variable (p : ℕ) [Fact p.Prime] [CharP L p] [PerfectField L] [IsRelAlgClosed l L]
 
--- TODO(move): `CharP/Models.lean`.
-/-- Two elements of the same point with the same height are `≈`-equivalent. -/
-theorem sepEquiv_of_hgt_eq {B : ι → L} (hB : IsTranscendenceBasis l B) {s t : L}
-    (h : SamePoint l s t) (hst : hgt l p B s = hgt l p B t) : SepEquiv l s t :=
-  (levDiff_eq_zero_iff p h).1 (by rw [← hgt_sub_hgt p hB h, hst, sub_self])
-
--- TODO(move): `CharP/Models.lean`.
-/-- If `s, t` lie in the same point and `ht s ≥ ht t`, then `s` is separable over `l(t)`. -/
-theorem isSeparable_of_hgt_le {B : ι → L} (hB : IsTranscendenceBasis l B) {s t : L}
-    (h : SamePoint l s t) (hst : hgt l p B t ≤ hgt l p B s) : IsSeparable l⟮t⟯ s :=
-  (levDiff_nonneg_iff p h).1 (by rw [← hgt_sub_hgt p hB h]; omega)
-
 omit [CharP L p] [PerfectField L] [IsRelAlgClosed l L] in
--- TODO(move): `Mathlib.Algebra.CharP.Defs`.
+-- General fact about characteristic `p` (a candidate for `Mathlib.Algebra.CharP.Defs`).
 /-- An integer prime to `p` is invertible in a ring of characteristic `p`, with an inverse which
 is the image of a natural number. -/
 theorem exists_natCast_mul_eq_one (R : Type*) [Ring R] [CharP R p] {M : ℕ} (hM : M.Coprime p) :
@@ -86,14 +74,14 @@ theorem exists_natCast_mul_eq_one (R : Type*) [Ring R] [CharP R p] {M : ℕ} (hM
   exact ⟨m, by rw [← Nat.cast_mul, CharP.cast_eq_mod R p, hm, Nat.cast_one]⟩
 
 omit [CharP L p] [PerfectField L] [IsRelAlgClosed l L] in
--- TODO(move): `Mathlib.Algebra.CharP.Defs`.
+-- General fact about characteristic `p` (a candidate for `Mathlib.Algebra.CharP.Defs`).
 theorem natCast_ne_zero_of_coprime (R : Type*) [AddMonoidWithOne R] [CharP R p]
     {N : ℕ} (hN : N.Coprime p) : (N : R) ≠ 0 := by
   rw [ne_eq, CharP.cast_eq_zero_iff R p]
   exact fun hpN ↦ (Fact.out : p.Prime).one_lt.ne' (hN.symm.eq_one_of_dvd hpN)
 
 omit [CharP L p] [PerfectField L] [IsRelAlgClosed l L] in
--- TODO(move): `Mathlib.Algebra.CharP.Defs`.
+-- General fact about characteristic `p` (a candidate for `Mathlib.Algebra.CharP.Defs`).
 /-- In a field of characteristic `p`, an element `M • κ / N` with `M, N` prime to `p` is the image
 of an integer iff `κ` is. -/
 theorem exists_intCast_of_intCast_eq (R : Type*) [Field R] [CharP R p] {M N : ℕ}
@@ -107,21 +95,6 @@ theorem exists_intCast_of_intCast_eq (R : Type*) [Field R] [CharP R p] {M N : �
   field_simp
   linear_combination κ * hM'
 
-omit [PerfectField L] [IsRelAlgClosed l L] in
--- TODO(move): `CharP/AdaptedModel.lean`.
-/-- `dlog (1 - y) = -(y / (1 - y)) • dlog y` in `Ω_B`. -/
-theorem modelDLog_one_sub {B : ι → L} {y : L} (hy : y ∈ model l B) (hy0 : y ≠ 0)
-    (hy1 : 1 - y ≠ 0) :
-    modelDLog l B (1 - y) = (-(⟨y, hy⟩ / (1 - ⟨y, hy⟩)) : model l B) • modelDLog l B y := by
-  have h1y : 1 - y ∈ model l B := sub_mem (one_mem _) hy
-  have e : (⟨1 - y, h1y⟩ : model l B) = 1 - ⟨y, hy⟩ := rfl
-  have hy0' : (⟨y, hy⟩ : model l B) ≠ 0 := fun h0 ↦ hy0 (congrArg Subtype.val h0)
-  have hy1' : (1 - ⟨y, hy⟩ : model l B) ≠ 0 := fun h0 ↦ hy1 (congrArg Subtype.val h0)
-  rw [modelDLog_of_mem h1y, modelDLog_of_mem hy, smul_smul, modelD_of_mem h1y,
-    modelD_of_mem hy, e, map_sub, Derivation.map_one_eq_zero, zero_sub, smul_neg, ← neg_smul]
-  congr 1
-  field_simp
-
 omit [Fact p.Prime] [CharP L p] [PerfectField L] [IsRelAlgClosed l L] in
 /-- `t = μ/(μ - 1)` for `μ = -(s/(1 - s)) = s/(s - 1)` gives back `s` (end of the proof of
 Lemma 6.11). -/
@@ -131,36 +104,6 @@ theorem neg_div_one_sub_div {F : Type*} [Field F] {s : F} (hs : 1 - s ≠ 0) :
   field_simp
 
 end Aux
-
-section LinearAlgebra
-
-variable {K F Ω : Type*} [Field K] [Field F] [AddCommGroup Ω] [Module F Ω]
-
--- TODO(move): `StepB/Basic.lean`.
-/-- If `x, y` are transverse and `Δ x = c • u`, `Δ y = c' • v`, then `u, v` are linearly
-independent. -/
-theorem StepBData.Transverse.linearIndependent_of_eq_smul {D : StepBData K F Ω} {x y : K}
-    (h : D.Transverse x y) {u v : Ω} {c c' : F} (hc : D.Δ x = c • u) (hc' : D.Δ y = c' • v) :
-    LinearIndependent F ![u, v] := by
-  have hc0 : c ≠ 0 := fun h0 ↦ h.Δ_ne_zero_left (by rw [hc, h0, zero_smul])
-  have hc'0 : c' ≠ 0 := fun h0 ↦ h.Δ_ne_zero_right (by rw [hc', h0, zero_smul])
-  rw [LinearIndependent.pair_iff]
-  intro s t hst
-  have := h.smul_add_smul_eq_zero (a := s / c) (b := t / c') (by
-    rw [hc, hc', smul_smul, smul_smul, div_mul_cancel₀ s hc0, div_mul_cancel₀ t hc'0, hst])
-  exact ⟨(div_eq_zero_iff.1 this.1).resolve_right hc0,
-    (div_eq_zero_iff.1 this.2).resolve_right hc'0⟩
-
--- TODO(move): `StepB/Basic.lean`.
-/-- Comparing coefficients: if `u, v` are linearly independent and
-`c'' • (u + v) = c • u + c' • v`, then `c'' = c` and `c'' = c'`. -/
-theorem eq_of_linearIndependent_pair {u v : Ω} (hli : LinearIndependent F ![u, v])
-    {c c' c'' : F} (h : c'' • (u + v) = c • u + c' • v) : c'' = c ∧ c'' = c' := by
-  obtain ⟨h₁, h₂⟩ := LinearIndependent.pair_iff.1 hli (c'' - c) (c'' - c') (by
-    rw [sub_smul, sub_smul, sub_add_sub_comm, ← smul_add, h, sub_self])
-  exact ⟨sub_eq_zero.1 h₁, sub_eq_zero.1 h₂⟩
-
-end LinearAlgebra
 
 namespace CharPHyp
 

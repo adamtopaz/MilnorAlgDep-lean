@@ -112,6 +112,34 @@ theorem linearIndependent_pair_smul_add_right (h : LinearIndependent K ![u, v]) 
   have := (LinearIndependent.pair_iff.1 h) a (b - c) (by rw [sub_smul, hc]; abel)
   exact ha this.1
 
+/-- A line contains at most one of two linearly independent vectors. -/
+theorem notMem_span_singleton_of_mem_of_linearIndependent {u u' v : V}
+    (h : LinearIndependent K ![u, u']) (hu : u ∈ K ∙ v) : u' ∉ K ∙ v := by
+  intro hu'
+  obtain ⟨α, rfl⟩ := Submodule.mem_span_singleton.1 hu
+  have hα : α ≠ 0 := by
+    rintro rfl
+    simpa using h.ne_zero 0
+  apply notMem_span_singleton_of_linearIndependent_pair h
+  obtain ⟨β, rfl⟩ := Submodule.mem_span_singleton.1 hu'
+  exact Submodule.mem_span_singleton.2
+    ⟨β * α⁻¹, by rw [smul_smul, mul_assoc, inv_mul_cancel₀ hα, mul_one]⟩
+
+/-- If `e₁, e₂` are linearly independent, so are `α e₁ + β e₂` and `γ e₁ + δ e₂` when
+`α δ - β γ ≠ 0`. -/
+theorem linearIndependent_pair_smul_add {R M : Type*} [Field R] [AddCommGroup M] [Module R M]
+    {e₁ e₂ : M} (h : LinearIndependent R ![e₁, e₂]) {α β γ δ : R}
+    (hdet : α * δ - β * γ ≠ 0) : LinearIndependent R ![α • e₁ + β • e₂, γ • e₁ + δ • e₂] := by
+  rw [LinearIndependent.pair_iff]
+  intro s t hst
+  obtain ⟨h₁, h₂⟩ := LinearIndependent.pair_iff.1 h (s * α + t * γ) (s * β + t * δ) (by
+    rw [← hst]
+    simp only [add_smul, mul_smul, smul_add]
+    abel)
+  have hs : s * (α * δ - β * γ) = 0 := by linear_combination δ * h₁ - γ * h₂
+  have ht : t * (α * δ - β * γ) = 0 := by linear_combination α * h₂ - β * h₁
+  exact ⟨(mul_eq_zero.1 hs).resolve_right hdet, (mul_eq_zero.1 ht).resolve_right hdet⟩
+
 end LinearAlgebra
 
 section Collinear
@@ -171,6 +199,24 @@ theorem IsCollinearTriple.of_samePoint {x' y' z' : L} (h : IsCollinearTriple l x
       (isAlgebraic_adjoin_pair_iff_mem_closure.1 h.isAlgebraic)
   exact Mt.closure_subset_closure_of_subset_closure (Set.singleton_subset_iff.2 hz')
     (isAlgebraic_adjoin_simple_iff_mem_closure.1 hz.isAlgebraic)
+
+/-- "`Z` lies on the line `⟨X, Y⟩`" only depends on the points `X, Y, Z`: if `z` is algebraic over
+`l(x, y)`, then so is `z'` over `l(x', y')` for `x', y', z'` in the points of `x, y, z`. -/
+theorem isAlgebraic_adjoin_pair_of_samePoint {x y z x' y' z' : L} (h : IsAlgebraic l⟮x, y⟯ z)
+    (hx : SamePoint l x' x) (hy : SamePoint l y' y) (hz : SamePoint l z' z) :
+    IsAlgebraic l⟮x', y'⟯ z' := by
+  set M := AlgebraicIndependent.matroid l L
+  have key : ∀ {s : Set L} {w : L}, IsAlgebraic (adjoin l s) w ↔ w ∈ M.closure s :=
+    isAlgebraic_adjoin_iff_mem_closure l
+  have hsub : ({x, y} : Set L) ⊆ M.closure {x', y'} := by
+    refine Set.insert_subset ?_ (Set.singleton_subset_iff.2 ?_)
+    · exact M.closure_mono (Set.singleton_subset_iff.2 (Set.mem_insert _ _))
+        (isAlgebraic_adjoin_simple_iff_mem_closure.1 hx.symm.isAlgebraic)
+    · exact M.closure_mono (Set.singleton_subset_iff.2 (Set.mem_insert_of_mem _ rfl))
+        (isAlgebraic_adjoin_simple_iff_mem_closure.1 hy.symm.isAlgebraic)
+  have hz' : z ∈ M.closure {x', y'} := M.closure_subset_closure_of_subset_closure hsub (key.1 h)
+  exact key.2 (M.closure_subset_closure_of_subset_closure (Set.singleton_subset_iff.2 hz')
+    (isAlgebraic_adjoin_simple_iff_mem_closure.1 hz.isAlgebraic))
 
 theorem IsNormalized.swap₁₂ (h : IsNormalized l x y z) : IsNormalized l y x z :=
   ⟨h.toIsCollinearTriple.swap₁₂, h.isSeparable₂, h.isSeparable₁, by
@@ -663,6 +709,27 @@ theorem levelTriple_eq_of_isNormalized {x' y' z' : L} (h : IsNormalized l x' y' 
     omega
   · change k = _
     omega
+
+/-- Swapping the first two points of a collinear triple negates the first entry of the level
+triple relative to the given elements: if `(a, Frob^j b, *)` is normalized, then so is
+`(b, Frob^{-j} a, *)`. (This is "`c(w, u) = -c(u, w)`", blueprint line 438.) -/
+theorem levelTriple_swap_fst {a b d : L} (h : IsCollinearTriple l a b d) :
+    (levelTriple l p b a d).1 = -(levelTriple l p a b d).1 := by
+  set j := (levelTriple l p a b d).1
+  set k := (levelTriple l p a b d).2
+  have hn : IsNormalized l (frobZ L p j b) a (frobZ L p k d) :=
+    (isNormalized_levelTriple p h).swap₁₂
+  have hn' : IsNormalized l b (frobZ L p (-j) a) (frobZ L p (-j + k) d) := by
+    have := (IsNormalized.frobZ_iff p (-j)).2 hn
+    rwa [frobZ_neg_apply_frobZ, ← frobZ_add_apply] at this
+  have ha : SamePoint l (frobZ L p (-j) a) a :=
+    (samePoint_frobZ_left_iff p (-j)).2 (samePoint_refl h.transcendental₁)
+  have hd : SamePoint l (frobZ L p (-j + k) d) d :=
+    (samePoint_frobZ_left_iff p (-j + k)).2 (samePoint_refl h.transcendental₃)
+  rw [levelTriple_eq_of_isNormalized p hn' (samePoint_refl h.transcendental₂) ha hd,
+    levDiff_frobZ_left p (samePoint_refl h.transcendental₁), levDiff_self p h.transcendental₁,
+    levDiff_self p h.transcendental₂]
+  ring
 
 end LevelTriples
 

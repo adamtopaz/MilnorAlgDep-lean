@@ -28,7 +28,7 @@ transcendence degree one over `l`. For `v ∈ V l L` non-zero, `Q_v = Q_a` for a
 
 * `point_eq_point_iff_mem`, `mem_point_iff_not_algebraicIndependent`: for `a, b ∉ l`,
   `Q_a = Q_b ↔ b ∈ Q_a ↔ a, b are algebraically dependent over l`.
-* `point_inf_point_eq_bot`: two distinct points intersect in `l`.
+* `point_inf_point_eq_bot`, `pointV_inf_pointV_eq_bot`: two distinct points intersect in `l`.
 * `mem_pointGroup_point_iff`: `G_Q = {v | v = 0 ∨ Q_v = Q}`.
 * `vAlgIndep_pair_iff`: non-zero `v, w ∈ V l L` are algebraically dependent iff `Q_v = Q_w`.
 -/

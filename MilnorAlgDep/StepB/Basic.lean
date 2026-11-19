@@ -361,4 +361,32 @@ theorem Transverse.t_mul (h : D.Transverse x y) : D.t (x * y) = D.t x * D.t y :=
 
 end StepBData
 
+section LinearAlgebra
+
+variable {K F Ω : Type*} [Field K] [Field F] [AddCommGroup Ω] [Module F Ω]
+
+/-- If `x, y` are transverse and `Δ x = c • u`, `Δ y = c' • v`, then `u, v` are linearly
+independent. -/
+theorem StepBData.Transverse.linearIndependent_of_eq_smul {D : StepBData K F Ω} {x y : K}
+    (h : D.Transverse x y) {u v : Ω} {c c' : F} (hc : D.Δ x = c • u) (hc' : D.Δ y = c' • v) :
+    LinearIndependent F ![u, v] := by
+  have hc0 : c ≠ 0 := fun h0 ↦ h.Δ_ne_zero_left (by rw [hc, h0, zero_smul])
+  have hc'0 : c' ≠ 0 := fun h0 ↦ h.Δ_ne_zero_right (by rw [hc', h0, zero_smul])
+  rw [LinearIndependent.pair_iff]
+  intro s t hst
+  have := h.smul_add_smul_eq_zero (a := s / c) (b := t / c') (by
+    rw [hc, hc', smul_smul, smul_smul, div_mul_cancel₀ s hc0, div_mul_cancel₀ t hc'0, hst])
+  exact ⟨(div_eq_zero_iff.1 this.1).resolve_right hc0,
+    (div_eq_zero_iff.1 this.2).resolve_right hc'0⟩
+
+/-- Comparing coefficients: if `u, v` are linearly independent and
+`c'' • (u + v) = c • u + c' • v`, then `c'' = c` and `c'' = c'`. -/
+theorem eq_of_linearIndependent_pair {u v : Ω} (hli : LinearIndependent F ![u, v])
+    {c c' c'' : F} (h : c'' • (u + v) = c • u + c' • v) : c'' = c ∧ c'' = c' := by
+  obtain ⟨h₁, h₂⟩ := LinearIndependent.pair_iff.1 hli (c'' - c) (c'' - c') (by
+    rw [sub_smul, sub_smul, sub_add_sub_comm, ← smul_add, h, sub_self])
+  exact ⟨sub_eq_zero.1 h₁, sub_eq_zero.1 h₂⟩
+
+end LinearAlgebra
+
 end MilnorAlgDep

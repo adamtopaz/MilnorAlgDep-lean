@@ -88,32 +88,6 @@ end Defs
 
 variable {B : ι → L}
 
-section ModelField
-
-/-! ### The model as a field in its own right
-
-The results of `MilnorAlgDep.Standard.Differentials` ((S2), (S3)) apply to `E = L_B` with the
-family `B` viewed in `L_B`. -/
-
-omit [PerfectField L] [IsRelAlgClosed l L] in
--- TODO(move): `MilnorAlgDep.CharP.Model`.
-/-- `B`, viewed in `L_B`, is algebraically independent over `l` (hypothesis of (S2), (S3) for the
-model `E = L_B`, blueprint Lemma 4.2(a)). -/
-theorem algebraicIndependent_restrictFamily_model (hB : AlgebraicIndependent l B) :
-    AlgebraicIndependent l (restrictFamily (model l B) B (self_mem_model B)) :=
-  algebraicIndependent_restrictFamily _ _ hB
-
-omit [PerfectField L] [IsRelAlgClosed l L] in
--- TODO(move): `MilnorAlgDep.CharP.Model`.
-/-- `L_B` is separable algebraic over `l(B)` (hypothesis of (S2), (S3) for the model `E = L_B`,
-blueprint Lemma 4.2(a)). -/
-theorem isSeparable_adjoin_restrictFamily_model (B : ι → L) :
-    Algebra.IsSeparable (adjoin l (Set.range (restrictFamily (model l B) B (self_mem_model B))))
-      (model l B) :=
-  isSeparable_adjoin_restrictFamily_separableClosure B
-
-end ModelField
-
 section HeightSet
 
 /-! ### The set defining the height
@@ -257,6 +231,16 @@ theorem hgt_frobZ_neg_hgt (hB : IsTranscendenceBasis l B) {y : L} (hy : Transcen
     hgt l p B (frobZ L p (-hgt l p B y) y) = 0 := by
   rw [hgt_frobZ p hB hy, add_neg_cancel]
 
+/-- Two elements of the same point with the same height are `≈`-equivalent. -/
+theorem sepEquiv_of_hgt_eq {B : ι → L} (hB : IsTranscendenceBasis l B) {s t : L}
+    (h : SamePoint l s t) (hst : hgt l p B s = hgt l p B t) : SepEquiv l s t :=
+  (levDiff_eq_zero_iff p h).1 (by rw [← hgt_sub_hgt p hB h, hst, sub_self])
+
+/-- If `s, t` lie in the same point and `ht s ≥ ht t`, then `s` is separable over `l(t)`. -/
+theorem isSeparable_of_hgt_le {B : ι → L} (hB : IsTranscendenceBasis l B) {s t : L}
+    (h : SamePoint l s t) (hst : hgt l p B t ≤ hgt l p B s) : IsSeparable l⟮t⟯ s :=
+  (levDiff_nonneg_iff p h).1 (by rw [← hgt_sub_hgt p hB h]; omega)
+
 end PointsInModel
 
 section LinearAlgebra
@@ -297,6 +281,33 @@ theorem span_singleton_eq_inf_of_le {v a b c d : V} (hv : v ≠ 0)
   have e₁ : P ⊓ R = P := Submodule.eq_of_le_of_finrank_le inf_le_left (by omega)
   have e₂ : P ⊓ R = R := Submodule.eq_of_le_of_finrank_le inf_le_right (by omega)
   exact hne (e₁.symm.trans e₂)
+
+/-- A non-zero vector of the line `K ∙ v` spans it. -/
+theorem span_singleton_eq_of_mem {v w : V} (hw : w ≠ 0) (h : w ∈ K ∙ v) : K ∙ w = K ∙ v := by
+  obtain ⟨r, rfl⟩ := Submodule.mem_span_singleton.1 h
+  exact Submodule.span_singleton_smul_eq (left_ne_zero_of_smul hw).isUnit v
+
+/-- Two lines `K ∙ v`, `K ∙ w` are different if a linear form vanishes at `w` but not at `v`. -/
+theorem span_singleton_ne_of_apply (f : V →ₗ[K] K) {v w : V} (hv : f v ≠ 0) (hw : f w = 0) :
+    K ∙ v ≠ K ∙ w := by
+  intro h
+  obtain ⟨r, hr⟩ := Submodule.mem_span_singleton.1 (h ▸ Submodule.mem_span_singleton_self v)
+  rw [← hr, map_smul, hw, smul_zero] at hv
+  exact hv rfl
+
+/-- If a non-zero vector `u` of the plane `K ∙ v ⊔ K ∙ w` spans a line different from `K ∙ v` and
+from `K ∙ w`, then `u = s • v + t • w` with `s, t ≠ 0`. -/
+theorem exists_smul_add_smul_of_mem_sup {u v w : V} (hu : u ≠ 0) (h : u ∈ K ∙ v ⊔ K ∙ w)
+    (hv : K ∙ u ≠ K ∙ v) (hw : K ∙ u ≠ K ∙ w) :
+    ∃ s t : K, s ≠ 0 ∧ t ≠ 0 ∧ u = s • v + t • w := by
+  obtain ⟨_, hv', _, hw', rfl⟩ := Submodule.mem_sup.1 h
+  obtain ⟨s, rfl⟩ := Submodule.mem_span_singleton.1 hv'
+  obtain ⟨t, rfl⟩ := Submodule.mem_span_singleton.1 hw'
+  refine ⟨s, t, fun hs ↦ ?_, fun ht ↦ ?_, rfl⟩
+  · rw [hs, zero_smul, zero_add] at hu hw
+    exact hw (Submodule.span_singleton_smul_eq (left_ne_zero_of_smul hu).isUnit w)
+  · rw [ht, zero_smul, add_zero] at hu hv
+    exact hv (Submodule.span_singleton_smul_eq (left_ne_zero_of_smul hu).isUnit v)
 
 end LinearAlgebra
 
@@ -396,6 +407,11 @@ theorem omega_eq_inf_of_isAlgebraic (hB : IsTranscendenceBasis l B) {x q₁ q₂
   exact span_singleton_eq_inf_of_le (hne hx)
     (linearIndependent_pair_of_span_singleton_ne (hne hq₁) (hne hq₂) hq)
     (linearIndependent_pair_of_span_singleton_ne (hne hr₁) (hne hr₂) hr) hqr h₁ h₂
+
+/-- `ω_B(Q_{Frob^j y}) = ω_B(Q_y)`: points are stable under Frobenius. -/
+theorem omega_frobZ (hB : IsTranscendenceBasis l B) {y : L} (hy : Transcendental l y) (j : ℤ) :
+    omega l p B (frobZ L p j y) = omega l p B y :=
+  omega_eq_of_samePoint p hB ((samePoint_frobZ_left_iff p j).2 (samePoint_refl hy))
 
 end Lines
 

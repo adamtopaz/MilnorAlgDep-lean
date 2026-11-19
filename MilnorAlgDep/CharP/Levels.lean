@@ -246,6 +246,21 @@ theorem sepEquiv_zpow {A : ℤ} (hA : (A : L) ≠ 0) (b : L) : SepEquiv l (b ^ A
     have hn : (n : L) ≠ 0 := fun h ↦ hA (by push_cast; rw [h, neg_zero])
     exact (sepEquiv_inv (b ^ n)).trans (sepEquiv_pow hn b)
 
+/-- If `s ≈ t`, `s ∈ L_B` and `d s ≠ 0`, then `d t = c • d s` with `c ≠ 0`. -/
+theorem SepEquiv.exists_modelD_eq_smul {ι : Type*} {B : ι → L} {s t : L} (h : SepEquiv l s t)
+    (hs : s ∈ model l B) (hds : modelD l B s ≠ 0) :
+    ∃ c : model l B, c ≠ 0 ∧ modelD l B t = c • modelD l B s := by
+  have hspan := h.span_modelD_eq hs
+  have hmem : modelD l B t ∈ (model l B) ∙ modelD l B s := by
+    rw [hspan]
+    exact Submodule.mem_span_singleton_self _
+  obtain ⟨c, hc⟩ := Submodule.mem_span_singleton.1 hmem
+  refine ⟨c, fun hc0 ↦ hds ?_, hc.symm⟩
+  rw [hc0, zero_smul] at hc
+  have : (model l B) ∙ modelD l B s = ⊥ := by
+    rw [hspan, ← hc, Submodule.span_singleton_eq_bot.2 rfl]
+  exact Submodule.span_singleton_eq_bot.1 this
+
 end SepEquiv
 
 section Levels

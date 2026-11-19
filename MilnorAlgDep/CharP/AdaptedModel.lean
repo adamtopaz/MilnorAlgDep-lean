@@ -125,6 +125,19 @@ theorem modelDLog_algebraMap_mul (c : l) (hc : c ≠ 0) (hy : y ∈ model l B) (
     modelDLog_algebraMap,
     zero_add]
 
+/-- `dlog (1 - y) = -(y / (1 - y)) • dlog y` in `Ω_B`. -/
+theorem modelDLog_one_sub {B : ι → L} {y : L} (hy : y ∈ model l B) (hy0 : y ≠ 0)
+    (hy1 : 1 - y ≠ 0) :
+    modelDLog l B (1 - y) = (-(⟨y, hy⟩ / (1 - ⟨y, hy⟩)) : model l B) • modelDLog l B y := by
+  have h1y : 1 - y ∈ model l B := sub_mem (one_mem _) hy
+  have e : (⟨1 - y, h1y⟩ : model l B) = 1 - ⟨y, hy⟩ := rfl
+  have hy0' : (⟨y, hy⟩ : model l B) ≠ 0 := fun h0 ↦ hy0 (congrArg Subtype.val h0)
+  have hy1' : (1 - ⟨y, hy⟩ : model l B) ≠ 0 := fun h0 ↦ hy1 (congrArg Subtype.val h0)
+  rw [modelDLog_of_mem h1y, modelDLog_of_mem hy, smul_smul, modelD_of_mem h1y,
+    modelD_of_mem hy, e, map_sub, Derivation.map_one_eq_zero, zero_sub, smul_neg, ← neg_smul]
+  congr 1
+  field_simp
+
 end ModelDLog
 
 /-! ### The group `W` and `dlog_A` (Lemma 6.4) -/
@@ -372,20 +385,6 @@ end W
 section FourVectors
 
 variable {F Ω : Type*} [Field F] [AddCommGroup Ω] [Module F Ω]
-
--- TODO(move): linear algebra, next to `notMem_span_singleton_of_linearIndependent_pair`.
-/-- A line contains at most one of two linearly independent vectors. -/
-theorem notMem_span_singleton_of_mem_of_linearIndependent {u u' v : Ω}
-    (h : LinearIndependent F ![u, u']) (hu : u ∈ F ∙ v) : u' ∉ F ∙ v := by
-  intro hu'
-  obtain ⟨α, rfl⟩ := Submodule.mem_span_singleton.1 hu
-  have hα : α ≠ 0 := by
-    rintro rfl
-    simpa using h.ne_zero 0
-  apply notMem_span_singleton_of_linearIndependent_pair h
-  obtain ⟨β, rfl⟩ := Submodule.mem_span_singleton.1 hu'
-  exact Submodule.mem_span_singleton.2
-    ⟨β * α⁻¹, by rw [smul_smul, mul_assoc, inv_mul_cancel₀ hα, mul_one]⟩
 
 /-- If `e₀, e₁, e₂` are linearly independent, then any two of the four vectors
 `e₀, e₁, e₂, e₀ + e₁ + e₂` are linearly independent. -/
