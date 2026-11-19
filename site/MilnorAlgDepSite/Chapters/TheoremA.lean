@@ -1298,7 +1298,8 @@ Then $`\tau' = \Frob^j \circ \tau` and $`r' = p^{-j} r` for some $`j \in \Gamma`
 :::
 
 The formal statement is {name}`theoremA_perfect_unique` (shown in
-{ref "ss:statementA"}[Section 1.1]).
+{ref "ss:statementA"}[Section 1.1]); {name}`theoremA_unique` deduces the uniqueness clause for
+arbitrary $`L` from it.
 It assumes only that $`\psi = r[\tau] = r'[\tau']` is non-zero, which implies the hypotheses of
 the lemma: if $`\psi(x_0) \neq 0` then $`r, r' \neq 0`, and by (V1)
 $`\tau(x) \in l \iff \psi(x) = 0 \iff \tau'(x) \in l`, while $`\tau(x_0) \notin l`.
@@ -1343,7 +1344,8 @@ tag := "ss:assembly"
 
 The file `MilnorAlgDep/TheoremA.lean` contains the three frozen statements of
 {ref "ss:statementA"}[Section 1.1], each proved by one line that forwards to a theorem with the
-same statement:
+same statement (and {name}`theoremA_unique`, which is deduced from
+{name}`theoremA_perfect_unique`):
 
 ```
 theoremA                                 TheoremA.lean

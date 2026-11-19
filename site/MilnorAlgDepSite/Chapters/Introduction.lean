@@ -119,6 +119,8 @@ $`\tau_* \colon \Kr_*(K|k) \to \Kr_*(L|l)`, and for $`r \in \QQ^\times` we write
 the automorphism of a graded $`\QQ`-algebra which is multiplication by $`r^n` in degree $`n`.
 To keep the statements simple, the fields in Theorems B–D are perfect; this is harmless, because
 $`\Kr_*` does not change under purely inseparable extensions.
+(The formal statements of Theorems B and C only assume $`L` perfect, and Theorem D is stated for
+arbitrary fields.)
 
 In Lean, $`\Kr_*(L|l)` is {name}`MilnorKQ` `(constUnits l L)`, the tensor algebra
 over $`\QQ` of $`V_{L|l}` modulo the Steinberg relations, and $`\Kr_*(L)` is
@@ -141,6 +143,7 @@ The pair $`(\tau, r)` is unique up to $`(\Frob^j \circ \tau, p^{-j} r)`.
 
 {docstring MilnorAlgDep.theoremB}
 
+In the formal statement $`K` is arbitrary; only $`L` is assumed perfect.
 The homomorphism $`\tau_*` needs a proof that $`\tau(k^\times) \subset l^\times`; it is produced
 from `hτ`, inside the existential, by {name}`constUnits_le_comap`.
 
@@ -160,6 +163,7 @@ The pair $`(\tau, r)` is unique up to $`(\Frob^j \circ \tau, p^{-j} r)`.
 
 {docstring MilnorAlgDep.theoremC}
 
+As in Theorem B, $`K` is arbitrary in the formal statement; only $`L` is assumed perfect.
 The subfields $`k_0` and $`l_0` are arguments of the theorem, characterized by the hypotheses
 `hk₀` and `hl₀`; the prime field of $`K` is `⊥ : Subfield K`.
 The projection $`\Kr_1(L) = L^\times \otimes \QQ \to V_{L|l_0}` is
@@ -284,12 +288,13 @@ Its proofs are now machine-checked in full.
 
 The library `MilnorAlgDep` contains no `sorry`, and the main theorems depend only on the three
 standard axioms of Lean and Mathlib.
-For the eight main statements, `#print axioms` gives (November 2026):
+For the nine main statements, `#print axioms` gives (November 2026):
 
 ```
 'MilnorAlgDep.theoremA' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MilnorAlgDep.theoremA_perfect' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MilnorAlgDep.theoremA_perfect_unique' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MilnorAlgDep.theoremA_unique' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MilnorAlgDep.theoremB' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MilnorAlgDep.theoremB_unique' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MilnorAlgDep.theoremC' depends on axioms: [propext, Classical.choice, Quot.sound]
@@ -318,8 +323,12 @@ In detail:
   * {ref "ss:reductions"}[Section 6.1]
 *
   * Uniqueness in Theorem A ({cref "lem:unique"}[])
-  * {name}`theoremA_perfect_unique`
+  * {name}`theoremA_perfect_unique`, {name}`theoremA_unique`
   * {ref "ss:end"}[Section 6.7]
+*
+  * Converse of Theorem A, non-vacuity of its hypotheses
+  * {name}`theoremA_converse`, {name}`theoremA_perfect_hypotheses`
+  * {ref "ss:statementA"}[Section 1.1]
 *
   * Lemmas 7.1–7.3
   * see {ref "sec:K"}[Chapter 7]

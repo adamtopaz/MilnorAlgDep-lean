@@ -20,22 +20,24 @@ Proposition 6.9. By Proposition 6.9 `K` has characteristic `p` (`CharPHyp.charP_
   `x₀`, with `j = ht ψ(x)`).
 * **Lemma 6.10** (`lem:tauinQ`): `CharPHyp.τ_mem_pointV`, `CharPHyp.τ_mem_range_of_mem`,
   `CharPHyp.τ_notMem_range`.
-* `exists_intCast_of_modelDLog_eq`: the eigenvalue lemma (Lemma 2.2) in the form used in
-  Lemmas 6.10, 6.11 and `eq:lift`.
 * **Lemma 6.11** (`lem:theta`): `CharPHyp.exists_θ`, through `CharPHyp.hgt_τ_eq_of_transverse`,
   `CharPHyp.exists_hgt_τ_coeff` (heights `e(x) = e₀` and coefficient `θ` constant) and
   `CharPHyp.hgt_τ_eq_zero` (`e₀ = 0`).
 * `CharPHyp.exists_dlogA_eq_smul`, `CharPHyp.exists_intCast_of_dlogA_eq`: for primitive `x` and
   `v ∈ W ∩ G_{Q_x}`, `dlog_A(v) = c • dlog τ(x)` with `c ∈ F ∩ Q_x`, and `c ∈ F_p` if `c ∈ l`
-  (eigenvalue lemma). These are shared by Lemma 6.11 (`v = ψ(x)`) and `eq:lift` (`v = ψ'(x)`).
+  (eigenvalue lemma, in the form `exists_intCast_of_modelDLog_eq` of
+  `MilnorAlgDep.CharP.StepCFields`). These are shared by Lemma 6.11 (`v = ψ(x)`) and `eq:lift`
+  (`v = ψ'(x)`).
 * **Proposition 6.12** (`prop:rational`), case `Γ = ℤ`: `CharPHyp.exists_rat_ψ₀_eq`, broken into
   - `CharPHyp.exists_lift`: `eq:lift`;
   - `CharPHyp.exists_padic`: `eq:padic`, `ψ - r_j [τ] ∈ p^j W` on `K₀ˣ`;
   - `CharPHyp.exists_pow_eq_of_padic`: for one `j`, `(a s^{-N r_j})^M = c y^{p^j}` with
     `y ∈ E = l(s, a)` (from `exists_pow_eq_mul_pow_pow`, i.e. `eq:Epower`);
-  - `exists_dvd_sub_of_forall_pow_eq`: the norm argument and unique factorization in `l[s]`
-    (the `s`-adic order of `N_{E|l(s)}(a)`);
-  - `exists_dvd_sub_of_dvd`: elementary arithmetic (`MN = p^β n'`, `ε = p^β m'`);
+  - `exists_dvd_sub_of_forall_pow_eq` (in `MilnorAlgDep.CharP.StepCFields`): the norm argument,
+    comparing degrees of `N_{E|l(s)}(a)` on `l(s) ≅ RatFunc l` (the blueprint compares orders at
+    `s`, by unique factorization in `l[s]`);
+  - `exists_dvd_sub_of_dvd` (in `MilnorAlgDep.CharP.StepCFields`): elementary arithmetic
+    (`MN = p^β n'`, `ε = p^β m'`);
   - `CharPHyp.zsmul_ψ₀_eq_of_dvd`: the conclusion via `⋂ p^j W = 0`.
 
 ## Remarks on the blueprint
@@ -112,7 +114,8 @@ variable (p : ℕ) [Fact p.Prime] [CharP L p] [PerfectField L] [IsRelAlgClosed l
 
 /-! ### Primitive roots, `eq:roots` -/
 
-/-- Blueprint `eq:roots`: `Frob(K₀) ⊆ K₀` (`ψ(x^p) = p ψ(x)` has height `ht ψ(x) + 1`). -/
+/-- Blueprint `eq:roots`: `Frob(K₀) ⊆ K₀`. (The blueprint argues with heights: `ψ(x^p) = p ψ(x)`
+has height `ht ψ(x) + 1`. Here it is immediate, as `K₀` is a subfield, Lemma 6.5(a).) -/
 theorem pow_mem_K₀ {x : K} (hx : x ∈ H.K₀ p) : x ^ p ∈ H.K₀ p :=
   pow_mem hx p
 
@@ -217,8 +220,9 @@ theorem mem_range_of_mem_pointV_x {z : L} (h₀ : z ∈ pointV l (H.ψK (H.x 0))
     fin_cases i <;> rfl
   exact mem_range_of_mem_pointV_of_vAlgIndep hind h₀ h₁
 
-/-- **Blueprint Lemma 6.10** (`lem:tauinQ`), second part: `τ(k) ⊆ l` (for `c ∈ kˣ` and primitive
-`x`, `τ(c) = t(c x)/t(x) ∈ Q_x`; take two transverse `x`). -/
+/-- **Blueprint Lemma 6.10** (`lem:tauinQ`), second part: `τ(k) ⊆ l`. For `c ∈ kˣ` and
+`x ∈ K₀ ∖ k`, `τ(c) = t(c x)/t(x) ∈ Q_x` (`τ_mem_pointV_of_mem`); apply this to the elements
+`x 0`, `x 1` of (A3), whose points meet in `l`. -/
 theorem τ_mem_range_of_mem {x : H.K₀ p} (hx : (x : K) ∈ H.k) :
     H.τ p x ∈ (algebraMap l L).range :=
   H.mem_range_of_mem_pointV_x
@@ -880,11 +884,12 @@ theorem exists_pow_eq_of_padic {u : (H.K₀ p)ˣ} (hu : (H.data p).Δ u ≠ 0) {
 `ψ(x) = r • [τ(x)]` for all `x ∈ K₀ˣ`.
 
 Proof from the lemmas above: choose `r_j` by `exists_padic`; fix the primitive element
-`x = x₀` of (A3), `s = τ(x)` (a model generator by `exists_θ`) and the representative `(N, a)` of
-`ψ(x)`; `a` is separable over `l(s)` (`a ≈ s`). Let `E = l(s, a)`. For each `j`,
-`p^j • (N w_j) = [a s^{-N r_j}]` with `w_j ∈ W`, so `exists_pow_eq_mul_pow_pow` applies; then
-`exists_dvd_sub_of_forall_pow_eq` (with `e_j = N r_j`), `exists_dvd_sub_of_dvd` and
-`zsmul_ψ₀_eq_of_dvd` give `n' ψ = m' [τ]`, and `r = m'/n' ≠ 0` as `ψ ≠ 0`. -/
+`u = x 0` (the first element of (A3)), `s = τ(u)` (a model generator by `exists_θ`) and the
+representative `(N, a)` of `ψ(u)`; `a` is separable over `l(s)` (`a ≈ s`). Let `E = l(s, a)`.
+For each `j`, `p^j • (N w_j) = [a s^{-N r_j}]` with `w_j ∈ W`, so
+`exists_pow_eq_mul_pow_pow` applies; then `exists_dvd_sub_of_forall_pow_eq` (with `e_j = N r_j`),
+`exists_dvd_sub_of_dvd` and `zsmul_ψ₀_eq_of_dvd` give `n' ψ = m' [τ]`, and `r = m'/n' ≠ 0` as
+`ψ ≠ 0`. -/
 theorem exists_rat_ψ₀_eq : ∃ r : ℚ, r ≠ 0 ∧ ∀ x : (H.K₀ p)ˣ,
     H.ψ₀ p (.ofMul x) = r • H.τV p (.ofMul x) := by
   choose r hr using H.exists_padic p

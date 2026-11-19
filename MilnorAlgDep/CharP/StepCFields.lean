@@ -126,9 +126,10 @@ omit [PerfectField L] in
 /-- **Blueprint Lemma 2.2** (eigenvalue lemma) in a model, in the form used in Lemmas 6.10, 6.11
 and in `eq:lift`: let `a ∈ L_B` with `d a ≠ 0` in `Ω_B`, and `b ≠ 0` separable algebraic
 over `l(a)`. If `dlog b = κ • dlog a` in `Ω_B` with `κ ∈ l`, then `κ` lies in the prime field
-`F_p`, i.e. is the image of an integer. (Apply Lemma 2.2 to the derivation `δ` of the field of
-elements separable over `l(a)` with `d f = δ(f) • dlog a`; `Ω_{E|l} → Ω_B` is injective because
-`d a ≠ 0`.) -/
+`F_p`, i.e. is the image of an integer. (Let `E` be the field of elements separable over `l(a)`
+and `δ = a · d/da` the derivation of `E` with `d f = δ(f) • dlog a` in `Ω_{E|l}`. Mapping
+`d b = (δ(b)/a) • d a` to `Ω_B` and comparing with the hypothesis, which is possible as
+`d a ≠ 0` in `Ω_B`, gives `δ(b) = κ b`; then apply Lemma 2.2 to `δ`.) -/
 theorem exists_intCast_of_modelDLog_eq {B : ι → L} {a b : L} (ha : a ∈ model l B)
     (hda : modelD l B a ≠ 0) (hb : IsSeparable l⟮a⟯ b) (hb0 : b ≠ 0) {κ : l}
     (h : modelDLog l B b = algebraMap l (model l B) κ • modelDLog l B a) :
@@ -298,7 +299,7 @@ theorem exists_dvd_sub_of_forall_pow_eq {s a : L} (hs : Transcendental l s) (ha0
   linear_combination this
 
 omit [CharP L p] [PerfectField L] [IsRelAlgClosed l L] in
-/-- Blueprint, proof of Proposition 6.12 (lines 716-718), arithmetic: if `ε ≡ M r_j (mod p^j)`
+/-- Blueprint, proof of Proposition 6.12 (lines 717-718), arithmetic: if `ε ≡ M r_j (mod p^j)`
 for all `j`, with `M ≥ 1`, write `M = p^β n'` with `p ∤ n'`; then `p^β ∣ ε`, say `ε = p^β m'`, and
 `n' r_j ≡ m' (mod p^{j-β})` for all `j ≥ β`. -/
 theorem exists_dvd_sub_of_dvd {M : ℕ} (hM : 0 < M) {ε : ℤ} {r : ℕ → ℤ}

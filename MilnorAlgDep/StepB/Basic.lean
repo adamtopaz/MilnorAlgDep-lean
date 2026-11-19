@@ -54,9 +54,16 @@ open Submodule
 /-- The hypotheses of the abstract Step B (blueprint Sections 6.3–6.5).
 
 `Δ : K → Ω` is a homomorphism from `Kˣ` to the `F`-vector space `Ω`, extended by `Δ 0 = 0`.
-An element `x` is *primitive* if `Δ x ≠ 0`. The fields `Δ_neg_one`, `Δ_eq_zero_iff_one_sub`,
-`Δ_one_sub_mem_span` and `exists_Δ_notMem_span` are the hypotheses (H0)–(H3) of the module
-docstring; in the blueprint they come from Lemma 6.5 (`lem:K0`). -/
+An element `x` is *primitive* if `Δ x ≠ 0`. The remaining fields are the hypotheses
+
+* (H0) `Δ (-1) = 0` (`Δ_neg_one`);
+* (H1) for `x ≠ 0, 1`: `Δ x = 0 ↔ Δ (1 - x) = 0` (`Δ_eq_zero_iff_one_sub`);
+* (H2) for `x ≠ 0, 1` with `Δ x ≠ 0`: `Δ (1 - x) ∈ F ∙ Δ x` (`Δ_one_sub_mem_span`);
+* (H3) for any `v₁ v₂ v₃ : Ω` there is `z` with `Δ z ∉ F ∙ vᵢ` for `i = 1, 2, 3`
+  (`exists_Δ_notMem_span`).
+
+In the blueprint, `Δ = dlog_A ∘ ψ`; (H1) and (H2) are Lemma 6.5(b) (`lem:K0`) together with
+`Δ = 0` on `kˣ`, (H3) is Lemma 6.5(c), and (H0) holds because `ψ (-1) = 0`. -/
 structure StepBData (K F Ω : Type*) [Field K] [Field F] [AddCommGroup Ω] [Module F Ω] where
   /-- The homomorphism `Δ`, extended to `K` by `Δ 0 = 0`. -/
   Δ : K → Ω

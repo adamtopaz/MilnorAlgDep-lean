@@ -20,6 +20,8 @@ The development is in
 * `MilnorAlgDep.CharP.StepA`: Step A, Proposition 6.1 (Section 6.2);
 * `MilnorAlgDep.CharP.AdaptedModel`: `W`, `dlog_A`, `K₀`, `Δ`, Lemmas 6.4 and 6.5, and
   `τ : K₀ → L` from the abstract Step B (Section 6.3, Proposition 6.9);
+* `MilnorAlgDep.CharP.StepCFields`: field-theoretic lemmas for Step C: the eigenvalue lemma in a
+  model, `eq:Epower`, the norm argument and the arithmetic of the proof of Proposition 6.12;
 * `MilnorAlgDep.CharP.StepC`: `eq:roots`, Lemmas 6.10, 6.11, Proposition 6.12
   (Section 6.6).
 

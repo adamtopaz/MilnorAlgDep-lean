@@ -78,8 +78,17 @@ variable {K L : Type*} [Field K] [Field L]
 arbitrary.
 
 Let `k ⊆ K` be a subfield, `l ⊆ L` a relatively algebraically closed subfield of the perfect field
-`L`, and `ψ : Kˣ → V_{L|l}` a homomorphism satisfying (A1)–(A4) (see the module docstring for the
-encoding). Then `char K = char L`, `k` is relatively algebraically closed in `K`, and there are a
+`L` (`hl`), and `ψ : Kˣ → V_{L|l}` a homomorphism, encoded as an additive homomorphism
+`Additive Kˣ →+ V l L` (`ψ (.ofMul x)` is `ψ(x)`), satisfying
+
+* (A1) `ker ψ = kˣ`;
+* (A2) `ψ(x)`, `ψ(y)` are algebraically dependent over `l` (`¬ VAlgIndep`) whenever `x + y = 1`
+  and `x ∉ k`;
+* (A3) some `ψ(x_1), …, ψ(x_d)` are algebraically independent over `l`, where
+  `d = if ringChar L = 0 then 2 else 3`;
+* (A4) if `char L > 0` then `char K > 0` (`ringChar` is `0` in characteristic `0`).
+
+Then `char K = char L`, `k` is relatively algebraically closed in `K`, and there are a
 ring homomorphism (field embedding) `τ : K → L` with `τ⁻¹(l) = k` and a rational number `r ≠ 0`
 with `ψ(x) = r • [τ x]` for all `x ∈ Kˣ`. Uniqueness is `theoremA_perfect_unique`. -/
 theorem theoremA_perfect [PerfectField L] (k : Subfield K) (l : Subfield L)

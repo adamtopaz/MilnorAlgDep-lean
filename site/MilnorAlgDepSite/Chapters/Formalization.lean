@@ -182,7 +182,11 @@ tag := "ss:table"
 *
   * Theorem A
   * {name}`theoremA_perfect`, {name}`theoremA`,
-    {name}`theoremA_perfect_unique`
+    {name}`theoremA_perfect_unique`, {name}`theoremA_unique`
+*
+  * converse of Theorem A (1.1)
+  * {name}`theoremA_converse`, {name}`theoremA_converse_perfectClosure`,
+    {name}`theoremA_perfect_hypotheses`, {name}`theoremA_perfect_hypotheses_ratFunc`
 *
   * Theorems B, C, D
   * {name}`theoremB`, {name}`theoremB_unique`,
@@ -435,7 +439,7 @@ tag := "ss:table"
   * {name}`TheoremC.degOne_cls_eq_of_proj`
 *
   * proof of Theorem D
-  * {name}`TheoremD.exists_eq_of_degOne_bijective`,
+  * {name}`MilnorKQ.IsGraded.symm`, {name}`TheoremD.exists_eq_of_degOne_bijective`,
     {name}`TheoremD.bijective_of_smul_cls_map_eq`
 :::
 

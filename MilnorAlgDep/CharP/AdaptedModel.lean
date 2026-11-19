@@ -634,8 +634,10 @@ theorem Δhom_one_sub_mem_span (x : (H.K₀ p)ˣ) (hx : (1 : H.K₀ p) - x ≠ 0
   rw [← hspan]
   exact Submodule.mem_span_singleton_self _
 
-/-- **Blueprint Lemma 6.5(c)**: the `x i` are primitive and `Δ(x₀), Δ(x₁), Δ(x₂)` are linearly
-independent (`Δ(x i) = N_i⁻¹ • dlog a_i` with `a_i ∈ A`). -/
+/-- **Blueprint Lemma 6.5(c)**: the three elements `x 0, x 1, x 2` of (A3) (the blueprint's
+`x_1, x_2, x_3`) are primitive and `Δ(x 0), Δ(x 1), Δ(x 2)` are linearly independent:
+`Δ(x i) = N_i⁻¹ • dlog a_i`, where `(N_i, a_i)` is the chosen representative of `ψ(x i)` and the
+`a_i` belong to the transcendence basis `A`. -/
 theorem linearIndependent_Δhom_x :
     LinearIndependent (H.F p) fun i ↦ H.Δhom p (.ofMul (H.xK₀ p i)) := by
   have hB := H.isTranscendenceBasis_B p
