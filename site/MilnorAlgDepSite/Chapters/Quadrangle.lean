@@ -47,8 +47,8 @@ $`(A, C, H)`; so the first entries add up:
 
 {docstring MilnorAlgDep.levelTriple_fst_add_levelTriple_fst}
 
-This is the cocycle relation $`c(u, z) = c(u, w) + c(w, z)` of Lemma 6.3, when $`a_0, b_0, c_0`
-represent $`\psi(u), \psi(w), \psi(z)` and $`d_0, e_0, g_0, h_0` represent
+This is the cocycle relation $`c(u, z) = c(u, w) + c(w, z)` of {cref "lem:cocycle"}[], when
+$`a_0, b_0, c_0` represent $`\psi(u), \psi(w), \psi(z)` and $`d_0, e_0, g_0, h_0` represent
 $`\psi(u + w), \psi(w + z), \psi(u + w + z), \psi(u + z)`.
 
 _Proof of {cref "lem:quadrangle"}[] (as formalized)._
@@ -126,8 +126,8 @@ non-collinearity of $`A, B, C`.
 The formal proof does not prove these incidences separately: they come out of step 5, since
 distinct lines belong to distinct points (and $`G \neq B` from $`\omega(B) \neq \omega(G)` in step
 4).
-And the blueprint computes the lines $`\omega(G)` and $`\omega(H)` as intersections of planes,
-spanned by
+And the blueprint computes the lines $`\omega(G)` and $`\omega(H)` as intersections of planes;
+they are spanned by
 $$`d_a\, da + d_b\, db + \frac{d_b e_c}{e_b}\, dc \qquad \text{and} \qquad
   d_a\, da + \frac{d_b e_c}{e_b}\, dc;`
 the formal proof only uses the inclusion half of propagation and the vanishing pattern of the

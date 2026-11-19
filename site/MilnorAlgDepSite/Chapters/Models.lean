@@ -168,7 +168,8 @@ _Proof of {cref "lem:pointsmodel"}[] (as formalized)._
 
 The factor $`c` in step 4 is separable algebraic over $`l(t)`, so it lies in the point $`Q_t`
 ({name}`exists_modelD_eq_smul_of_isSeparable`); this is how the blueprint shows
-$`\mu(x) \in Q_x` in the proof of {cref "lem:K0"}[] (b).
+$`\mu(x) \in Q_x` in the proof of {cref "lem:K0"}[] (b), and the formal characteristic $`p`
+proof uses it in the same way ({name}`CharPHyp.μ_mem_pointV`).
 (The formal characteristic $`0` proof uses the analogous statement for the point $`Q_a`,
 {name}`exists_mem_pointV_dlog_eq_smul`.)
 

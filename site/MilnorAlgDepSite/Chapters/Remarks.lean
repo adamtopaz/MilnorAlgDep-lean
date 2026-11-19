@@ -46,8 +46,9 @@ In the formal statement of (A2), "dependent" includes the case that one of the t
 $`0` ({cref "ss:reading"}[]), so such a $`\psi` satisfies the formal (A2) as well.
 
 When $`\chr L = 0`, (A4) is vacuous.
-The blueprint's use of (A4), "every homomorphism $`K^\times \to \ZZ` is trivial", belongs to Step A
-in positive characteristic, which is not yet formalized.
+The blueprint's use of (A4), "every homomorphism $`K^\times \to \ZZ` is trivial", is (eq:nohom) in
+Step A ({name}`nohom`); the formal proof uses it once, to show that the function $`\nu` of
+{cref "lem:gauge"}[] vanishes ({name}`CharPHyp.ν_eq_zero`).
 The formal reduction to a perfect field $`K` also uses (A4), to know that the characteristic of
 $`K` is a prime $`q` when $`\chr L > 0` ({name}`theoremA_perfect_aux`); this use comes from the
 way the formal proof is organized and could be avoided by a case split on $`\chr K`.
@@ -78,16 +79,20 @@ transcendental over the prime field.
 tag := "ss:formalAdds"
 %%%
 
-The formalization has found no false statement and no gap in the parts of the blueprint
-formalized so far: the characteristic $`0` proof, Chapters 2–5 and Chapter 7.
-It did find hypotheses that are not needed, and standard tools that can be avoided.
+The formalization found no false statement and no gap in the statements and proofs of the
+blueprint.
+Every numbered statement is formalized, except Lemma 3.1, whose uses are replaced by a different
+argument ({cref "ss:sepcrit"}[]), and Lemma 4.2 (b), which is formalized for $`j = 0`, the case
+used; every proof was checked, in both characteristics.
+It did find hypotheses that are not needed, steps that can be shortened, and standard tools that
+can be avoided.
 
 _Hypotheses that are not needed._
 
 * {cref "lem:trichotomy"}[] (c): $`i \leq j` implies $`k \geq i`; neither $`i = j` nor
   $`\omega_A(P) = \omega_A(Q)` is needed ({name}`IsNormalized.hgt_le_of_hgt_le`).
   Apart from a missing "distinct" in the example after {cref "lem:lax"}[] ({cref "ss:lax"}[]),
-  this is the only inaccuracy found in Chapters 3–5.
+  no inaccuracy was found in Chapters 3–5.
 * {cref "lem:lax"}[]: the lines of the points of any algebraically dependent family of
   transcendental elements are linearly dependent; the points need not be distinct
   ({name}`not_linearIndependent_modelD_of_not_algebraicIndependent`).
@@ -96,8 +101,11 @@ _Hypotheses that are not needed._
   So propagation needs no distinctness of the point $`X`.
 * {cref "lem:quadrangle"}[]: the incidences $`G \notin \{A, C, D, E\}` and
   $`H \notin \{A, B, C, G\}`, which the blueprint proves first, and $`G \neq B`, which the line
-  $`\la B, G \ra` requires and which the blueprint proves in Lemma 6.3, are consequences of the
-  proof; only the inclusion half of propagation is used.
+  $`\la B, G \ra` requires and which the blueprint proves in {cref "lem:cocycle"}[], are
+  consequences of the proof; only the inclusion half of propagation is used.
+  Accordingly, the proof of {cref "lem:cocycle"}[] uses (eq:sum) only in the form "$`Q_{x+y}` lies
+  on $`\la Q_x, Q_y \ra`", which holds without a hypothesis on $`x/y`
+  ({name}`CharPHyp.isAlgebraic_ρ_add`).
 * {cref "lem:symbols"}[] (a) does not need $`l` to be relatively algebraically closed
   ({name}`symbol_ne_zero_of_algebraicIndependent`; the hypothesis is part of the frozen
   statement).
@@ -112,6 +120,20 @@ _Hypotheses that are not needed._
   $`K` ({name}`theoremA_perfect_of_charZero` holds for any field $`K`).
 * Step B needs no hypothesis beyond (H0)–(H3) ({ref "ss:stepB"}[Section 6.4]).
 
+_Steps that can be shortened._
+
+* {cref "prop:levels"}[]: the blueprint shows that $`\nu(-s) - \nu(s)` is a constant and then that
+  the constant vanishes; it suffices to show that it vanishes at each pair of $`\psi`-independent
+  elements separately ({name}`CharPHyp.ν_mul`).
+* {cref "lem:K0"}[] (c): four monomials $`x_1, x_2, x_3, x_1 x_2 x_3` suffice, instead of
+  $`p^2 + p + 1` lines ({name}`exists_notMem_span_four`).
+* {cref "prop:rational"}[]: the integers $`r_j` need not be compatible; of the factorization of the
+  norm only one valuation is needed, and the degree (the order at $`\infty`) will do; and the
+  factorization $`MN = p^\beta n'` is unnecessary ({ref "ss:stepCP"}[Section 6.6.2]).
+* Representatives "with a common $`N`" are only needed in {cref "lem:gauge"}[]; in
+  {cref "lem:K0"}[], {cref "lem:tauinQ"}[] and {cref "lem:theta"}[] the formal proofs use the
+  chosen representatives, with different denominators.
+
 _Tools that are avoided._
 
 * Lemma 3.1, and with it unique factorization and Gauss' lemma in the proofs of Chapters 3–5: the
@@ -120,7 +142,12 @@ _Tools that are avoided._
   instead.
 * The discrete valuation in the proof of (S3), replaced by the perfect core.
 * The relative algebraic closure of $`l(a)` in the proof of {cref "lem:symbols"}[] (a).
+* Unique factorization in $`l[s]` in the proof of {cref "prop:rational"}[]: the degree of a
+  rational function replaces the order at $`s` ({name}`exists_dvd_sub_of_forall_pow_eq`).
+* The irreducible polynomial relation of a triple in the proof of {cref "lem:gauge"}[]: normality
+  is checked by the determinants of the differentials in the model of two elements
+  ({name}`isNormalized_of_coords`).
 
-So none of the formal proofs so far argues with Gauss' lemma or unique factorization; the
-blueprint still uses them, together with the norm, in the positive characteristic case of
+So no formal proof argues with Gauss' lemma, unique factorization or the irreducible polynomial
+relation of several elements; the norm of a finite extension is used once, in
 {cref "prop:rational"}[].
