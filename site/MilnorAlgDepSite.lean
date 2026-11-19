@@ -52,8 +52,9 @@ The blueprint is an unrefereed draft.
 Its proofs are now machine-checked in full: Theorems A, B, C and D are formalized in all
 characteristics, with no `sorry` and no axioms beyond the standard ones
 ({ref "ss:status"}[Section 1.5]).
-The formalization found no error in the blueprint; where the formal proofs are simpler or differ
-from it, the text says so, and {ref "ss:deviations"}[Section 9.4] collects these places.
+The formalization found no error in the statements and proofs of the blueprint; where the formal
+proofs are simpler or differ from it, the text says so, and {ref "ss:deviations"}[Section 9.4]
+collects these places.
 
 {include 1 MilnorAlgDepSite.Chapters.Introduction}
 

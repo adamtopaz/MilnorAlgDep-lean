@@ -79,9 +79,11 @@ transcendental over the prime field.
 tag := "ss:formalAdds"
 %%%
 
-The formalization found no false statement and no gap in the blueprint.
+The formalization found no false statement and no gap in the statements and proofs of the
+blueprint.
 Every numbered statement is formalized, except Lemma 3.1, whose uses are replaced by a different
-argument ({cref "ss:sepcrit"}[]), and every proof was checked, in both characteristics.
+argument ({cref "ss:sepcrit"}[]), and Lemma 4.2 (b), which is formalized for $`j = 0`, the case
+used; every proof was checked, in both characteristics.
 It did find hypotheses that are not needed, steps that can be shortened, and standard tools that
 can be avoided.
 
@@ -90,7 +92,7 @@ _Hypotheses that are not needed._
 * {cref "lem:trichotomy"}[] (c): $`i \leq j` implies $`k \geq i`; neither $`i = j` nor
   $`\omega_A(P) = \omega_A(Q)` is needed ({name}`IsNormalized.hgt_le_of_hgt_le`).
   Apart from a missing "distinct" in the example after {cref "lem:lax"}[] ({cref "ss:lax"}[]),
-  this is the only inaccuracy found in Chapters 3–5.
+  no inaccuracy was found in Chapters 3–5.
 * {cref "lem:lax"}[]: the lines of the points of any algebraically dependent family of
   transcendental elements are linearly dependent; the points need not be distinct
   ({name}`not_linearIndependent_modelD_of_not_algebraicIndependent`).
@@ -102,7 +104,7 @@ _Hypotheses that are not needed._
   $`\la B, G \ra` requires and which the blueprint proves in {cref "lem:cocycle"}[], are
   consequences of the proof; only the inclusion half of propagation is used.
   Accordingly, the proof of {cref "lem:cocycle"}[] uses (eq:sum) only in the form "$`Q_{x+y}` lies
-  on $`\la Q_x, Q_y \ra`", which holds without hypotheses
+  on $`\la Q_x, Q_y \ra`", which holds without a hypothesis on $`x/y`
   ({name}`CharPHyp.isAlgebraic_ρ_add`).
 * {cref "lem:symbols"}[] (a) does not need $`l` to be relatively algebraically closed
   ({name}`symbol_ne_zero_of_algebraicIndependent`; the hypothesis is part of the frozen

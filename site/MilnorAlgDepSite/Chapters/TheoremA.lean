@@ -58,7 +58,6 @@ exponent of $`K`, not of $`L`.
 
 {docstring MilnorAlgDep.extendPsi}
 
-The extension is well defined because the target is a $`\QQ`-vector space.
 It satisfies (A1) with $`k^i` = {name}`perfectClosureIn` `k Ki q`
 ({name}`extendPsi_eq_zero_iff`), and $`k^i \cap K = k`
 ({name}`algebraMap_mem_perfectClosureIn_iff`); (A3) is inherited
@@ -271,11 +270,12 @@ Two facts are used to compute the differentials: $`d(y^{p^m}) = 0` for $`m > 0`
 with $`c \neq 0` ({name}`SepEquiv.exists_modelD_eq_smul`, from {cref "lem:pointsmodel"}[] (c)).
 
 _Case $`i = n(s) > 0`._
-Then $`e \approx A` for $`A = \Frob^i(a)`.
-Work in the model of $`(A, y)`; it contains $`e`, and $`de = c\, dA` with $`c \neq 0`.
+Then $`e \approx a'` for $`a' = \Frob^i(a)` (called $`A` in the blueprint and in the docstring
+below).
+Work in the model of $`(a', y)`; it contains $`e`, and $`de = c\, da'` with $`c \neq 0`.
 Take
-$$`(X, Y, Z) = \bigl(A\, y^{p^i},\ y,\ ye\bigr) = \bigl(\Frob^i(ay),\ y,\ ye\bigr).`
-Then $`dX = y^{p^i}\, dA`, $`dY = dy` and $`dZ = yc\, dA + e\, dy`.
+$$`(X, Y, Z) = \bigl(a'\, y^{p^i},\ y,\ ye\bigr) = \bigl(\Frob^i(ay),\ y,\ ye\bigr).`
+Then $`dX = y^{p^i}\, da'`, $`dY = dy` and $`dZ = yc\, da' + e\, dy`.
 The determinants are $`y^{p^i}` for $`(X, Y)`, $`y^{p^i} e` for $`(X, Z)` and $`-yc` for
 $`(Y, Z)`, all non-zero.
 So $`(X, Y, Z)` is normalized, with $`\lev X = \lev(ay) + i` and $`\lev Y = \lev y`; hence
@@ -611,7 +611,7 @@ $`j`, which is impossible unless $`v = 0`.
 {docstring MilnorAlgDep.eq_zero_of_forall_mem_pow_nsmul_W}
 
 _The field_ $`K_0`.
-Part (b) of {cref "lem:K0"}[] comes first, since (a) depends on it.
+The first assertion of {cref "lem:K0"}[] (b) comes first, since (a) depends on it.
 By {cref "prop:levels"}[], in the form {name}`CharPHyp.hgtV_one_sub`, $`\psi(1-x)` and $`\psi(x)`
 have the same height for $`x \notin k`; so $`\psi(x) \in W` implies $`\psi(1 - x) \in W`
 ({name}`CharPHyp.ψK_one_sub_mem_W`).
@@ -1038,8 +1038,9 @@ $`df = \delta(f)\, da/a` satisfies $`\delta(a) = a`.
 If $`b \in E^\times` and $`\dlog b = \kappa \dlog a` in $`\Omega_A` with $`\kappa \in l`, then
 $`\delta(b) = \kappa b`, so $`\kappa \in \FF_p` by the eigenvalue lemma.
 The blueprint notes that $`\Omega_{E|l} \to \Omega_A` is injective because $`da \neq 0`; the formal
-proof does not need this: it pushes $`db = f\, da` forward to $`\Omega_A` and compares there, using
-only $`da \neq 0` in $`\Omega_A`.
+proof of this lemma does not need this (although the docstring below mentions it): it pushes
+$`db = f\, da` forward to $`\Omega_A` and compares there, using only $`da \neq 0` in
+$`\Omega_A`.
 
 {docstring MilnorAlgDep.exists_intCast_of_modelDLog_eq}
 
@@ -1320,7 +1321,8 @@ over $`l`.
 
 {docstring MilnorAlgDep.eq_of_zpow_eq_of_transcendental}
 
-Here the blueprint takes logarithmic differentials in $`E = l(S, S')` and divides; the formal
+Here the blueprint takes logarithmic differentials in $`E = l(S, S')` (its $`S` is our $`T`) and
+divides; the formal
 proof applies a derivation $`\delta` with $`\delta T = 1`, which exists because $`dT` is a basis of
 $`\Omega_{E|l}` for the field $`E` of elements of $`L` separable over $`l(T)`.
 Then $`A\, S' = B\, \delta S'\, T` and $`A(1 - S') = B\, \delta S'\, (1 - T)`, and eliminating

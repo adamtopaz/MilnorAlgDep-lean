@@ -126,8 +126,8 @@ non-collinearity of $`A, B, C`.
 The formal proof does not prove these incidences separately: they come out of step 5, since
 distinct lines belong to distinct points (and $`G \neq B` from $`\omega(B) \neq \omega(G)` in step
 4).
-And the blueprint computes the lines $`\omega(G)` and $`\omega(H)` as intersections of planes,
-spanned by
+And the blueprint computes the lines $`\omega(G)` and $`\omega(H)` as intersections of planes;
+they are spanned by
 $$`d_a\, da + d_b\, db + \frac{d_b e_c}{e_b}\, dc \qquad \text{and} \qquad
   d_a\, da + \frac{d_b e_c}{e_b}\, dc;`
 the formal proof only uses the inclusion half of propagation and the vanishing pattern of the

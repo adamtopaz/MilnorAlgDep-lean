@@ -51,7 +51,8 @@ The matroid gives the basic facts about points quickly:
 {docstring MilnorAlgDep.point_inf_point_eq_bot}
 
 Flats of higher rank, lines and collinearity are used only in positive characteristic
-({ref "sec:levels"}[Chapters 3–5] and {cref "sec:stepA"}[]); the formalization does not
+({ref "sec:levels"}[Chapters 3–5], {cref "ss:notationP"}[] and {cref "sec:stepA"}[]); the
+formalization does not
 define them, but states everything in terms of elements ({cref "ss:elementwise"}[]): for
 instance "$`Q_x` lies on the line $`\la Q_y, Q_z \ra`" is "$`x` is algebraic over $`l(y, z)`".
 
@@ -372,5 +373,5 @@ works with the minimal polynomial over $`l(a)` instead.
    ({name}`exists_intCast_eq_of_euler`).
 4. Since $`b \neq 0`, $`f_0 \neq 0`; and since $`f` is separable, $`f' \neq 0`, so there is $`j`
    with $`f_j \neq 0` and $`j \neq 0` in $`l` ({name}`exists_coeff_minpoly_ne_zero`).
-   Applying 3 to $`f_0` and $`f_j` shows that $`n\kappa` and $`(n - j)\kappa` are images of
+   Applying step 3 to $`f_0` and $`f_j` shows that $`n\kappa` and $`(n - j)\kappa` are images of
    integers, hence so is $`j\kappa`, and $`\kappa \in \FF` because $`j` is invertible in $`l`.

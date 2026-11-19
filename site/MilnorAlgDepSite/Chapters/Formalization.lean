@@ -445,7 +445,7 @@ tag := "ss:deviations"
 
 The formal proofs follow the blueprint, with the following differences.
 None of them is a correction of a mathematical error: the formalization found no error and no gap
-anywhere in the blueprint (see also {cref "ss:formalAdds"}[]).
+in the statements and proofs of the blueprint (see also {cref "ss:formalAdds"}[]).
 The differences are simplifications, reorganizations, and choices of encoding.
 
 _Organization._
@@ -458,7 +458,8 @@ _Organization._
   {ref "sec:main"}[Chapter 6] are formalized for $`p` prime only (`MilnorAlgDep/CharP/`), and the
   characteristic $`0` proof uses $`\dlog \colon V_{L|l} \to \Omega_{L|l}` directly
   ({ref "ss:model0"}[Section 6.3.1]).
-  The two proofs share the standard facts, the reductions and the abstract Step B.
+  The two proofs share the standard facts, the reduction to a perfect field $`L`, the abstract
+  Step B and the proof of uniqueness.
 * _Step B is abstract_ ({ref "ss:stepB"}[Section 6.4]).
   Lemmas 6.6–6.8 and Proposition 6.9 are proved for any homomorphism $`\Delta` satisfying
   (H0)–(H3), and used in both characteristics.

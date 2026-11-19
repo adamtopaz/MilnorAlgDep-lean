@@ -18,6 +18,8 @@ Theorem A is about homomorphisms of multiplicative groups; Theorems B, C and D, 
 Milnor $`K`-theory, are consequences of it.
 Each theorem is followed by its formal statement in Lean; {ref "ss:reading"}[Section 9.2]
 explains how to read these statements.
+The Lean statements of Theorems A–D were fixed before the proofs were written; they are the
+_frozen_ statements of {ref "ss:organization"}[Section 9.1].
 
 # Statement for multiplicative groups
 %%%
@@ -76,11 +78,8 @@ characteristic $`0`.
 
 {docstring MilnorAlgDep.theoremA}
 
-Here $`L^i` is any field $`M` which is a perfect closure of $`L` in the sense of Mathlib's
-`IsPerfectClosure`, and $`l^i` is the subfield {name}`perfectClosureIn` of elements
-of $`M` some $`p^n`-th power of which lies in $`l`.
-The comparison map {name}`V.toPerfectClosure` is the identification
-$`V_{L|l} = V_{L^i|l^i}` ({ref "ss:perfectClosure"}[Section 2.3.1]).
+The perfect closure and the comparison map are discussed in
+{ref "ss:perfectClosure"}[Section 2.3.1].
 
 Conversely, every pair $`(\tau, r)` as in the theorem defines a homomorphism
 $`\psi = r[\tau]` satisfying (A1) and (A2).
@@ -225,12 +224,14 @@ because $`K^\times` is divisible by the characteristic.
 Once this is known, the characteristic $`0` computation runs in the model.
 
 A reader interested only in characteristic $`0` can skip {ref "sec:levels"}[Chapters 3–5],
-{cref "sec:stepA"}[] and the parts of {ref "sec:main"}[Chapter 6] marked "characteristic p",
-read $`L_A = L` everywhere, and ignore all statements about levels, heights and Frobenius.
+{cref "sec:stepA"}[], {cref "ss:roots"}[] and the parts of {ref "sec:main"}[Chapter 6] marked
+"characteristic p", read $`L_A = L` everywhere, and ignore all statements about levels, heights
+and Frobenius.
 This is also how the formalization is organized: the characteristic $`0` case of Theorem A is a
 separate proof ({name}`theoremA_perfect_of_charZero`), and the two cases share only
-the standard facts of {ref "sec:conv"}[Chapter 2] and the abstract form of Step B
-({ref "ss:stepB"}[Sections 6.4] and {ref "ss:embedding"}[6.5]).
+the standard facts of {ref "sec:conv"}[Chapter 2], the reduction to a perfect field $`L`, the
+abstract form of Step B ({ref "ss:stepB"}[Sections 6.4] and {ref "ss:embedding"}[6.5]) and the
+proof of uniqueness ({cref "lem:unique"}[]).
 
 # What is used
 %%%
@@ -328,6 +329,7 @@ In positive characteristic the blueprint names as the steps carrying most of the
 first places to look for a mistake, {cref "lem:trichotomy"}[], {cref "lem:quadrangle"}[],
 {cref "lem:gauge"}[], {cref "lem:cocycle"}[] and {cref "prop:rational"}[].
 All of them are formalized, and none needed a correction.
-The formalization found no error in the blueprint; it found hypotheses that are not needed and
-arguments that can be simplified, which are recorded where they occur and collected in
-{cref "ss:formalAdds"}[] and {ref "ss:deviations"}[Section 9.4].
+The formalization found no error in the statements and proofs of the blueprint (the only
+inaccuracy is a missing "distinct" in an example, {cref "ss:lax"}[]); it found hypotheses that are
+not needed and arguments that can be simplified, which are recorded where they occur and
+collected in {cref "ss:formalAdds"}[] and {ref "ss:deviations"}[Section 9.4].
