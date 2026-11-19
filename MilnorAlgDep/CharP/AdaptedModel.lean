@@ -125,6 +125,19 @@ theorem modelDLog_algebraMap_mul (c : l) (hc : c ≠ 0) (hy : y ∈ model l B) (
     modelDLog_algebraMap,
     zero_add]
 
+/-- `dlog (1 - y) = -(y / (1 - y)) • dlog y` in `Ω_B`. -/
+theorem modelDLog_one_sub {B : ι → L} {y : L} (hy : y ∈ model l B) (hy0 : y ≠ 0)
+    (hy1 : 1 - y ≠ 0) :
+    modelDLog l B (1 - y) = (-(⟨y, hy⟩ / (1 - ⟨y, hy⟩)) : model l B) • modelDLog l B y := by
+  have h1y : 1 - y ∈ model l B := sub_mem (one_mem _) hy
+  have e : (⟨1 - y, h1y⟩ : model l B) = 1 - ⟨y, hy⟩ := rfl
+  have hy0' : (⟨y, hy⟩ : model l B) ≠ 0 := fun h0 ↦ hy0 (congrArg Subtype.val h0)
+  have hy1' : (1 - ⟨y, hy⟩ : model l B) ≠ 0 := fun h0 ↦ hy1 (congrArg Subtype.val h0)
+  rw [modelDLog_of_mem h1y, modelDLog_of_mem hy, smul_smul, modelD_of_mem h1y,
+    modelD_of_mem hy, e, map_sub, Derivation.map_one_eq_zero, zero_sub, smul_neg, ← neg_smul]
+  congr 1
+  field_simp
+
 end ModelDLog
 
 /-! ### The group `W` and `dlog_A` (Lemma 6.4) -/
@@ -372,20 +385,6 @@ end W
 section FourVectors
 
 variable {F Ω : Type*} [Field F] [AddCommGroup Ω] [Module F Ω]
-
--- TODO(move): linear algebra, next to `notMem_span_singleton_of_linearIndependent_pair`.
-/-- A line contains at most one of two linearly independent vectors. -/
-theorem notMem_span_singleton_of_mem_of_linearIndependent {u u' v : Ω}
-    (h : LinearIndependent F ![u, u']) (hu : u ∈ F ∙ v) : u' ∉ F ∙ v := by
-  intro hu'
-  obtain ⟨α, rfl⟩ := Submodule.mem_span_singleton.1 hu
-  have hα : α ≠ 0 := by
-    rintro rfl
-    simpa using h.ne_zero 0
-  apply notMem_span_singleton_of_linearIndependent_pair h
-  obtain ⟨β, rfl⟩ := Submodule.mem_span_singleton.1 hu'
-  exact Submodule.mem_span_singleton.2
-    ⟨β * α⁻¹, by rw [smul_smul, mul_assoc, inv_mul_cancel₀ hα, mul_one]⟩
 
 /-- If `e₀, e₁, e₂` are linearly independent, then any two of the four vectors
 `e₀, e₁, e₂, e₀ + e₁ + e₂` are linearly independent. -/
@@ -635,8 +634,10 @@ theorem Δhom_one_sub_mem_span (x : (H.K₀ p)ˣ) (hx : (1 : H.K₀ p) - x ≠ 0
   rw [← hspan]
   exact Submodule.mem_span_singleton_self _
 
-/-- **Blueprint Lemma 6.5(c)**: the `x i` are primitive and `Δ(x₀), Δ(x₁), Δ(x₂)` are linearly
-independent (`Δ(x i) = N_i⁻¹ • dlog a_i` with `a_i ∈ A`). -/
+/-- **Blueprint Lemma 6.5(c)**: the three elements `x 0, x 1, x 2` of (A3) (the blueprint's
+`x_1, x_2, x_3`) are primitive and `Δ(x 0), Δ(x 1), Δ(x 2)` are linearly independent:
+`Δ(x i) = N_i⁻¹ • dlog a_i`, where `(N_i, a_i)` is the chosen representative of `ψ(x i)` and the
+`a_i` belong to the transcendence basis `A`. -/
 theorem linearIndependent_Δhom_x :
     LinearIndependent (H.F p) fun i ↦ H.Δhom p (.ofMul (H.xK₀ p i)) := by
   have hB := H.isTranscendenceBasis_B p

@@ -26,7 +26,9 @@ This file contains the statements (frozen interface, see `PLAN.md`):
 
 * `theoremA_perfect`: Theorem A for a perfect field `L` (then `L^i = L`, `l^i = l`), `K` arbitrary;
 * `theoremA_perfect_unique`: the uniqueness clause (Blueprint Lemma 6.13), for `L` perfect;
-* `theoremA`: Theorem A for arbitrary `L`, with `L^i` a perfect closure of `L`.
+* `theoremA`: Theorem A for arbitrary `L`, with `L^i` a perfect closure of `L`;
+* `theoremA_unique`: the uniqueness clause for arbitrary `L` (an addition to the frozen interface,
+  deduced from `theoremA_perfect_unique`).
 
 ## Encoding
 
@@ -56,7 +58,8 @@ This file contains the statements (frozen interface, see `PLAN.md`):
   `p ^ n`-th power of which lies in `l`, and `V l L ≅ V l^i M` via `V.toPerfectClosure`
   (bijective by `V.toPerfectClosure_bijective`; this is the blueprint's "`V_{L|l} = V_{L^i|l^i}`").
   So `theoremA` is `theoremA_perfect` applied to `M`, `l^i` and `V.toPerfectClosure ∘ ψ`, and
-  the uniqueness statement for arbitrary `L` is `theoremA_perfect_unique` for the same data.
+  the uniqueness statement for arbitrary `L`, `theoremA_unique`, is `theoremA_perfect_unique` for
+  the same data.
 * `K` is not assumed perfect. The blueprint first replaces `K` by its perfect closure `K^i`
   (extending `ψ` by `ψ(x) = p_K^{-j} ψ(x^{p_K^j})`); this is harmless: the hypotheses (A1)–(A4)
   transfer to `K^i` with `k^i` in place of `k`, and an embedding `K^i → L` restricts to `K` with
@@ -75,8 +78,17 @@ variable {K L : Type*} [Field K] [Field L]
 arbitrary.
 
 Let `k ⊆ K` be a subfield, `l ⊆ L` a relatively algebraically closed subfield of the perfect field
-`L`, and `ψ : Kˣ → V_{L|l}` a homomorphism satisfying (A1)–(A4) (see the module docstring for the
-encoding). Then `char K = char L`, `k` is relatively algebraically closed in `K`, and there are a
+`L` (`hl`), and `ψ : Kˣ → V_{L|l}` a homomorphism, encoded as an additive homomorphism
+`Additive Kˣ →+ V l L` (`ψ (.ofMul x)` is `ψ(x)`), satisfying
+
+* (A1) `ker ψ = kˣ`;
+* (A2) `ψ(x)`, `ψ(y)` are algebraically dependent over `l` (`¬ VAlgIndep`) whenever `x + y = 1`
+  and `x ∉ k`;
+* (A3) some `ψ(x_1), …, ψ(x_d)` are algebraically independent over `l`, where
+  `d = if ringChar L = 0 then 2 else 3`;
+* (A4) if `char L > 0` then `char K > 0` (`ringChar` is `0` in characteristic `0`).
+
+Then `char K = char L`, `k` is relatively algebraically closed in `K`, and there are a
 ring homomorphism (field embedding) `τ : K → L` with `τ⁻¹(l) = k` and a rational number `r ≠ 0`
 with `ψ(x) = r • [τ x]` for all `x ∈ Kˣ`. Uniqueness is `theoremA_perfect_unique`. -/
 theorem theoremA_perfect [PerfectField L] (k : Subfield K) (l : Subfield L)
@@ -124,8 +136,7 @@ field embedding `τ : K → M` with `τ⁻¹(l^i) = k` and `r ∈ ℚ`, `r ≠ 0
 `ψ(x) = r • [τ x]` for all `x ∈ Kˣ`, where `ψ(x)` is viewed in `V l^i M` via the comparison map
 `V.toPerfectClosure : V l L → V l^i M` (a bijection, `V.toPerfectClosure_bijective`).
 
-The uniqueness clause for arbitrary `L` is `theoremA_perfect_unique` applied to `M`, `l^i` and
-`V.toPerfectClosure ∘ ψ`. -/
+The uniqueness clause for arbitrary `L` is `theoremA_unique`. -/
 theorem theoremA (k : Subfield K) (l : Subfield L)
     (hl : ∀ x : L, IsAlgebraic l x → x ∈ l)
     (ψ : Additive Kˣ →+ V l L)
@@ -141,5 +152,37 @@ theorem theoremA (k : Subfield K) (l : Subfield L)
       ∃ (τ : K →+* M) (r : ℚ), r ≠ 0 ∧ (∀ x : K, τ x ∈ perfectClosureIn l M p ↔ x ∈ k) ∧
         ∀ x : Kˣ, V.toPerfectClosure l M p (ψ (.ofMul x)) = r • 〚Units.map (τ : K →* M) x〛 :=
   theoremA_aux k l hl ψ A1 A2 A3 A4 p M
+
+/-- **Blueprint Theorem A, uniqueness** (Blueprint Lemma 6.13), for arbitrary `L`.
+
+Let `p` be the exponential characteristic of `L`, `M` a perfect closure of `L` and
+`l^i = perfectClosureIn l M p`, as in `theoremA`. If `ψ ≠ 0` and `ψ = r • [τ ·] = r' • [τ' ·]`
+after the comparison map `V.toPerfectClosure : V l L → V l^i M`, for ring homomorphisms
+`τ, τ' : K → M` and rationals `r, r'`, then `τ' = Frob^j ∘ τ` and `r' = p^{-j} r` for some
+`j ∈ ℤ`, where `Frob = frobeniusEquiv M p` is the Frobenius automorphism of `M`. (Here
+`p = ringExpChar L = ringExpChar M`; in characteristic `0`, `p = 1` and `Frob = id`, so `τ' = τ`
+and `r' = r`.) This is `theoremA_perfect_unique` applied to `M`, `l^i` and
+`V.toPerfectClosure ∘ ψ`. -/
+theorem theoremA_unique (l : Subfield L) (hl : ∀ x : L, IsAlgebraic l x → x ∈ l)
+    (ψ : Additive Kˣ →+ V l L) (hψ : ψ ≠ 0)
+    (p : ℕ) [ExpChar L p] (M : Type*) [Field M] [Algebra L M] [ExpChar M p] [PerfectRing M p]
+    [IsPerfectClosure (algebraMap L M) p]
+    (τ τ' : K →+* M) (r r' : ℚ)
+    (h : ∀ x : Kˣ, V.toPerfectClosure l M p (ψ (.ofMul x)) = r • 〚Units.map (τ : K →* M) x〛)
+    (h' : ∀ x : Kˣ, V.toPerfectClosure l M p (ψ (.ofMul x)) = r' • 〚Units.map (τ' : K →* M) x〛) :
+    ∃ j : ℤ, τ' = ((frobeniusEquiv M p ^ j : M ≃+* M) : M →+* M).comp τ ∧
+      r' = (p : ℚ) ^ (-j) * r := by
+  have : PerfectField M := PerfectRing.toPerfectField M p
+  let ψ' : Additive Kˣ →+ V (perfectClosureIn l M p) M :=
+    (V.toPerfectClosure l M p).toAddMonoidHom.comp ψ
+  have hψ' : ψ' ≠ 0 := fun h0 ↦ hψ <| AddMonoidHom.ext fun x ↦
+    (V.toPerfectClosure_bijective l M p).1 (by
+      rw [AddMonoidHom.zero_apply, map_zero]
+      exact DFunLike.congr_fun h0 x)
+  obtain ⟨j, hj, hr⟩ := theoremA_perfect_unique (perfectClosureIn l M p)
+    (perfectClosureIn_isRelAlgClosed l M p hl) ψ' hψ' τ τ' r r' h h'
+  have hp : ringExpChar M = p := ringExpChar.eq M p
+  subst hp
+  exact ⟨j, hj, hr⟩
 
 end MilnorAlgDep

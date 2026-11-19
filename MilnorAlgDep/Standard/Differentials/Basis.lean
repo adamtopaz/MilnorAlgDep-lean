@@ -170,4 +170,16 @@ theorem span_kaehler_D_eq_top (hb : AlgebraicIndependent l a)
   rw [← coe_kaehlerBasis hb hsep]
   exact (kaehlerBasis hb hsep).span_eq
 
+/-- If `E` is separable algebraic over `l(x)` with `x` transcendental over `l`, there is an
+`l`-derivation `δ` of `E` with `δ x = 1`: the coordinate of `d : E → Ω[E⁄l]` along the basis
+`d x` (`MilnorAlgDep.kaehlerBasis`). -/
+theorem exists_derivation_apply_eq_one {a : Unit → E}
+    (hb : AlgebraicIndependent l a) (hsep : Algebra.IsSeparable (adjoin l (Set.range a)) E) :
+    ∃ δ : Derivation l E E, δ (a ()) = 1 := by
+  let b := kaehlerBasis hb hsep
+  refine ⟨(b.coord ()).compDer (D l E), ?_⟩
+  change b.coord () (D l E (a ())) = 1
+  rw [← kaehlerBasis_apply hb hsep (), Module.Basis.coord_apply, Module.Basis.repr_self,
+    Finsupp.single_eq_same]
+
 end MilnorAlgDep

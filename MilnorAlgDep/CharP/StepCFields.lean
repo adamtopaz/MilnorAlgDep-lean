@@ -126,9 +126,10 @@ omit [PerfectField L] in
 /-- **Blueprint Lemma 2.2** (eigenvalue lemma) in a model, in the form used in Lemmas 6.10, 6.11
 and in `eq:lift`: let `a ∈ L_B` with `d a ≠ 0` in `Ω_B`, and `b ≠ 0` separable algebraic
 over `l(a)`. If `dlog b = κ • dlog a` in `Ω_B` with `κ ∈ l`, then `κ` lies in the prime field
-`F_p`, i.e. is the image of an integer. (Apply Lemma 2.2 to the derivation `δ` of the field of
-elements separable over `l(a)` with `d f = δ(f) • dlog a`; `Ω_{E|l} → Ω_B` is injective because
-`d a ≠ 0`.) -/
+`F_p`, i.e. is the image of an integer. (Let `E` be the field of elements separable over `l(a)`
+and `δ = a · d/da` the derivation of `E` with `d f = δ(f) • dlog a` in `Ω_{E|l}`. Mapping
+`d b = (δ(b)/a) • d a` to `Ω_B` and comparing with the hypothesis, which is possible as
+`d a ≠ 0` in `Ω_B`, gives `δ(b) = κ b`; then apply Lemma 2.2 to `δ`.) -/
 theorem exists_intCast_of_modelDLog_eq {B : ι → L} {a b : L} (ha : a ∈ model l B)
     (hda : modelD l B a ≠ 0) (hb : IsSeparable l⟮a⟯ b) (hb0 : b ≠ 0) {κ : l}
     (h : modelDLog l B b = algebraMap l (model l B) κ • modelDLog l B a) :
@@ -205,7 +206,7 @@ theorem mem_of_pow_pow_mem {B : ι → L} {s : L} (hs : s ∈ model l B) (hds : 
     refine ih (mem_of_pow_mem_of_modelD_ne_zero p hs hds hsE hE hsep (pow_mem hz _) ?_)
     rwa [← pow_mul, ← pow_succ]
 
-/-- Blueprint, proof of Proposition 6.12 (lines 723-725): let `E` be as in `mem_of_pow_pow_mem`.
+/-- Blueprint, proof of Proposition 6.12 (lines 713-714): let `E` be as in `mem_of_pow_pow_mem`.
 If `v ∈ W` and `p^j • v = [b]` with `b ∈ E`, then `b^M = c • y^{p^j}` for some `M` prime to `p`,
 `c ∈ lˣ` and `y ∈ E`. (If `v ≠ 0`, take a representative `(M, g)` of `v` with `g ∈ L_B`; then
 `b^M = c g^{p^j}` and `g ∈ E` by `eq:Epower`. If `v = 0`, `b ∈ l`.) -/
@@ -235,7 +236,7 @@ theorem exists_pow_eq_mul_pow_pow {B : ι → L} {s : L} (hs : s ∈ model l B)
   exact mul_mem (inv_mem (IntermediateField.algebraMap_mem E c)) (pow_mem hb N)
 
 omit [Fact p.Prime] [CharP L p] [PerfectField L] [IsRelAlgClosed l L] in
-/-- Blueprint, proof of Proposition 6.12 (lines 726-728), the norm argument: let `s` be
+/-- Blueprint, proof of Proposition 6.12 (lines 714-716), the norm argument: let `s` be
 transcendental over `l`, `a ≠ 0` algebraic over `l(s)`, `E = l(s, a)`, and `e j` integers such
 that for every `j`, `(a s^{-e_j})^{M_j} ∈ lˣ · E^{p^j}` for some `M_j` prime to `p`. Then there
 are `M ≥ 1` (namely `[E : l(s)]`) and `ε` with `ε ≡ M e_j (mod p^j)` for all `j`. (Take norms to
@@ -298,7 +299,7 @@ theorem exists_dvd_sub_of_forall_pow_eq {s a : L} (hs : Transcendental l s) (ha0
   linear_combination this
 
 omit [CharP L p] [PerfectField L] [IsRelAlgClosed l L] in
-/-- Blueprint, proof of Proposition 6.12 (lines 729-731), arithmetic: if `ε ≡ M r_j (mod p^j)`
+/-- Blueprint, proof of Proposition 6.12 (lines 717-718), arithmetic: if `ε ≡ M r_j (mod p^j)`
 for all `j`, with `M ≥ 1`, write `M = p^β n'` with `p ∤ n'`; then `p^β ∣ ε`, say `ε = p^β m'`, and
 `n' r_j ≡ m' (mod p^{j-β})` for all `j ≥ β`. -/
 theorem exists_dvd_sub_of_dvd {M : ℕ} (hM : 0 < M) {ε : ℤ} {r : ℕ → ℤ}

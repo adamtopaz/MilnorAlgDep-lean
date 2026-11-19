@@ -70,6 +70,7 @@ MilnorAlgDep/
     ExtendPsi.lean        extension of ψ to K^i               6.1
   Uniqueness.lean         Lemma 6.13                          6.7
   TheoremA.lean           statements of Theorem A             1.1
+  Converse.lean           converse of Theorem A, non-vacuity  1.1
   Milnor/
     Defs.lean             MilnorKQ, grading, φ₁, τ_*, r^deg   7
     Basic.lean            properties, direct sum              7
@@ -181,7 +182,11 @@ tag := "ss:table"
 *
   * Theorem A
   * {name}`theoremA_perfect`, {name}`theoremA`,
-    {name}`theoremA_perfect_unique`
+    {name}`theoremA_perfect_unique`, {name}`theoremA_unique`
+*
+  * converse of Theorem A (1.1)
+  * {name}`theoremA_converse`, {name}`theoremA_converse_perfectClosure`,
+    {name}`theoremA_perfect_hypotheses`, {name}`theoremA_perfect_hypotheses_ratFunc`
 *
   * Theorems B, C, D
   * {name}`theoremB`, {name}`theoremB_unique`,
@@ -434,7 +439,7 @@ tag := "ss:table"
   * {name}`TheoremC.degOne_cls_eq_of_proj`
 *
   * proof of Theorem D
-  * {name}`TheoremD.exists_eq_of_degOne_bijective`,
+  * {name}`MilnorKQ.IsGraded.symm`, {name}`TheoremD.exists_eq_of_degOne_bijective`,
     {name}`TheoremD.bijective_of_smul_cls_map_eq`
 :::
 
@@ -619,10 +624,15 @@ _Statements._
 * The uniqueness clauses are separate theorems with fewer hypotheses than in the blueprint (see
   {ref "ss:statementA"}[Section 1.1]).
 * Some hypotheses of the frozen statements are not used by the proofs: `[ExpChar L p]` in
-  {name}`theoremA` (it documents $`p`), $`r' \neq 0` in
-  {name}`theoremB_unique` and {name}`theoremC_unique`,
-  `[IsRelAlgClosed l L]` in {name}`symbol_ne_zero_of_algebraicIndependent`, and
-  `hφsymm` in {name}`theoremD` is implied by the others (not formalized).
+  {name}`theoremA` (it documents $`p`).
+  Hypotheses that the proofs showed to be unnecessary were removed in the final pass: $`r' \neq 0`
+  in {name}`theoremB_unique` and {name}`theoremC_unique`, the perfectness of $`K` in
+  {name}`theoremB` and {name}`theoremC`, the relative algebraic closedness of
+  $`l` in {name}`symbol_ne_zero_of_algebraicIndependent`, and the gradedness of
+  $`\varphi^{-1}` in {name}`theoremD` (it follows from that of $`\varphi`:
+  {name}`MilnorKQ.IsGraded.symm`).
+* The uniqueness clause of {cref "thm:A"}[] for arbitrary $`L` is {name}`theoremA_unique`,
+  deduced from {name}`theoremA_perfect_unique`.
 
 # Status
 %%%

@@ -20,22 +20,24 @@ Proposition 6.9. By Proposition 6.9 `K` has characteristic `p` (`CharPHyp.charP_
   `x₀`, with `j = ht ψ(x)`).
 * **Lemma 6.10** (`lem:tauinQ`): `CharPHyp.τ_mem_pointV`, `CharPHyp.τ_mem_range_of_mem`,
   `CharPHyp.τ_notMem_range`.
-* `exists_intCast_of_modelDLog_eq`: the eigenvalue lemma (Lemma 2.2) in the form used in
-  Lemmas 6.10, 6.11 and `eq:lift`.
 * **Lemma 6.11** (`lem:theta`): `CharPHyp.exists_θ`, through `CharPHyp.hgt_τ_eq_of_transverse`,
   `CharPHyp.exists_hgt_τ_coeff` (heights `e(x) = e₀` and coefficient `θ` constant) and
   `CharPHyp.hgt_τ_eq_zero` (`e₀ = 0`).
 * `CharPHyp.exists_dlogA_eq_smul`, `CharPHyp.exists_intCast_of_dlogA_eq`: for primitive `x` and
   `v ∈ W ∩ G_{Q_x}`, `dlog_A(v) = c • dlog τ(x)` with `c ∈ F ∩ Q_x`, and `c ∈ F_p` if `c ∈ l`
-  (eigenvalue lemma). These are shared by Lemma 6.11 (`v = ψ(x)`) and `eq:lift` (`v = ψ'(x)`).
+  (eigenvalue lemma, in the form `exists_intCast_of_modelDLog_eq` of
+  `MilnorAlgDep.CharP.StepCFields`). These are shared by Lemma 6.11 (`v = ψ(x)`) and `eq:lift`
+  (`v = ψ'(x)`).
 * **Proposition 6.12** (`prop:rational`), case `Γ = ℤ`: `CharPHyp.exists_rat_ψ₀_eq`, broken into
   - `CharPHyp.exists_lift`: `eq:lift`;
   - `CharPHyp.exists_padic`: `eq:padic`, `ψ - r_j [τ] ∈ p^j W` on `K₀ˣ`;
   - `CharPHyp.exists_pow_eq_of_padic`: for one `j`, `(a s^{-N r_j})^M = c y^{p^j}` with
     `y ∈ E = l(s, a)` (from `exists_pow_eq_mul_pow_pow`, i.e. `eq:Epower`);
-  - `exists_dvd_sub_of_forall_pow_eq`: the norm argument and unique factorization in `l[s]`
-    (the `s`-adic order of `N_{E|l(s)}(a)`);
-  - `exists_dvd_sub_of_dvd`: elementary arithmetic (`MN = p^β n'`, `ε = p^β m'`);
+  - `exists_dvd_sub_of_forall_pow_eq` (in `MilnorAlgDep.CharP.StepCFields`): the norm argument,
+    comparing degrees of `N_{E|l(s)}(a)` on `l(s) ≅ RatFunc l` (the blueprint compares orders at
+    `s`, by unique factorization in `l[s]`);
+  - `exists_dvd_sub_of_dvd` (in `MilnorAlgDep.CharP.StepCFields`): elementary arithmetic
+    (`MN = p^β n'`, `ε = p^β m'`);
   - `CharPHyp.zsmul_ψ₀_eq_of_dvd`: the conclusion via `⋂ p^j W = 0`.
 
 ## Remarks on the blueprint
@@ -64,20 +66,8 @@ section Aux
 
 variable (p : ℕ) [Fact p.Prime] [CharP L p] [PerfectField L] [IsRelAlgClosed l L]
 
--- TODO(move): `CharP/Models.lean`.
-/-- Two elements of the same point with the same height are `≈`-equivalent. -/
-theorem sepEquiv_of_hgt_eq {B : ι → L} (hB : IsTranscendenceBasis l B) {s t : L}
-    (h : SamePoint l s t) (hst : hgt l p B s = hgt l p B t) : SepEquiv l s t :=
-  (levDiff_eq_zero_iff p h).1 (by rw [← hgt_sub_hgt p hB h, hst, sub_self])
-
--- TODO(move): `CharP/Models.lean`.
-/-- If `s, t` lie in the same point and `ht s ≥ ht t`, then `s` is separable over `l(t)`. -/
-theorem isSeparable_of_hgt_le {B : ι → L} (hB : IsTranscendenceBasis l B) {s t : L}
-    (h : SamePoint l s t) (hst : hgt l p B t ≤ hgt l p B s) : IsSeparable l⟮t⟯ s :=
-  (levDiff_nonneg_iff p h).1 (by rw [← hgt_sub_hgt p hB h]; omega)
-
 omit [CharP L p] [PerfectField L] [IsRelAlgClosed l L] in
--- TODO(move): `Mathlib.Algebra.CharP.Defs`.
+-- General fact about characteristic `p` (a candidate for `Mathlib.Algebra.CharP.Defs`).
 /-- An integer prime to `p` is invertible in a ring of characteristic `p`, with an inverse which
 is the image of a natural number. -/
 theorem exists_natCast_mul_eq_one (R : Type*) [Ring R] [CharP R p] {M : ℕ} (hM : M.Coprime p) :
@@ -86,14 +76,14 @@ theorem exists_natCast_mul_eq_one (R : Type*) [Ring R] [CharP R p] {M : ℕ} (hM
   exact ⟨m, by rw [← Nat.cast_mul, CharP.cast_eq_mod R p, hm, Nat.cast_one]⟩
 
 omit [CharP L p] [PerfectField L] [IsRelAlgClosed l L] in
--- TODO(move): `Mathlib.Algebra.CharP.Defs`.
+-- General fact about characteristic `p` (a candidate for `Mathlib.Algebra.CharP.Defs`).
 theorem natCast_ne_zero_of_coprime (R : Type*) [AddMonoidWithOne R] [CharP R p]
     {N : ℕ} (hN : N.Coprime p) : (N : R) ≠ 0 := by
   rw [ne_eq, CharP.cast_eq_zero_iff R p]
   exact fun hpN ↦ (Fact.out : p.Prime).one_lt.ne' (hN.symm.eq_one_of_dvd hpN)
 
 omit [CharP L p] [PerfectField L] [IsRelAlgClosed l L] in
--- TODO(move): `Mathlib.Algebra.CharP.Defs`.
+-- General fact about characteristic `p` (a candidate for `Mathlib.Algebra.CharP.Defs`).
 /-- In a field of characteristic `p`, an element `M • κ / N` with `M, N` prime to `p` is the image
 of an integer iff `κ` is. -/
 theorem exists_intCast_of_intCast_eq (R : Type*) [Field R] [CharP R p] {M N : ℕ}
@@ -107,21 +97,6 @@ theorem exists_intCast_of_intCast_eq (R : Type*) [Field R] [CharP R p] {M N : �
   field_simp
   linear_combination κ * hM'
 
-omit [PerfectField L] [IsRelAlgClosed l L] in
--- TODO(move): `CharP/AdaptedModel.lean`.
-/-- `dlog (1 - y) = -(y / (1 - y)) • dlog y` in `Ω_B`. -/
-theorem modelDLog_one_sub {B : ι → L} {y : L} (hy : y ∈ model l B) (hy0 : y ≠ 0)
-    (hy1 : 1 - y ≠ 0) :
-    modelDLog l B (1 - y) = (-(⟨y, hy⟩ / (1 - ⟨y, hy⟩)) : model l B) • modelDLog l B y := by
-  have h1y : 1 - y ∈ model l B := sub_mem (one_mem _) hy
-  have e : (⟨1 - y, h1y⟩ : model l B) = 1 - ⟨y, hy⟩ := rfl
-  have hy0' : (⟨y, hy⟩ : model l B) ≠ 0 := fun h0 ↦ hy0 (congrArg Subtype.val h0)
-  have hy1' : (1 - ⟨y, hy⟩ : model l B) ≠ 0 := fun h0 ↦ hy1 (congrArg Subtype.val h0)
-  rw [modelDLog_of_mem h1y, modelDLog_of_mem hy, smul_smul, modelD_of_mem h1y,
-    modelD_of_mem hy, e, map_sub, Derivation.map_one_eq_zero, zero_sub, smul_neg, ← neg_smul]
-  congr 1
-  field_simp
-
 omit [Fact p.Prime] [CharP L p] [PerfectField L] [IsRelAlgClosed l L] in
 /-- `t = μ/(μ - 1)` for `μ = -(s/(1 - s)) = s/(s - 1)` gives back `s` (end of the proof of
 Lemma 6.11). -/
@@ -132,36 +107,6 @@ theorem neg_div_one_sub_div {F : Type*} [Field F] {s : F} (hs : 1 - s ≠ 0) :
 
 end Aux
 
-section LinearAlgebra
-
-variable {K F Ω : Type*} [Field K] [Field F] [AddCommGroup Ω] [Module F Ω]
-
--- TODO(move): `StepB/Basic.lean`.
-/-- If `x, y` are transverse and `Δ x = c • u`, `Δ y = c' • v`, then `u, v` are linearly
-independent. -/
-theorem StepBData.Transverse.linearIndependent_of_eq_smul {D : StepBData K F Ω} {x y : K}
-    (h : D.Transverse x y) {u v : Ω} {c c' : F} (hc : D.Δ x = c • u) (hc' : D.Δ y = c' • v) :
-    LinearIndependent F ![u, v] := by
-  have hc0 : c ≠ 0 := fun h0 ↦ h.Δ_ne_zero_left (by rw [hc, h0, zero_smul])
-  have hc'0 : c' ≠ 0 := fun h0 ↦ h.Δ_ne_zero_right (by rw [hc', h0, zero_smul])
-  rw [LinearIndependent.pair_iff]
-  intro s t hst
-  have := h.smul_add_smul_eq_zero (a := s / c) (b := t / c') (by
-    rw [hc, hc', smul_smul, smul_smul, div_mul_cancel₀ s hc0, div_mul_cancel₀ t hc'0, hst])
-  exact ⟨(div_eq_zero_iff.1 this.1).resolve_right hc0,
-    (div_eq_zero_iff.1 this.2).resolve_right hc'0⟩
-
--- TODO(move): `StepB/Basic.lean`.
-/-- Comparing coefficients: if `u, v` are linearly independent and
-`c'' • (u + v) = c • u + c' • v`, then `c'' = c` and `c'' = c'`. -/
-theorem eq_of_linearIndependent_pair {u v : Ω} (hli : LinearIndependent F ![u, v])
-    {c c' c'' : F} (h : c'' • (u + v) = c • u + c' • v) : c'' = c ∧ c'' = c' := by
-  obtain ⟨h₁, h₂⟩ := LinearIndependent.pair_iff.1 hli (c'' - c) (c'' - c') (by
-    rw [sub_smul, sub_smul, sub_add_sub_comm, ← smul_add, h, sub_self])
-  exact ⟨sub_eq_zero.1 h₁, sub_eq_zero.1 h₂⟩
-
-end LinearAlgebra
-
 namespace CharPHyp
 
 variable {K : Type*} [Field K] [PerfectField K] (H : CharPHyp K l L)
@@ -169,7 +114,8 @@ variable (p : ℕ) [Fact p.Prime] [CharP L p] [PerfectField L] [IsRelAlgClosed l
 
 /-! ### Primitive roots, `eq:roots` -/
 
-/-- Blueprint `eq:roots`: `Frob(K₀) ⊆ K₀` (`ψ(x^p) = p ψ(x)` has height `ht ψ(x) + 1`). -/
+/-- Blueprint `eq:roots`: `Frob(K₀) ⊆ K₀`. (The blueprint argues with heights: `ψ(x^p) = p ψ(x)`
+has height `ht ψ(x) + 1`. Here it is immediate, as `K₀` is a subfield, Lemma 6.5(a).) -/
 theorem pow_mem_K₀ {x : K} (hx : x ∈ H.K₀ p) : x ^ p ∈ H.K₀ p :=
   pow_mem hx p
 
@@ -272,21 +218,11 @@ theorem mem_range_of_mem_pointV_x {z : L} (h₀ : z ∈ pointV l (H.ψK (H.x 0))
     convert this using 1
     ext i
     fin_cases i <;> rfl
-  have hv := H.ψK_ne_zero (H.x_notMem 0)
-  have hw := H.ψK_ne_zero (H.x_notMem 1)
-  have hne := (vAlgIndep_pair_iff hv hw).1 hind
-  have key := point_inf_point_eq_bot
-    (IsRelAlgClosed.transcendental (V.not_mem_range_of_nsmul_eq_cls hv (repNat_pos _)
-      (repNat_nsmul _)))
-    (IsRelAlgClosed.transcendental (V.not_mem_range_of_nsmul_eq_cls hw (repNat_pos _)
-      (repNat_nsmul _))) hne
-  have hz : z ∈ pointV l (H.ψK (H.x 0)) ⊓ pointV l (H.ψK (H.x 1)) := ⟨h₀, h₁⟩
-  rw [pointV, pointV, key, IntermediateField.mem_bot] at hz
-  obtain ⟨c, hc⟩ := hz
-  exact ⟨c, hc⟩
+  exact mem_range_of_mem_pointV_of_vAlgIndep hind h₀ h₁
 
-/-- **Blueprint Lemma 6.10** (`lem:tauinQ`), second part: `τ(k) ⊆ l` (for `c ∈ kˣ` and primitive
-`x`, `τ(c) = t(c x)/t(x) ∈ Q_x`; take two transverse `x`). -/
+/-- **Blueprint Lemma 6.10** (`lem:tauinQ`), second part: `τ(k) ⊆ l`. For `c ∈ kˣ` and
+`x ∈ K₀ ∖ k`, `τ(c) = t(c x)/t(x) ∈ Q_x` (`τ_mem_pointV_of_mem`); apply this to the elements
+`x 0`, `x 1` of (A3), whose points meet in `l`. -/
 theorem τ_mem_range_of_mem {x : H.K₀ p} (hx : (x : K) ∈ H.k) :
     H.τ p x ∈ (algebraMap l L).range :=
   H.mem_range_of_mem_pointV_x
@@ -900,7 +836,7 @@ theorem isSeparable_ρ_of_primitive {x : H.K₀ p} (hx : (H.data p).Δ x ≠ 0) 
       rw [H.hgt_τ_eq_zero p hx]
       exact (H.hgtV_of_primitive p hx).symm)).2
 
-/-- Blueprint, proof of Proposition 6.12 (lines 718-725), for one `j`: let `u` be primitive,
+/-- Blueprint, proof of Proposition 6.12 (lines 707-714), for one `j`: let `u` be primitive,
 `s = τ(u)`, `(N, a)` the representative of `ψ(u)` and `E = l(s, a)`. If
 `ψ(u) - r [τ(u)] = p^j • w` with `w ∈ W`, then `(a s^{-N r})^M = c y^{p^j}` with `M` prime to
 `p`, `c ∈ lˣ` and `y ∈ E` (by `eq:Epower`, as `p^j • (N • w) = [a s^{-N r}]`). -/
@@ -948,11 +884,12 @@ theorem exists_pow_eq_of_padic {u : (H.K₀ p)ˣ} (hu : (H.data p).Δ u ≠ 0) {
 `ψ(x) = r • [τ(x)]` for all `x ∈ K₀ˣ`.
 
 Proof from the lemmas above: choose `r_j` by `exists_padic`; fix the primitive element
-`x = x₀` of (A3), `s = τ(x)` (a model generator by `exists_θ`) and the representative `(N, a)` of
-`ψ(x)`; `a` is separable over `l(s)` (`a ≈ s`). Let `E = l(s, a)`. For each `j`,
-`p^j • (N w_j) = [a s^{-N r_j}]` with `w_j ∈ W`, so `exists_pow_eq_mul_pow_pow` applies; then
-`exists_dvd_sub_of_forall_pow_eq` (with `e_j = N r_j`), `exists_dvd_sub_of_dvd` and
-`zsmul_ψ₀_eq_of_dvd` give `n' ψ = m' [τ]`, and `r = m'/n' ≠ 0` as `ψ ≠ 0`. -/
+`u = x 0` (the first element of (A3)), `s = τ(u)` (a model generator by `exists_θ`) and the
+representative `(N, a)` of `ψ(u)`; `a` is separable over `l(s)` (`a ≈ s`). Let `E = l(s, a)`.
+For each `j`, `p^j • (N w_j) = [a s^{-N r_j}]` with `w_j ∈ W`, so
+`exists_pow_eq_mul_pow_pow` applies; then `exists_dvd_sub_of_forall_pow_eq` (with `e_j = N r_j`),
+`exists_dvd_sub_of_dvd` and `zsmul_ψ₀_eq_of_dvd` give `n' ψ = m' [τ]`, and `r = m'/n' ≠ 0` as
+`ψ ≠ 0`. -/
 theorem exists_rat_ψ₀_eq : ∃ r : ℚ, r ≠ 0 ∧ ∀ x : (H.K₀ p)ˣ,
     H.ψ₀ p (.ofMul x) = r • H.τV p (.ofMul x) := by
   choose r hr using H.exists_padic p

@@ -38,12 +38,16 @@ MilnorAlgDep/
     Levels.lean         Lemma 3.2, levels, normalized triples, Lemma 3.5
     Models.lean         Section 4: models, Lemmas 4.2-4.6
     Quadrangle.lean     Lemma 5.1
-    StepA.lean          Section 6.1-6.2: eq (sum), gauge, cocycle, Prop 6.1
+    LevelV.lean         Section 6.1: levels and heights in V, CharPHyp, eq (sum)
+    StepA.lean          Section 6.2: gauge, cocycle, Prop 6.1
     AdaptedModel.lean   Section 6.3: W, dlog_A, K₀, Lemmas 6.4, 6.5
-    StepC.lean          Section 6.6: Lemmas 6.10, 6.11, Prop 6.12
-    Main.lean           reduction to perfect fields, end of proof (6.7)
+    StepCFields.lean    Section 6.6: eigenvalue lemma in a model, eq (Epower), norm argument
+    StepC.lean          Section 6.6: eq (roots), Lemmas 6.10, 6.11, Prop 6.12
+    Main.lean           end of proof (6.7)
+  Reduction.lean        reduction to perfect fields (6.1)
   Uniqueness.lean       Lemma 6.13
   TheoremA.lean         statement and final assembly of Theorem A
+  Converse.lean         converse of Theorem A, non-vacuity of its hypotheses
   Milnor/
     Defs.lean           𝒦(L|l), 𝒦(L), grading, degree one, functoriality, r^deg
     Tame.lean           Lemma 7.1 (tame symbol), extension of valuations

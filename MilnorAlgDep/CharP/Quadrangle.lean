@@ -42,10 +42,10 @@ half of propagation is used, and it does not need the planes to be distinct).
 
 * `coord_ne_zero_of_mem_sup_of_mem_sup`, `coord_of_mem_sup_of_mem_sup`: the linear algebra of
   the points `G` and `H`.
-* `isAlgebraic_adjoin_pair_of_samePoint`: "`Z` lies on `⟨X, Y⟩`" only depends on the points.
-* `modelBasis_coord_self`, `modelBasis_coord_of_ne`, `omega_ne_of_coord`,
-  `algebraicIndependent_pair_of_omega_ne`, `isCollinearTriple_of_omega_ne`: lines of points in
-  coordinates.
+* `omega_ne_of_coord`, `algebraicIndependent_pair_of_omega_ne`, `isCollinearTriple_of_omega_ne`:
+  lines of points in coordinates (with `isAlgebraic_adjoin_pair_of_samePoint` from
+  `MilnorAlgDep.CharP.Normalized` and `modelBasis_coord_self`, `modelBasis_coord_of_ne` from
+  `MilnorAlgDep.CharP.Model`).
 * `IsNormalized.coord_modelD`: the coordinates of `d z` for a normalized triple `(B i, B j, z)`.
 * `quadrangle_of_isTranscendenceBasis`: the main step, inside the model.
 -/
@@ -127,41 +127,6 @@ section Model
 /-! ### Lines of points in coordinates -/
 
 variable {l L : Type*} [Field l] [Field L] [Algebra l L] {ι : Type*} {B : ι → L}
-
--- TODO(move): `MilnorAlgDep.CharP.Normalized` (next to `IsCollinearTriple.of_samePoint`).
-/-- "`Z` lies on the line `⟨X, Y⟩`" only depends on the points `X, Y, Z`: if `z` is algebraic over
-`l(x, y)`, then so is `z'` over `l(x', y')` for `x', y', z'` in the points of `x, y, z`. -/
-theorem isAlgebraic_adjoin_pair_of_samePoint {x y z x' y' z' : L} (h : IsAlgebraic l⟮x, y⟯ z)
-    (hx : SamePoint l x' x) (hy : SamePoint l y' y) (hz : SamePoint l z' z) :
-    IsAlgebraic l⟮x', y'⟯ z' := by
-  set M := AlgebraicIndependent.matroid l L
-  have key : ∀ {s : Set L} {w : L}, IsAlgebraic (adjoin l s) w ↔ w ∈ M.closure s := by
-    intro s w
-    rw [mem_matroid_closure_iff, IntermediateField.isAlgebraic_adjoin_iff]
-  have hsub : ({x, y} : Set L) ⊆ M.closure {x', y'} := by
-    refine Set.insert_subset ?_ (Set.singleton_subset_iff.2 ?_)
-    · exact M.closure_mono (Set.singleton_subset_iff.2 (Set.mem_insert _ _))
-        (isAlgebraic_adjoin_simple_iff_mem_closure.1 hx.symm.isAlgebraic)
-    · exact M.closure_mono (Set.singleton_subset_iff.2 (Set.mem_insert_of_mem _ rfl))
-        (isAlgebraic_adjoin_simple_iff_mem_closure.1 hy.symm.isAlgebraic)
-  have hz' : z ∈ M.closure {x', y'} := M.closure_subset_closure_of_subset_closure hsub (key.1 h)
-  exact key.2 (M.closure_subset_closure_of_subset_closure (Set.singleton_subset_iff.2 hz')
-    (isAlgebraic_adjoin_simple_iff_mem_closure.1 hz.isAlgebraic))
-
--- TODO(move): `MilnorAlgDep.CharP.Model`.
-/-- The `i`-th coordinate of `d (B i)` with respect to the basis `(d B j)ⱼ` of `Ω_B` is `1`. -/
-theorem modelBasis_coord_self (hB : AlgebraicIndependent l B) (i : ι) :
-    (modelBasis hB).coord i (modelD l B (B i)) = 1 := by
-  rw [← modelBasis_apply hB i, Module.Basis.coord_apply, Module.Basis.repr_self,
-    Finsupp.single_eq_same]
-
--- TODO(move): `MilnorAlgDep.CharP.Model`.
-/-- The `i`-th coordinate of `d (B j)`, `j ≠ i`, with respect to the basis `(d B k)ₖ` of `Ω_B` is
-`0`. -/
-theorem modelBasis_coord_of_ne (hB : AlgebraicIndependent l B) {i j : ι} (h : j ≠ i) :
-    (modelBasis hB).coord i (modelD l B (B j)) = 0 := by
-  rw [← modelBasis_apply hB j, Module.Basis.coord_apply, Module.Basis.repr_self,
-    Finsupp.single_eq_of_ne' h]
 
 variable (p : ℕ) [Fact p.Prime] [CharP L p] [PerfectField L] [IsRelAlgClosed l L]
 

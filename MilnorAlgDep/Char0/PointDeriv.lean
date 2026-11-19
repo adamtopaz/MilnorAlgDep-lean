@@ -155,21 +155,6 @@ theorem exists_ratCast_of_dlogL_eq {a b : L} (ha : Transcendental l a) (hb : b �
   exact exists_ratCast_eq_eigenvalue (pointGen a) (transcendental_pointGen ha) (pointDeriv ha)
     (pointDeriv_pointGen ha) b' hb'0 hsep κ hδ
 
--- TODO(move): this is a Foundations lemma (`Foundations/Points.lean`).
-omit [CharZero L] in
-/-- Two distinct points meet in `l`, for points of elements of `V l L`: if `v, w` are
-algebraically independent, then `Q_v ∩ Q_w = l`. -/
-theorem pointV_inf_pointV_eq_bot [IsRelAlgClosed l L] {v w : V l L} (h : VAlgIndep l ![v, w]) :
-    pointV l v ⊓ pointV l w = ⊥ := by
-  have hv : v ≠ 0 := h.ne_zero 0
-  have hw : w ≠ 0 := h.ne_zero 1
-  exact point_inf_point_eq_bot
-    (IsRelAlgClosed.transcendental (V.not_mem_range_of_nsmul_eq_cls hv (VOf.repNat_pos v)
-      (VOf.repNat_nsmul v)))
-    (IsRelAlgClosed.transcendental (V.not_mem_range_of_nsmul_eq_cls hw (VOf.repNat_pos w)
-      (VOf.repNat_nsmul w)))
-    ((vAlgIndep_pair_iff hv hw).1 h)
-
 /-- Blueprint, proof of Lemma 6.5(b) (line 535) and of Lemma 6.11 (`lem:theta`),
 characteristic `0`: if `v ≠ 0` and `Q_w = Q_v`, then `dlog w = c • dlog v` for some `c ∈ Q_v`. -/
 theorem exists_mem_pointV_dlog_eq_smul [IsRelAlgClosed l L] {v w : V l L} (hv : v ≠ 0)

@@ -28,7 +28,9 @@ For a field extension `L / l` let `constUnits l L ≤ Lˣ` be the image of `lˣ`
   `N • v = [a]`; `V.exists_rep_coprime`: if `L` is perfect, `N` can be taken prime to the
   characteristic exponent.
 * `V.rep_unique` (V2): two representatives `(N, a)`, `(N', a')` of the same element satisfy
-  `a ^ N' = c * a' ^ N` with `c ∈ l`.
+  `a ^ N' = c * a' ^ N` with `c ∈ l`; `V.exists_zpow_eq_mul_pow_of_smul_cls_eq` is the variant
+  `A • [u] = B • [v] → u ^ A = c * v ^ B` used in Lemma 6.13.
+* `cls_frobeniusEquiv_zpow`: `[Frob^j y] = p ^ j • [y]` for a perfect field `L`.
 -/
 
 @[expose] public section
@@ -198,6 +200,50 @@ theorem rep_unique [IsRelAlgClosed l L] {v : V l L} {N N' : ℕ} {a a' : Lˣ}
   rw [hc, Units.val_div_eq_div_val, Units.val_pow_eq_pow_val, Units.val_pow_eq_pow_val,
     div_mul_cancel₀ _ (pow_ne_zero _ a'.ne_zero)]
 
+/-- (V1) in the form used in Blueprint Lemma 6.13: if `A • [u] = B • [v]` in `V l L` and `l` is
+relatively algebraically closed in `L`, then `u ^ A = c * v ^ B` for some `c ∈ l`. -/
+theorem exists_zpow_eq_mul_pow_of_smul_cls_eq [IsRelAlgClosed l L] {u v : Lˣ} {A : ℤ} {B : ℕ}
+    (h : (A : ℚ) • cls (constUnits l L) (.ofMul u) = (B : ℚ) • cls (constUnits l L) (.ofMul v)) :
+    ∃ c : l, (u : L) ^ A = algebraMap l L c * (v : L) ^ B := by
+  have key : cls (constUnits l L) (.ofMul (u ^ A / v ^ B)) = 0 := by
+    rw [cls_div, cls_zpow, cls_pow, ← Int.cast_smul_eq_zsmul ℚ, ← Nat.cast_smul_eq_nsmul ℚ, h,
+      sub_self]
+  obtain ⟨c, hc⟩ := (V.cls_eq_zero_iff' _).1 key
+  refine ⟨c, ?_⟩
+  rw [hc, Units.val_div_eq_div_val, Units.val_zpow_eq_zpow_val, Units.val_pow_eq_pow_val,
+    div_mul_cancel₀ _ (pow_ne_zero _ v.ne_zero)]
+
 end V
+
+section Frobenius
+
+variable {L : Type*} [Field L]
+
+/-- The Frobenius twist on classes: `[Frob^j y] = p ^ j • [y]`, where `p` is the characteristic
+exponent of the perfect field `L`. -/
+theorem cls_frobeniusEquiv_zpow [PerfectField L] (H : Subgroup Lˣ) (j : ℤ) (y : Lˣ) :
+    cls H (.ofMul (Units.map
+        (((frobeniusEquiv L (ringExpChar L) ^ j : L ≃+* L) : L →+* L) : L →* L) y)) =
+      ((ringExpChar L : ℚ) ^ j) • cls H (.ofMul y) := by
+  set p := ringExpChar L
+  set σ := frobeniusEquiv L p
+  have hnat : ∀ (n : ℕ) (z : Lˣ),
+      Units.map (((σ ^ n : L ≃+* L) : L →+* L) : L →* L) z = z ^ p ^ n := by
+    intro n z
+    ext
+    rw [Units.coe_map, Units.val_pow_eq_pow_val, ← iterateFrobeniusEquiv_eq_pow]
+    rfl
+  have hp : (p : ℚ) ≠ 0 := Nat.cast_ne_zero.2 (expChar_ne_zero L p)
+  obtain ⟨n, rfl | rfl⟩ := Int.eq_nat_or_neg j
+  · rw [zpow_natCast, hnat, cls_pow, zpow_natCast, ← Nat.cast_smul_eq_nsmul ℚ, Nat.cast_pow]
+  · set z := Units.map (((σ ^ (-(n : ℤ)) : L ≃+* L) : L →+* L) : L →* L) y
+    have hz : Units.map (((σ ^ n : L ≃+* L) : L →+* L) : L →* L) z = y := by
+      ext
+      simp [z, zpow_neg]
+    conv_rhs => rw [← hz, hnat, cls_pow]
+    rw [← Nat.cast_smul_eq_nsmul ℚ, smul_smul, zpow_neg, zpow_natCast, Nat.cast_pow,
+      inv_mul_cancel₀ (pow_ne_zero _ hp), one_smul]
+
+end Frobenius
 
 end MilnorAlgDep

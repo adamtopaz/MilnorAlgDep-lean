@@ -115,4 +115,22 @@ theorem frobZ_algebraMap_mem_range (j : ℤ) (c : l) :
 
 end perfect
 
+section cls
+
+/-! ### Frobenius on classes -/
+
+open VOf
+
+variable {L : Type*} [Field L]
+
+/-- The Frobenius twist on classes: `[Frob^j y] = p ^ j • [y]`. -/
+theorem cls_frobZ (p : ℕ) [Fact p.Prime] [CharP L p] [PerfectField L] (H : Subgroup Lˣ) (j : ℤ)
+    (y : Lˣ) : cls H (.ofMul (Units.map ((frobZ L p j : L ≃+* L) : L →* L) y)) =
+      ((p : ℚ) ^ j) • cls H (.ofMul y) := by
+  have hp : ringExpChar L = p := ringExpChar.eq L p
+  subst hp
+  exact cls_frobeniusEquiv_zpow H j y
+
+end cls
+
 end MilnorAlgDep

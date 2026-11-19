@@ -61,13 +61,6 @@ end MilnorKQ
 
 /-! ### The relative comparison `𝒦_*(L|l) ≅ 𝒦_*(L) / ⟨l^×⟩` -/
 
--- TODO(move): this belongs in `MilnorAlgDep/Foundations/VOf.lean`.
-/-- The projection `VOf H → VOf H'` is surjective. -/
-theorem VOf.proj_surjective {H H' : Subgroup Lˣ} (h : H ≤ H') :
-    Function.Surjective (VOf.proj h) := fun v ↦ by
-  obtain ⟨n, a, -, rfl⟩ := VOf.exists_eq_inv_smul_cls v
-  exact ⟨(n : ℚ)⁻¹ • cls H (.ofMul a), by rw [map_smul, proj_cls]⟩
-
 namespace MilnorKQ
 
 variable (H H' : Subgroup Lˣ) in

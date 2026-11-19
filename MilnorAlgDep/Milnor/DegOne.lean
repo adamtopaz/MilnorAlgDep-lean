@@ -16,8 +16,7 @@ Auxiliary material for Sections 7.2-7.4 of the blueprint.
 * `MilnorKQ.not_vAlgIndep_of_isGraded`: for a graded `φ : 𝒦_*(K|k) → 𝒦_*(L|l)` and `x + y = 1`,
   the elements `φ₁ [x]`, `φ₁ [y]` are algebraically dependent (the argument for (A2) in the proof
   of Theorem B).
-* `MilnorKQ.degOne_bijective`: an isomorphism of graded algebras whose inverse is graded has a
-  bijective degree one part.
+* `MilnorKQ.degOne_bijective`: a graded algebra isomorphism has a bijective degree one part.
 * `MilnorKQ.eq_degScale_comp_map`: a graded homomorphism with `φ₁ [x] = r [τ x]` is
   `r^deg ∘ τ_*`.
 -/
@@ -32,7 +31,7 @@ open VOf MilnorKQ
 then `v, w` are algebraically dependent over `l` (or one of them is `0`, which is included, as
 algebraically independent elements are non-zero). -/
 theorem not_vAlgIndep_of_ι_mul_ι_eq_zero {l L : Type*} [Field l] [Field L] [Algebra l L]
-    [IsRelAlgClosed l L] {v w : V l L}
+    {v w : V l L}
     (h : ι (constUnits l L) v * ι (constUnits l L) w = 0) : ¬ VAlgIndep l ![v, w] := by
   rintro ⟨N, a, -, ha, hind⟩
   have hind' : AlgebraicIndependent l ![(a 0 : L), (a 1 : L)] := by
@@ -84,16 +83,18 @@ end map
 `x, y` with `x + y = 1`, the elements `φ₁ [x]` and `φ₁ [y]` of `V_{L|l}` are algebraically
 dependent (or one of them is `0`), because `{φ₁ [x], φ₁ [y]} = φ {x, y} = 0`. -/
 theorem not_vAlgIndep_of_isGraded {H : Subgroup Kˣ} {l : Type*} [Field l] [Algebra l L]
-    [IsRelAlgClosed l L] {φ : MilnorKQ H →ₐ[ℚ] MilnorKQ (constUnits l L)} (hφ : IsGraded φ)
+    {φ : MilnorKQ H →ₐ[ℚ] MilnorKQ (constUnits l L)} (hφ : IsGraded φ)
     {x y : Kˣ} (hxy : (x : K) + y = 1) :
     ¬ VAlgIndep l ![degOne φ (cls H (.ofMul x)), degOne φ (cls H (.ofMul y))] := by
   apply not_vAlgIndep_of_ι_mul_ι_eq_zero
   rw [← hφ.apply_ι, ← hφ.apply_ι, ← map_mul, ι_mul_ι_eq_zero _ hxy, map_zero]
 
-/-- An isomorphism of graded algebras whose inverse is graded has a bijective degree one part. -/
+/-- A graded algebra isomorphism has a bijective degree one part (its inverse is graded by
+`MilnorKQ.IsGraded.symm`). -/
 theorem degOne_bijective {H : Subgroup Lˣ} {H' : Subgroup Kˣ}
-    (φ : MilnorKQ H ≃ₐ[ℚ] MilnorKQ H') (hφ : IsGraded φ.toAlgHom)
-    (hφsymm : IsGraded φ.symm.toAlgHom) : Function.Bijective (degOne φ.toAlgHom) := by
+    (φ : MilnorKQ H ≃ₐ[ℚ] MilnorKQ H') (hφ : IsGraded φ.toAlgHom) :
+    Function.Bijective (degOne φ.toAlgHom) := by
+  have hφsymm : IsGraded φ.symm.toAlgHom := hφ.symm
   have h1 : degOne φ.symm.toAlgHom ∘ₗ degOne φ.toAlgHom = LinearMap.id := by
     rw [← degOne_comp _ hφ]
     convert degOne_id (H := H)

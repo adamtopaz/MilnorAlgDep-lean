@@ -21,8 +21,9 @@ suffice. Then every isomorphism of graded `ℚ`-algebras `φ : 𝒦_*(K) → �
   `d = 2` if `ringChar K = 0` or `ringChar L = 0`, and `d = 3` otherwise, both `K` and `L` contain
   a family `Fin d → _` algebraically independent over the prime field `⊥ : Subfield _`.
 * `𝒦_*(K) = MilnorKQ (⊥ : Subgroup Kˣ)` (see `MilnorAlgDep.Milnor.Defs`). "Isomorphism of graded
-  `ℚ`-algebras" is a `ℚ`-algebra isomorphism `φ` such that both `φ` and `φ⁻¹` are graded
-  (`MilnorKQ.IsGraded`).
+  `ℚ`-algebras" is a `ℚ`-algebra isomorphism `φ` which is graded (`MilnorKQ.IsGraded`); its
+  inverse is then graded too (`MilnorKQ.IsGraded.symm`, since `𝒦_*` is the direct sum of its
+  homogeneous parts).
 * `K^i` is any perfect closure of `K` in the sense of Mathlib: a perfect field `Ki` with
   `[Algebra K Ki]` and `IsPerfectClosure (algebraMap K Ki) pK`, where `pK` is the exponential
   characteristic of `K` (pinned down by `[ExpChar K pK]`); similarly `L^i`, with its own `pL`
@@ -74,10 +75,10 @@ theorem bijective_of_smul_cls_map_eq {M : Type*} [Field M] [PerfectField M]
   rw [hj, RingHom.comp_id]
   exact (frobeniusEquiv M (ringExpChar M) ^ j).bijective
 
-/-- Blueprint 7.4: Theorem C for a graded homomorphism `φ : 𝒦_*(K) → 𝒦_*(L)` of perfect fields
+/-- Blueprint 7.4: Theorem C for a graded homomorphism `φ : 𝒦_*(K) → 𝒦_*(L)`, `L` perfect,
 whose degree one part is bijective: (A3) holds as soon as `L` contains `d` elements algebraically
 independent over the prime field (with `d` as in (A3)), because `φ₁` is surjective. -/
-theorem exists_eq_of_degOne_bijective [PerfectField K] [PerfectField L]
+theorem exists_eq_of_degOne_bijective [PerfectField L]
     (φ : MilnorKQ (⊥ : Subgroup Kˣ) →ₐ[ℚ] MilnorKQ (⊥ : Subgroup Lˣ)) (hφ : IsGraded φ)
     (hφ₁ : Function.Bijective (degOne φ)) (hK : ∃ x : K, Transcendental (⊥ : Subfield K) x)
     (hL : ∃ y : Fin (if ringChar L = 0 then 2 else 3) → L,
@@ -126,16 +127,17 @@ open TheoremD
 /-- **Blueprint Theorem D** (isomorphisms). Let `K` and `L` be fields each containing `d`
 elements algebraically independent over the prime field, where `d = 2` if one of them has
 characteristic `0` and `d = 3` otherwise. Let `φ : 𝒦_*(K) ≅ 𝒦_*(L)` be an isomorphism of graded
-`ℚ`-algebras, and let `K^i`, `L^i` be perfect closures. Then there are a field isomorphism
-`τ : K^i ≅ L^i` and `r ∈ ℚ`, `r ≠ 0`, such that `φ` corresponds to `r^deg ∘ τ_*` under the maps
-`𝒦_*(K) → 𝒦_*(K^i)` and `𝒦_*(L) → 𝒦_*(L^i)` induced by the inclusions. -/
+`ℚ`-algebras (a graded algebra isomorphism; its inverse is then graded by
+`MilnorKQ.IsGraded.symm`), and let `K^i`, `L^i` be perfect closures. Then there are a field
+isomorphism `τ : K^i ≅ L^i` and `r ∈ ℚ`, `r ≠ 0`, such that `φ` corresponds to `r^deg ∘ τ_*`
+under the maps `𝒦_*(K) → 𝒦_*(K^i)` and `𝒦_*(L) → 𝒦_*(L^i)` induced by the inclusions. -/
 theorem theoremD
     (hK : ∃ x : Fin (if ringChar K = 0 ∨ ringChar L = 0 then 2 else 3) → K,
       AlgebraicIndependent (⊥ : Subfield K) x)
     (hL : ∃ x : Fin (if ringChar K = 0 ∨ ringChar L = 0 then 2 else 3) → L,
       AlgebraicIndependent (⊥ : Subfield L) x)
     (φ : MilnorKQ (⊥ : Subgroup Kˣ) ≃ₐ[ℚ] MilnorKQ (⊥ : Subgroup Lˣ))
-    (hφ : IsGraded φ.toAlgHom) (hφsymm : IsGraded φ.symm.toAlgHom)
+    (hφ : IsGraded φ.toAlgHom)
     (pK : ℕ) [ExpChar K pK] (Ki : Type*) [Field Ki] [Algebra K Ki] [ExpChar Ki pK]
     [PerfectRing Ki pK] [IsPerfectClosure (algebraMap K Ki) pK]
     (pL : ℕ) [ExpChar L pL] (Li : Type*) [Field Li] [Algebra L Li] [ExpChar Li pL]
@@ -153,10 +155,9 @@ theorem theoremD
     (jK.symm.trans φ).trans jL
   have hφ' : IsGraded φ'.toAlgHom := (isGraded_perfectClosureEquiv L Li pL).comp
     (hφ.comp (isGraded_perfectClosureEquiv_symm K Ki pK))
-  have hφ's : IsGraded φ'.symm.toAlgHom := (isGraded_perfectClosureEquiv K Ki pK).comp
-    (hφsymm.comp (isGraded_perfectClosureEquiv_symm L Li pL))
-  have hφ'₁ := degOne_bijective φ' hφ' hφ's
-  have hφ's₁ := degOne_bijective φ'.symm hφ's hφ'
+  have hφ's : IsGraded φ'.symm.toAlgHom := hφ'.symm
+  have hφ'₁ := degOne_bijective φ' hφ'
+  have hφ's₁ := degOne_bijective φ'.symm hφ's
   -- characteristics and transcendental elements
   have hcK : ringChar Ki = ringChar K := (ringChar_eq_of_ringHom (algebraMap K Ki)).symm
   have hcL : ringChar Li = ringChar L := (ringChar_eq_of_ringHom (algebraMap L Li)).symm
