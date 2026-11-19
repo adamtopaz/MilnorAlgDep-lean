@@ -316,6 +316,12 @@ theorem mapRingHom_comp {H₀ : Subgroup Kˣ} {H : Subgroup Lˣ} {H' : Subgroup 
   rw [LinearMap.comp_apply, mapRingHom_cls, mapRingHom_cls, mapRingHom_cls]
   rfl
 
+/-- The projection `VOf H → VOf H'` is surjective. -/
+theorem proj_surjective {H H' : Subgroup Lˣ} (h : H ≤ H') :
+    Function.Surjective (VOf.proj h) := fun v ↦ by
+  obtain ⟨n, a, -, rfl⟩ := exists_eq_inv_smul_cls v
+  exact ⟨(n : ℚ)⁻¹ • cls H (.ofMul a), by rw [map_smul, proj_cls]⟩
+
 end lift
 
 end VOf

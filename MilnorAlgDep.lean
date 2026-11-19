@@ -25,6 +25,10 @@ public import MilnorAlgDep.Foundations.Points
 public import MilnorAlgDep.Foundations.V
 public import MilnorAlgDep.Foundations.VOf
 public import MilnorAlgDep.Milnor.Basic
+public import MilnorAlgDep.Milnor.Comparison
+public import MilnorAlgDep.Milnor.Comparison.Integral
+public import MilnorAlgDep.Milnor.Comparison.Rational
+public import MilnorAlgDep.Milnor.Comparison.Relative
 public import MilnorAlgDep.Milnor.Defs
 public import MilnorAlgDep.Milnor.DegOne
 public import MilnorAlgDep.Milnor.KPrime
